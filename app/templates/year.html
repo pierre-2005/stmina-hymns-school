@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="crumbs">
+  <a href="/">Levels</a><span>›</span>
+  <a href="/levels/{{ level.slug }}">{{ level.name }}</a><span>›</span>
+  <span>{{ year.name }}</span>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <div class="head-row">
+      <div>
+        <h1 class="h1">{{ year.name }}</h1>
+        <div class="muted">{{ year.description }}</div>
+      </div>
+      <div class="searchbox">
+        <input id="hymnSearch" class="input" placeholder="Search hymns..." autocomplete="off" />
+      </div>
+    </div>
+  </div>
+
+  <div class="card-b">
+    <div class="table-wrap">
+      <table class="table" id="hymnTable">
+        <thead>
+          <tr><th>Hymn</th><th class="right">Recordings</th></tr>
+        </thead>
+        <tbody>
+          {% for h in year.hymns %}
+            <tr class="hymn-row" data-title="{{ h.title|lower }}">
+              <td>
+                <a href="/levels/{{ level.slug }}/{{ year.slug }}/{{ h.slug }}">{{ h.title }}</a>
+                <div class="muted small">{{ h.note }}</div>
+              </td>
+              <td class="right">
+                <span class="badge">{{ (h.recordings|length) if h.recordings else (1 if h.audio_url else 0) }}</span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mobile-list" id="hymnCards">
+      {% for h in year.hymns %}
+        <a class="mobile-card hymn-card" data-title="{{ h.title|lower }}"
+           href="/levels/{{ level.slug }}/{{ year.slug }}/{{ h.slug }}">
+          <div class="mobile-title">{{ h.title }}</div>
+          <div class="muted small">{{ h.note }}</div>
+          <div class="mobile-meta">
+            <span class="badge">Recordings: {{ (h.recordings|length) if h.recordings else (1 if h.audio_url else 0) }}</span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

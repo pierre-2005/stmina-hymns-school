@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="crumbs">
+  <a href="/">Levels</a><span>›</span><span>{{ level.name }}</span>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h1 class="h1">{{ level.name }}</h1>
+    <div class="muted">{{ level.description }}</div>
+  </div>
+  <div class="card-b">
+    <div class="grid">
+      {% for yr in level.years %}
+        <a class="tile" href="/levels/{{ level.slug }}/{{ yr.slug }}">
+          <div class="tile-title">{{ yr.name }}</div>
+          <div class="tile-sub muted">{{ yr.description }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

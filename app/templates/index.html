@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+  <div class="card-h">
+    <h1 class="h1">Levels</h1>
+    <div class="muted">Select a level.</div>
+  </div>
+  <div class="card-b">
+    <div class="grid">
+      {% for lvl in site.levels %}
+        <a class="tile" href="/levels/{{ lvl.slug }}">
+          <div class="tile-title">{{ lvl.name }}</div>
+          <div class="tile-sub muted">{{ lvl.description }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

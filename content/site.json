@@ -1,0 +1,55 @@
+{
+  "site_title": "St. Mina Hymns School",
+  "site_subtitle": "St. Mina Coptic Orthodox Church • Calgary, AB",
+  "footer_text": "St. Mina Coptic Orthodox Church (Calgary)",
+
+  "languages": [
+    { "code": "en", "name": "English", "is_rtl": false, "default_on": true },
+    { "code": "cop", "name": "Coptic", "is_rtl": false, "default_on": true },
+    { "code": "cop_en", "name": "Coptic-English", "is_rtl": false, "default_on": false }
+  ],
+
+  "levels": [
+    {
+      "slug": "level-1",
+      "name": "Level 1",
+      "description": "Foundations",
+      "years": [
+        {
+          "slug": "2025-2026",
+          "name": "2025–2026",
+          "description": "Weekly curriculum hymns",
+          "hymns": [
+            {
+              "slug": "sample-hymn",
+              "title": "Sample Hymn (Replace Me)",
+              "note": "Replace text + add your Nextcloud public links.",
+              "recordings": [
+                { "label": "Normal", "url": "https://YOUR_PUBLIC_NEXTCLOUD_LINK.mp3", "default_rate": 1.0 },
+                { "label": "Slow", "url": "https://YOUR_PUBLIC_NEXTCLOUD_LINK_SLOW.mp3", "default_rate": 1.0 }
+              ],
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Line 1 in English...",
+                    "cop": "Ⲗⲓⲛⲉ 1 ⲓⲛ ⲕⲟⲡⲧⲓⲕ...",
+                    "cop_en": "Line 1 transliteration..."
+                  }
+                },
+                {
+                  "t": "0:06.5",
+                  "texts": {
+                    "en": "Line 2 in English...",
+                    "cop": "Ⲗⲓⲛⲉ 2 ⲓⲛ ⲕⲟⲡⲧⲓⲕ...",
+                    "cop_en": "Line 2 transliteration..."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

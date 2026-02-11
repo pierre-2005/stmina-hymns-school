@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>{{ title }} • {{ site.site_title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='site.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <div class="brand-title">{{ site.site_title }}</div>
+        <div class="brand-sub">{{ site.site_subtitle }}</div>
+      </div>
+      <nav class="nav">
+        <a class="nav-link {{ 'active' if request.url.path == '/' else '' }}" href="/">Levels</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="wrap footer">
+    <div class="muted small">© {{ site.footer_text }}</div>
+  </footer>
+
+  <script src="{{ url_for('static', path='site.js') }}"></script>
+</body>
+</html>

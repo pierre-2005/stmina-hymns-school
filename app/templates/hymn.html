@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="crumbs">
+  <a href="/">Levels</a><span>›</span>
+  <a href="/levels/{{ level.slug }}">{{ level.name }}</a><span>›</span>
+  <a href="/levels/{{ level.slug }}/{{ year.slug }}">{{ year.name }}</a><span>›</span>
+  <span>{{ hymn.title }}</span>
+</div>
+
+<div class="card">
+  <div class="card-h">
+    <h1 class="h1">{{ hymn.title }}</h1>
+    <div class="muted">{{ hymn.note }}</div>
+  </div>
+
+  <div class="card-b">
+
+    <div class="playerbar">
+      <div class="player-left">
+        <audio id="audio" class="audio" controls preload="metadata"></audio>
+      </div>
+
+      <div class="player-right">
+        <label class="label">Recording</label>
+        <select id="recordingSelect" class="select">
+          {% for r in recordings %}
+            <option value="{{ loop.index0 }}"
+                    data-url="{{ r.url }}"
+                    data-rate="{{ r.default_rate if r.default_rate is not none else 1.0 }}">
+              {{ r.label }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <div class="speed-row">
+          <span class="label">Speed</span>
+          <button class="chip" data-speed="0.75">0.75×</button>
+          <button class="chip" data-speed="1">1×</button>
+          <button class="chip" data-speed="1.25">1.25×</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="lang-row">
+        {% for lang in languages %}
+          <label class="lang-toggle" data-lang="{{ lang.code }}" data-default="{{ '1' if lang.default_on else '0' }}">
+            <span class="lang-name">{{ lang.name }}</span>
+            <input type="checkbox" class="lang-check">
+            <span class="pill">ON</span>
+          </label>
+        {% endfor %}
+      </div>
+
+      <div class="font-row">
+        <span class="muted">Font:</span>
+        <button class="btn" type="button" id="fontPlus">+</button>
+        <button class="btn" type="button" id="fontMinus">−</button>
+      </div>
+    </div>
+
+    <div class="lyrics-wrap">
+      <table class="lyrics" id="lyricsTable">
+        <tbody>
+          {% for seg in segments %}
+            <tr class="seg" data-start-ms="{{ seg.start_ms }}">
+              {% for lang in languages %}
+                <td class="cell lang-{{ lang.code }}" data-lang="{{ lang.code }}"
+                    dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}">
+                  {{ (seg.texts.get(lang.code,'') | e).replace('\n','<br>') | safe }}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="muted small hint">Tip: click a line to jump audio.</div>
+
+  </div>
+</div>
+
+<script>
+  window.STMINA = {
+    hymnKey: "{{ level.slug }}::{{ year.slug }}::{{ hymn.slug }}",
+    recordingsCount: {{ recordings|length }},
+  };
+</script>
+{% endblock %}
