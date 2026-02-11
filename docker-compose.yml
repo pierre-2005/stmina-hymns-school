@@ -6,7 +6,10 @@ services:
       TZ: America/Edmonton
       CONTENT_PATH: /app/content/site.xlsx
     volumes:
-      - ./content:/app/content:ro
+      - stminahs_content:/app/content
     ports:
       - "127.0.0.1:8090:8000"
     restart: unless-stopped
+
+volumes:
+  stminahs_content:
