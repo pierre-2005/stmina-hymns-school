@@ -71,9 +71,9 @@
 
   // --- Language toggles ---
   const toggles = Array.from(document.querySelectorAll(".lang-toggle"));
-  const langStoreKey = `langs:${cfg.hymnKey}`;
 
   function setLangVisible(code, visible) {
+    // only hide/show lyric cells
     document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`).forEach(el => {
       el.classList.toggle("is-hidden", !visible);
     });
@@ -84,7 +84,7 @@
     try { prefs = JSON.parse(localStorage.getItem(langStoreKey) || "{}"); } catch {}
 
     toggles.forEach(t => {
-      const code = t.dataset.lang;
+      const code = t.dataset.langCode;
       const def = (t.dataset.default === "1");
       const cb = t.querySelector(".lang-check");
 
@@ -98,7 +98,7 @@
   function saveLangPrefs() {
     const prefs = {};
     toggles.forEach(t => {
-      const code = t.dataset.lang;
+      const code = t.dataset.langCode;
       prefs[code] = t.querySelector(".lang-check").checked;
     });
     localStorage.setItem(langStoreKey, JSON.stringify(prefs));
@@ -107,9 +107,10 @@
   toggles.forEach(t => {
     t.addEventListener("click", () => {
       setTimeout(() => {
-        const code = t.dataset.lang;
+        const code = t.dataset.langCode;
         const cb = t.querySelector(".lang-check");
         const on = cb.checked;
+
         t.classList.toggle("off", !on);
         setLangVisible(code, on);
         saveLangPrefs();

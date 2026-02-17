@@ -28,7 +28,7 @@
     <div class="controls">
       <div class="lang-row">
         {% for lang in languages %}
-          <label class="lang-toggle" data-lang="{{ lang.code }}" data-default="{{ '1' if lang.default_on else '0' }}">
+            <label class="lang-toggle" data-lang-code="{{ lang.code }}" data-default="{{ '1' if lang.default_on else '0' }}">
             <span class="lang-name">{{ lang.name }}</span>
             <input type="checkbox" class="lang-check">
             <span class="pill">ON</span>
