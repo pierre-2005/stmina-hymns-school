@@ -20,101 +20,72 @@
 
   // ---------- Hymn page ----------
   const audio = document.getElementById("audio");
-  const recordingSelect = document.getElementById("recordingSelect");
   const table = document.getElementById("lyricsTable");
-
   if (!table) return;
 
-  const cfg = window.STMINA || { hymnKey: "default", recordingsCount: 0 };
-
-  // --- Load audio from selected recording ---
-  function setAudioFromSelect() {
-    if (!audio || !recordingSelect) return;
-    const opt = recordingSelect.options[recordingSelect.selectedIndex];
-    const url = opt.getAttribute("data-url");
-    const rate = parseFloat(opt.getAttribute("data-rate") || "1");
-    if (url) {
-      audio.src = url;
-      audio.playbackRate = rate;
-      audio.load();
-    }
-  }
-
-  if (audio && recordingSelect) {
-    recordingSelect.addEventListener("change", () => {
-      setAudioFromSelect();
-    });
-    // initial
-    setAudioFromSelect();
-  }
-
-  // --- Speed buttons ---
-  const speedStoreKey = `speed:${cfg.hymnKey}`;
-  const speedChips = Array.from(document.querySelectorAll(".chip[data-speed]"));
-
-  function applySpeed(v) {
-    if (!audio) return;
-    audio.playbackRate = v;
-    localStorage.setItem(speedStoreKey, String(v));
-    speedChips.forEach(b => b.classList.toggle("active", b.dataset.speed === String(v)));
-  }
-
-  const savedSpeed = parseFloat(localStorage.getItem(speedStoreKey) || "");
-  if (audio && !Number.isNaN(savedSpeed)) applySpeed(savedSpeed);
-
-  speedChips.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const v = parseFloat(btn.dataset.speed || "1");
-      applySpeed(v);
-    });
-  });
+  // Use URL path for storage keys (no need for window.STMINA)
+  const keyBase = location.pathname;
+  const langStoreKey = `langs:${keyBase}`;
+  const fontStoreKey = `font:${keyBase}`;
 
   // --- Language toggles ---
   const toggles = Array.from(document.querySelectorAll(".lang-toggle"));
 
   function setLangVisible(code, visible) {
-    // only hide/show lyric cells
+    // Only hide/show lyric cells (never the toggle buttons)
     document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`).forEach(el => {
       el.classList.toggle("is-hidden", !visible);
     });
   }
 
+  function setToggleUI(toggleEl, on) {
+    toggleEl.classList.toggle("off", !on);
+    const pill = toggleEl.querySelector(".pill");
+    if (pill) pill.textContent = on ? "ON" : "OFF";
+  }
+
+  function readPrefs() {
+    try {
+      return JSON.parse(localStorage.getItem(langStoreKey) || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function writePrefs(prefs) {
+    localStorage.setItem(langStoreKey, JSON.stringify(prefs));
+  }
+
   function loadLangPrefs() {
-    let prefs = {};
-    try { prefs = JSON.parse(localStorage.getItem(langStoreKey) || "{}"); } catch {}
+    const prefs = readPrefs();
 
     toggles.forEach(t => {
-      const code = t.dataset.langCode;
+      const code = t.dataset.langCode;          // <-- matches your HTML
       const def = (t.dataset.default === "1");
       const cb = t.querySelector(".lang-check");
+      if (!code || !cb) return;
 
       const on = (prefs[code] !== undefined) ? !!prefs[code] : def;
       cb.checked = on;
-      t.classList.toggle("off", !on);
+      setToggleUI(t, on);
       setLangVisible(code, on);
     });
   }
 
-  function saveLangPrefs() {
-    const prefs = {};
-    toggles.forEach(t => {
-      const code = t.dataset.langCode;
-      prefs[code] = t.querySelector(".lang-check").checked;
-    });
-    localStorage.setItem(langStoreKey, JSON.stringify(prefs));
-  }
-
   toggles.forEach(t => {
-    t.addEventListener("click", () => {
-      setTimeout(() => {
-        const code = t.dataset.langCode;
-        const cb = t.querySelector(".lang-check");
-        const on = cb.checked;
+    const cb = t.querySelector(".lang-check");
+    if (!cb) return;
 
-        t.classList.toggle("off", !on);
-        setLangVisible(code, on);
-        saveLangPrefs();
-      }, 0);
+    cb.addEventListener("change", () => {
+      const code = t.dataset.langCode;
+      const on = cb.checked;
+
+      setToggleUI(t, on);
+      setLangVisible(code, on);
+
+      const prefs = readPrefs();
+      prefs[code] = on;
+      writePrefs(prefs);
     });
   });
 
@@ -122,7 +93,6 @@
   const root = document.documentElement;
   const plus = document.getElementById("fontPlus");
   const minus = document.getElementById("fontMinus");
-  const fontStoreKey = `font:${cfg.hymnKey}`;
 
   function setFont(px) {
     px = Math.max(12, Math.min(32, px));
@@ -139,6 +109,7 @@
     const cur = parseInt(getComputedStyle(root).getPropertyValue("--hymn-font")) || 18;
     setFont(cur + 1);
   });
+
   if (minus) minus.addEventListener("click", () => {
     const cur = parseInt(getComputedStyle(root).getPropertyValue("--hymn-font")) || 18;
     setFont(cur - 1);
