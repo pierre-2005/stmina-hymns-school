@@ -16,29 +16,13 @@
   <div class="card-b">
 
     <div class="playerbar">
-      <div class="player-left">
-        <audio id="audio" class="audio" controls preload="metadata"></audio>
-      </div>
-
-      <div class="player-right">
-        <label class="label">Recording</label>
-        <select id="recordingSelect" class="select">
-          {% for r in recordings %}
-            <option value="{{ loop.index0 }}"
-                    data-url="{{ r.url }}"
-                    data-rate="{{ r.default_rate if r.default_rate is not none else 1.0 }}">
-              {{ r.label }}
-            </option>
-          {% endfor %}
-        </select>
-
-        <div class="speed-row">
-          <span class="label">Speed</span>
-          <button class="chip" data-speed="0.75">0.75×</button>
-          <button class="chip" data-speed="1">1×</button>
-          <button class="chip" data-speed="1.25">1.25×</button>
-        </div>
-      </div>
+      <audio
+        id="audio"
+        class="audio"
+        controls
+        preload="metadata"
+        src="{{ recordings[0].url if recordings and recordings[0].url else '' }}"
+      ></audio>
     </div>
 
     <div class="controls">
@@ -76,15 +60,6 @@
       </table>
     </div>
 
-    <div class="muted small hint">Tip: click a line to jump audio.</div>
-
   </div>
 </div>
-
-<script>
-  window.STMINA = {
-    hymnKey: "{{ level.slug }}::{{ year.slug }}::{{ hymn.slug }}",
-    recordingsCount: {{ recordings|length }},
-  };
-</script>
 {% endblock %}

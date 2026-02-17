@@ -74,7 +74,7 @@
   const langStoreKey = `langs:${cfg.hymnKey}`;
 
   function setLangVisible(code, visible) {
-    document.querySelectorAll(`[data-lang="${code}"]`).forEach(el => {
+    document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`).forEach(el => {
       el.classList.toggle("is-hidden", !visible);
     });
   }
