@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>{{ title }} • {{ site.site_title }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='site.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='site.css') }}?v=7">
 </head>
 <body>
   <header class="topbar">
@@ -27,6 +27,6 @@
     <div class="muted small">© {{ site.footer_text }}</div>
   </footer>
 
-  <script src="{{ url_for('static', path='site.js') }}"></script>
+  <script src="{{ url_for('static', path='site.js') }}?v=9" defer></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-(() => {
+document.addEventListener("DOMContentLoaded", () => {
   // ---------- Year search ----------
   const search = document.getElementById("hymnSearch");
   if (search) {
@@ -8,11 +8,11 @@
     search.addEventListener("input", () => {
       const q = (search.value || "").trim().toLowerCase();
       rows.forEach(r => {
-        const t = r.dataset.title || "";
+        const t = (r.dataset.title || "").toLowerCase();
         r.style.display = (!q || t.includes(q)) ? "" : "none";
       });
       cards.forEach(c => {
-        const t = c.dataset.title || "";
+        const t = (c.dataset.title || "").toLowerCase();
         c.style.display = (!q || t.includes(q)) ? "" : "none";
       });
     });
@@ -23,7 +23,6 @@
   const table = document.getElementById("lyricsTable");
   if (!table) return;
 
-  // Use URL path for storage keys (no need for window.STMINA)
   const keyBase = location.pathname;
   const langStoreKey = `langs:${keyBase}`;
   const fontStoreKey = `font:${keyBase}`;
@@ -32,9 +31,14 @@
   const toggles = Array.from(document.querySelectorAll(".lang-toggle"));
 
   function setLangVisible(code, visible) {
-    // Only hide/show lyric cells (never the toggle buttons)
-    document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`).forEach(el => {
-      el.classList.toggle("is-hidden", !visible);
+    // ONLY target lyric cells, never the toggle labels
+    const cells = document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`);
+    cells.forEach(td => {
+      td.classList.toggle("is-hidden", !visible);
+
+      // fallback in case .is-hidden isn't defined in CSS
+      if (!visible) td.style.display = "none";
+      else td.style.display = "";
     });
   }
 
@@ -45,49 +49,42 @@
   }
 
   function readPrefs() {
-    try {
-      return JSON.parse(localStorage.getItem(langStoreKey) || "{}");
-    } catch {
-      return {};
-    }
+    try { return JSON.parse(localStorage.getItem(langStoreKey) || "{}"); }
+    catch { return {}; }
   }
 
   function writePrefs(prefs) {
     localStorage.setItem(langStoreKey, JSON.stringify(prefs));
   }
 
-  function loadLangPrefs() {
+  function initLangToggles() {
     const prefs = readPrefs();
 
     toggles.forEach(t => {
-      const code = t.dataset.langCode;          // <-- matches your HTML
-      const def = (t.dataset.default === "1");
+      const code = t.getAttribute("data-lang-code");
+      const defOn = (t.getAttribute("data-default") === "1");
       const cb = t.querySelector(".lang-check");
       if (!code || !cb) return;
 
-      const on = (prefs[code] !== undefined) ? !!prefs[code] : def;
+      const on = (prefs[code] !== undefined) ? !!prefs[code] : defOn;
+
       cb.checked = on;
       setToggleUI(t, on);
       setLangVisible(code, on);
+
+      // IMPORTANT: listen to checkbox change (reliable)
+      cb.addEventListener("change", () => {
+        const nowOn = cb.checked;
+
+        setToggleUI(t, nowOn);
+        setLangVisible(code, nowOn);
+
+        const next = readPrefs();
+        next[code] = nowOn;
+        writePrefs(next);
+      });
     });
   }
-
-  toggles.forEach(t => {
-    const cb = t.querySelector(".lang-check");
-    if (!cb) return;
-
-    cb.addEventListener("change", () => {
-      const code = t.dataset.langCode;
-      const on = cb.checked;
-
-      setToggleUI(t, on);
-      setLangVisible(code, on);
-
-      const prefs = readPrefs();
-      prefs[code] = on;
-      writePrefs(prefs);
-    });
-  });
 
   // --- Font size ---
   const root = document.documentElement;
@@ -116,8 +113,17 @@
   });
 
   // --- Sync highlight + click-to-seek ---
-  const rows = Array.from(table.querySelectorAll("tr.seg"));
-  const starts = rows.map(r => parseInt(r.dataset.startMs, 10) || 0);
+  const segRows = Array.from(table.querySelectorAll("tr.seg"));
+
+  // FIX: your HTML uses data-start-ms, so JS must read dataset.startMs OR dataset.startMs? No:
+  // dataset.startMs maps to data-start-ms BUT ONLY if the attribute is data-start-ms EXACTLY (it is),
+  // however your earlier code used data-start-ms but created parse from dataset.startMs while some browsers can be picky.
+  // We'll read it safely using getAttribute.
+  const starts = segRows.map(r => {
+    const v = r.getAttribute("data-start-ms") || "0";
+    const n = parseInt(v, 10);
+    return Number.isFinite(n) ? n : 0;
+  });
 
   function findActiveIdx(tMs) {
     let lo = 0, hi = starts.length - 1, ans = 0;
@@ -132,16 +138,19 @@
   let last = -1;
   function setActive(idx) {
     if (idx === last) return;
-    if (last >= 0) rows[last].classList.remove("active");
-    rows[idx].classList.add("active");
-    rows[idx].scrollIntoView({ block: "center", behavior: "smooth" });
-    last = idx;
+    if (last >= 0) segRows[last].classList.remove("active");
+    if (segRows[idx]) {
+      segRows[idx].classList.add("active");
+      segRows[idx].scrollIntoView({ block: "center", behavior: "smooth" });
+      last = idx;
+    }
   }
 
-  rows.forEach((r, i) => {
+  segRows.forEach((r, i) => {
     r.addEventListener("click", () => {
       if (!audio) return;
-      const ms = parseInt(r.dataset.startMs, 10) || 0;
+      const v = r.getAttribute("data-start-ms") || "0";
+      const ms = parseInt(v, 10) || 0;
       audio.currentTime = ms / 1000.0;
       audio.play().catch(() => {});
       setActive(i);
@@ -150,12 +159,11 @@
 
   if (audio) {
     audio.addEventListener("timeupdate", () => {
-      const tMs = audio.currentTime * 1000;
-      setActive(findActiveIdx(tMs));
+      setActive(findActiveIdx(audio.currentTime * 1000));
     });
   }
 
   // init
-  loadLangPrefs();
+  initLangToggles();
   loadFont();
-})();
+});
