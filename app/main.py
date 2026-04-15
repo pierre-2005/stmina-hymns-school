@@ -27,7 +27,7 @@ async def health():
 @app.exception_handler(404)
 async def not_found(request: Request, exc):
     site = get_site()
-    return templates.TemplateResponse(
+    return templates.TemplateResponse(request,
         "404.html",
         {"request": request, "site": site, "title": "Not found"},
         status_code=404,
@@ -37,7 +37,7 @@ async def not_found(request: Request, exc):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     site = get_site()
-    return templates.TemplateResponse(
+    return templates.TemplateResponse(request,
         "index.html",
         {"request": request, "site": site, "title": site.get("site_title", "Hymns")},
     )
@@ -49,7 +49,7 @@ async def level_page(request: Request, level_slug: str):
     level = find_level(site, level_slug)
     if not level:
         return await not_found(request, None)
-    return templates.TemplateResponse(
+    return templates.TemplateResponse(request,
         "level.html",
         {"request": request, "site": site, "level": level, "title": level.get("name", "Level")},
     )
@@ -65,7 +65,7 @@ async def year_page(request: Request, level_slug: str, year_slug: str):
     if not year:
         return await not_found(request, None)
 
-    return templates.TemplateResponse(
+    return templates.TemplateResponse(request,
         "year.html",
         {
             "request": request,
@@ -94,7 +94,7 @@ async def hymn_page(request: Request, level_slug: str, year_slug: str, hymn_slug
     segments = hymn.get("segments", [])
     recordings = hymn.get("recordings", [])
 
-    return templates.TemplateResponse(
+    return templates.TemplateResponse(request,
         "hymn.html",
         {
             "request": request,
