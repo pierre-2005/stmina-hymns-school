@@ -239,3 +239,14 @@ body{
 }
 
 .hint{ margin-top: 10px; }
+
+/* SoundCloud responsive sizing */
+.sc-player{
+  width: 100%;
+  border: 0;
+  height: 166px;  /* “classic” SoundCloud player height */
+}
+
+@media (max-width: 600px){
+  .sc-player{ height: 130px; }
+}

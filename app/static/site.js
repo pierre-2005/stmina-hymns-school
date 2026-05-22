@@ -29,16 +29,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // --- Language toggles ---
   const toggles = Array.from(document.querySelectorAll(".lang-toggle"));
+  const langStoreKey = `langs:${location.pathname}`;
 
   function setLangVisible(code, visible) {
-    // ONLY target lyric cells, never the toggle labels
-    const cells = document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`);
-    cells.forEach(td => {
+    document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`).forEach(td => {
       td.classList.toggle("is-hidden", !visible);
-
-      // fallback in case .is-hidden isn't defined in CSS
-      if (!visible) td.style.display = "none";
-      else td.style.display = "";
     });
   }
 
@@ -50,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function readPrefs() {
     try { return JSON.parse(localStorage.getItem(langStoreKey) || "{}"); }
-    catch { return {}; }
+    catch { return null; }
   }
 
   function writePrefs(prefs) {
@@ -58,34 +53,32 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initLangToggles() {
-    const prefs = readPrefs();
+    const prefs = readPrefs(); // null if none / invalid
 
     toggles.forEach(t => {
       const code = t.getAttribute("data-lang-code");
-      const defOn = (t.getAttribute("data-default") === "1");
       const cb = t.querySelector(".lang-check");
       if (!code || !cb) return;
 
-      const on = (prefs[code] !== undefined) ? !!prefs[code] : defOn;
+      // If prefs exist, use them; otherwise use the checkbox default (from sheet)
+      const on = (prefs && prefs[code] !== undefined) ? !!prefs[code] : cb.checked;
 
       cb.checked = on;
       setToggleUI(t, on);
       setLangVisible(code, on);
 
-      // IMPORTANT: listen to checkbox change (reliable)
       cb.addEventListener("change", () => {
         const nowOn = cb.checked;
-
         setToggleUI(t, nowOn);
         setLangVisible(code, nowOn);
 
-        const next = readPrefs();
+        const next = (readPrefs() || {});
         next[code] = nowOn;
         writePrefs(next);
       });
     });
   }
-
+  
   // --- Font size ---
   const root = document.documentElement;
   const plus = document.getElementById("fontPlus");

@@ -43,13 +43,50 @@
       </div>
     </div>
 
+<div class="playerbar">
+  {% if recordings and recordings[0].url %}
+    <iframe
+      class="sc-player"
+      scrolling="no"
+      frameborder="no"
+      allow="autoplay"
+      src="{{ recordings[0].url }}"
+      loading="lazy"
+    ></iframe>
+  {% else %}
+    <div class="muted">No recording link set yet.</div>
+  {% endif %}
+</div>
+
+<div class="controls">
+  <div class="lang-row">
+    {% for lang in languages %}
+      {% set on = lang.default_on %}
+      <label class="lang-toggle {{ 'off' if not on else '' }}"
+             data-lang-code="{{ lang.code }}"
+             data-default="{{ '1' if lang.default_on else '0' }}">
+        <span class="lang-name">{{ lang.name }}</span>
+        <input type="checkbox" class="lang-check" {% if on %}checked{% endif %}>
+        <span class="pill">{{ 'ON' if on else 'OFF' }}</span>
+      </label>
+    {% endfor %}
+  </div>
+
+  <div class="font-row">
+    <span class="muted">Font:</span>
+    <button class="btn" type="button" id="fontPlus">+</button>
+    <button class="btn" type="button" id="fontMinus">−</button>
+  </div>
+</div>
+
     <div class="lyrics-wrap">
       <table class="lyrics" id="lyricsTable">
         <tbody>
           {% for seg in segments %}
             <tr class="seg" data-start-ms="{{ seg.start_ms }}">
               {% for lang in languages %}
-                <td class="cell lang-{{ lang.code }}" data-lang="{{ lang.code }}"
+                <td class="cell lang-{{ lang.code }} {{ '' if lang.default_on else 'is-hidden' }}"
+                    data-lang="{{ lang.code }}"
                     dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}">
                   {{ (seg.texts.get(lang.code,'') | e).replace('\n','<br>') | safe }}
                 </td>
@@ -59,7 +96,7 @@
         </tbody>
       </table>
     </div>
-
+    
   </div>
 </div>
 {% endblock %}
