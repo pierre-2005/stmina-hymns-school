@@ -1,4 +1,4 @@
-# Changes in v2
+# Changes in v2.2
 
 ## SoundCloud
 - Replaced the old direct-file `<audio>` player with responsive SoundCloud iframe widgets.

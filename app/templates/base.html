@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#6f2338">
   <title>{{ title }} · {{ site.site_title }}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', path='images/stmina-logo.png') }}?v=1">
+  <link rel="apple-touch-icon" href="{{ url_for('static', path='images/stmina-logo.png') }}?v=1">
   <link rel="stylesheet" href="{{ url_for('static', path='site.css') }}?v=20">
   {% block extra_head %}{% endblock %}
 </head>
@@ -12,7 +14,11 @@
   <header class="site-header">
     <div class="shell header-inner">
       <a class="brand" href="/" aria-label="{{ site.site_title }} home">
-        <span class="brand-mark" aria-hidden="true">☦</span>
+        <img
+        class="brand-logo"
+        src="{{ url_for('static', path='images/stmina-logo.png') }}?v=1"
+        alt="St. Mina Coptic Orthodox Church Calgary logo"
+        >
         <span>
           <strong>{{ site.site_title }}</strong>
           <small>{{ site.site_subtitle }}</small>
@@ -64,7 +70,7 @@
     <div class="shell footer-inner">
       <span>© {{ site.footer_text }}</span>
       <span class="footer-dot">•</span>
-      <span>Hymns, practice, and class tools in one place.</span>
+      <span>Hymns, Rites, Recordings and more!</span>
     </div>
   </footer>
 
