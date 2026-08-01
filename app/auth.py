@@ -86,6 +86,14 @@ def seed_initial_admin() -> None:
         print("[stminahs] Change this password immediately after signing in.\n")
 
 
+
+def verify_admin_setup_key(provided_key: str) -> bool:
+    """Return True only when a sufficiently strong configured recovery key matches."""
+    configured_key = os.getenv("ADMIN_SETUP_KEY", "").strip()
+    if len(configured_key) < 20:
+        return False
+    return hmac.compare_digest(configured_key, str(provided_key or "").strip())
+
 def get_current_user(request: Request) -> dict[str, Any] | None:
     user_id = request.session.get("user_id")
     if not user_id:

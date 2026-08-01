@@ -24,6 +24,7 @@ from .auth import (
     hash_password,
     require_user,
     seed_initial_admin,
+    verify_admin_setup_key,
     verify_csrf,
     verify_password,
 )
@@ -299,6 +300,110 @@ async def hymn_page(request: Request, level_slug: str, year_slug: str, hymn_slug
         recordings=hymn.get("recordings", []),
     )
 
+
+
+@app.get("/setup-admin", response_class=HTMLResponse)
+async def setup_admin_page(request: Request):
+    """Browser-based administrator recovery. Protected by ADMIN_SETUP_KEY."""
+    return render(
+        request,
+        "setup_admin.html",
+        "Administrator setup",
+        error="",
+    )
+
+
+@app.post("/setup-admin")
+async def setup_admin_submit(
+    request: Request,
+    setup_key: str = Form(...),
+    username: str = Form(...),
+    display_name: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    csrf: str = Form(...),
+):
+    verify_csrf(request, csrf)
+
+    if not verify_admin_setup_key(setup_key):
+        await asyncio.sleep(0.35)
+        return render(
+            request,
+            "setup_admin.html",
+            "Administrator setup",
+            status_code=400,
+            error="The administrator setup key is incorrect or has not been configured in Portainer.",
+        )
+
+    username = username.strip()
+    display_name = display_name.strip()
+
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{3,40}", username):
+        return render(
+            request,
+            "setup_admin.html",
+            "Administrator setup",
+            status_code=400,
+            error="Usernames must be 3–40 characters and use letters, numbers, dots, dashes, or underscores.",
+        )
+    if not display_name:
+        return render(
+            request,
+            "setup_admin.html",
+            "Administrator setup",
+            status_code=400,
+            error="Enter the administrator's display name.",
+        )
+    if password != confirm_password:
+        return render(
+            request,
+            "setup_admin.html",
+            "Administrator setup",
+            status_code=400,
+            error="The passwords do not match.",
+        )
+    try:
+        password_hash = hash_password(password)
+    except ValueError as exc:
+        return render(
+            request,
+            "setup_admin.html",
+            "Administrator setup",
+            status_code=400,
+            error=str(exc),
+        )
+
+    now = utc_now_iso()
+    with db_conn() as db:
+        existing = db.execute(
+            "SELECT id FROM users WHERE username = ? COLLATE NOCASE",
+            (username,),
+        ).fetchone()
+        if existing:
+            user_id = existing["id"]
+            db.execute(
+                """
+                UPDATE users
+                SET display_name = ?, role = 'admin', password_hash = ?, active = 1, updated_at = ?
+                WHERE id = ?
+                """,
+                (display_name[:120], password_hash, now, user_id),
+            )
+        else:
+            cursor = db.execute(
+                """
+                INSERT INTO users(username, display_name, role, password_hash, active, created_at, updated_at)
+                VALUES (?, ?, 'admin', ?, 1, ?, ?)
+                """,
+                (username, display_name[:120], password_hash, now, now),
+            )
+            user_id = cursor.lastrowid
+
+    request.session.clear()
+    request.session["user_id"] = user_id
+    csrf_token(request)
+    flash(request, "Administrator access is ready. You can now create teacher and student accounts.")
+    return redirect("/admin/users")
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, next: str | None = None):

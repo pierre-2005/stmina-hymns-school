@@ -14,6 +14,7 @@ services:
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-Site Administrator}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_SETUP_KEY: ${ADMIN_SETUP_KEY}
     volumes:
       - stminahs_data:/app/data
       - stminahs_uploads:/app/uploads

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-layout">
+  <section class="auth-panel auth-intro">
+    <span class="eyebrow">Administrator recovery</span>
+    <h1>Set up or reset the administrator.</h1>
+    <p>This page avoids terminal commands. Enter the private setup key from Portainer, then choose the administrator login you want to use.</p>
+    <div class="auth-points">
+      <span>Creates a new administrator if needed</span>
+      <span>Resets an existing administrator password</span>
+      <span>Signs you in automatically when complete</span>
+    </div>
+  </section>
+  <section class="auth-panel auth-form-panel">
+    <form method="post" action="/setup-admin" class="form-stack">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <div><span class="eyebrow">Secure setup</span><h2>Administrator account</h2></div>
+      {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+      <label class="field"><span>Portainer setup key</span><input type="password" name="setup_key" autocomplete="off" minlength="20" required></label>
+      <label class="field"><span>Administrator display name</span><input name="display_name" value="Site Administrator" maxlength="120" required></label>
+      <label class="field"><span>Administrator username</span><input name="username" value="admin" pattern="[A-Za-z0-9_.-]{3,40}" autocomplete="username" required></label>
+      <label class="field"><span>New password</span><input type="password" name="password" minlength="8" autocomplete="new-password" required></label>
+      <label class="field"><span>Confirm password</span><input type="password" name="confirm_password" minlength="8" autocomplete="new-password" required></label>
+      <button class="btn btn-primary btn-block" type="submit">Create or reset administrator</button>
+      <p class="helper-text">Keep the setup key private. After this succeeds, manage all other accounts from Portal → Users.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}

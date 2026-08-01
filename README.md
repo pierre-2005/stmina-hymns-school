@@ -56,6 +56,7 @@ Set these in the stack environment:
 - `ADMIN_USERNAME`: initial administrator username
 - `ADMIN_DISPLAY_NAME`: name shown in the top-right corner
 - `ADMIN_PASSWORD`: initial administrator password
+- `ADMIN_SETUP_KEY`: private recovery key used by the browser-based administrator setup page
 
 Generate a session secret:
 
@@ -63,7 +64,15 @@ Generate a session secret:
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-The first administrator is only created when the database has no users. After signing in, use **Portal → Users** to create teacher and student accounts.
+The first administrator is only created when the database has no users. If the initial credentials do not work, do not use the Portainer console. Instead:
+
+1. Set `ADMIN_SETUP_KEY` in Portainer to a private value of at least 20 characters.
+2. Redeploy the stack.
+3. Open `https://stminahs.overvault.ca/setup-admin`.
+4. Enter that setup key and choose the administrator username and password.
+5. The site creates or resets the administrator and signs you in automatically.
+
+After signing in, use **Portal → Users** to create teacher and student accounts.
 
 ## Deploy
 

@@ -46,3 +46,11 @@
 - Removed the content named volume that prevented rebuilt Excel content from appearing.
 - Added friendly content, 403, and 404 error pages.
 - Added upload type/size checks, password hashing, CSRF protection, secure sessions, and permission checks.
+
+
+## Administrator recovery update
+
+- Added `/setup-admin`, a browser-based administrator creation/reset page.
+- Protected the page with the `ADMIN_SETUP_KEY` Portainer environment variable.
+- Successful recovery automatically signs the administrator in and opens user management.
+- No Portainer console or pasted shell commands are required.
