@@ -339,3 +339,75 @@ img, iframe, audio { max-width: 100%; }
   .footer-inner { flex-direction: column; gap: 1px; padding: 18px 0; }
   .footer-dot { display: none; }
 }
+
+
+/* Permanent account deletion */
+
+.user-summary {
+  min-width: 0;
+}
+
+.delete-user-panel {
+  position: relative;
+}
+
+.delete-user-panel > summary {
+  list-style: none;
+  user-select: none;
+}
+
+.delete-user-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+.delete-user-panel[open] > summary {
+  background: #8f2536;
+  color: #fff;
+  border-color: #8f2536;
+}
+
+.delete-user-form {
+  position: absolute;
+  z-index: 20;
+  right: 0;
+  top: calc(100% + 8px);
+  width: min(390px, calc(100vw - 40px));
+  padding: 16px;
+  border: 1px solid #e5aeb7;
+  border-radius: 14px;
+  background: #fff8f9;
+  box-shadow: var(--shadow-md);
+}
+
+.delete-user-form p {
+  margin: 0 0 12px;
+  color: #762235;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.delete-user-form .compact-field {
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.delete-user-form input {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  .delete-user-panel {
+    width: 100%;
+  }
+
+  .delete-user-panel > summary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .delete-user-form {
+    position: static;
+    width: 100%;
+    margin-top: 8px;
+  }
+}

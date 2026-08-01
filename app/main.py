@@ -922,19 +922,54 @@ async def developer_comment_status(
 @app.get("/admin/users", response_class=HTMLResponse)
 async def admin_users(request: Request):
     require_user(request, "admin")
+
     with db_conn() as db:
         rows = db.execute(
             """
             SELECT u.*,
-                   (SELECT COUNT(*) FROM class_students cs WHERE cs.student_id = u.id) AS class_count,
-                   (SELECT COUNT(*) FROM classes c WHERE c.teacher_id = u.id) AS teaching_count
+                   (
+                       SELECT COUNT(*)
+                       FROM class_students cs
+                       WHERE cs.student_id = u.id
+                   ) AS class_count,
+                   (
+                       SELECT COUNT(*)
+                       FROM classes c
+                       WHERE c.teacher_id = u.id
+                   ) AS teaching_count,
+                   (
+                       SELECT COUNT(*)
+                       FROM submissions s
+                       WHERE s.student_id = u.id
+                   ) AS submission_count,
+                   (
+                       SELECT COUNT(*)
+                       FROM attendance_records ar
+                       WHERE ar.student_id = u.id
+                   ) AS attendance_count,
+                   (
+                       SELECT COUNT(*)
+                       FROM developer_comments dc
+                       WHERE dc.user_id = u.id
+                   ) AS comment_count
             FROM users u
-            ORDER BY CASE u.role WHEN 'admin' THEN 0 WHEN 'teacher' THEN 1 ELSE 2 END,
-                     u.display_name COLLATE NOCASE
+            ORDER BY
+                CASE u.role
+                    WHEN 'admin' THEN 0
+                    WHEN 'teacher' THEN 1
+                    ELSE 2
+                END,
+                u.display_name COLLATE NOCASE
             """
         ).fetchall()
-    return render(request, "admin_users.html", "Manage users", users=[dict(row) for row in rows], error="")
 
+    return render(
+        request,
+        "admin_users.html",
+        "Manage users",
+        users=[dict(row) for row in rows],
+        error="",
+    )
 
 @app.post("/admin/users")
 async def admin_user_create(
@@ -978,21 +1013,139 @@ async def admin_user_create(
     return redirect("/admin/users")
 
 
-@app.post("/admin/users/{user_id}/toggle")
-async def admin_user_toggle(request: Request, user_id: int, csrf: str = Form(...)):
+@app.post("/admin/users/{user_id}/delete")
+async def admin_user_delete(
+    request: Request,
+    user_id: int,
+    confirm_username: str = Form(...),
+    csrf: str = Form(...),
+):
+    """Permanently delete an account and its user-owned records/uploads."""
+
     verify_csrf(request, csrf)
     current = require_user(request, "admin")
-    if user_id == current["id"]:
-        flash(request, "You cannot deactivate your own account.", "error")
-        return redirect("/admin/users")
-    with db_conn() as db:
-        row = db.execute("SELECT active FROM users WHERE id = ?", (user_id,)).fetchone()
-        if row is None:
-            raise HTTPException(status_code=404)
-        db.execute("UPDATE users SET active = ?, updated_at = ? WHERE id = ?", (0 if row["active"] else 1, utc_now_iso(), user_id))
-    flash(request, "The account status was updated.")
-    return redirect("/admin/users")
 
+    # Prevent the signed-in admin from deleting their own account.
+    if user_id == current["id"]:
+        flash(
+            request,
+            "You cannot permanently delete the account you are currently using.",
+            "error",
+        )
+        return redirect("/admin/users")
+
+    stored_filenames: list[str] = []
+    deleted_name = ""
+    deleted_username = ""
+
+    with db_conn() as db:
+        user = db.execute(
+            """
+            SELECT id, username, display_name, role
+            FROM users
+            WHERE id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+
+        if user is None:
+            raise HTTPException(status_code=404)
+
+        deleted_name = user["display_name"]
+        deleted_username = user["username"]
+
+        # Require the administrator to type the username as confirmation.
+        if confirm_username.strip().casefold() != deleted_username.casefold():
+            flash(
+                request,
+                f"Deletion cancelled. Type @{deleted_username} exactly to confirm.",
+                "error",
+            )
+            return redirect("/admin/users")
+
+        # Never allow deletion of the final active administrator.
+        if user["role"] == "admin":
+            other_active_admins = db.execute(
+                """
+                SELECT COUNT(*) AS n
+                FROM users
+                WHERE role = 'admin'
+                  AND active = 1
+                  AND id <> ?
+                """,
+                (user_id,),
+            ).fetchone()["n"]
+
+            if other_active_admins == 0:
+                flash(
+                    request,
+                    "You cannot delete the last active administrator account.",
+                    "error",
+                )
+                return redirect("/admin/users")
+
+        # Save filenames before deleting the database records.
+        stored_filenames = [
+            row["stored_filename"]
+            for row in db.execute(
+                """
+                SELECT stored_filename
+                FROM submissions
+                WHERE student_id = ?
+                """,
+                (user_id,),
+            ).fetchall()
+        ]
+
+        # Existing foreign keys automatically remove:
+        # - student class enrolments
+        # - attendance records
+        # - submissions
+        # - developer comments
+        #
+        # Classes taught by a deleted teacher remain, but teacher_id becomes NULL.
+        db.execute(
+            "DELETE FROM users WHERE id = ?",
+            (user_id,),
+        )
+
+    # Remove the student's physical audio files.
+    removed_files = 0
+    upload_root = UPLOAD_DIR.resolve()
+
+    for stored_filename in stored_filenames:
+        path = (UPLOAD_DIR / stored_filename).resolve()
+
+        # Prevent unsafe paths from escaping the uploads directory.
+        if path.parent != upload_root:
+            continue
+
+        try:
+            existed = path.exists()
+            path.unlink(missing_ok=True)
+
+            if existed:
+                removed_files += 1
+
+        except OSError as exc:
+            print(
+                f"[stminahs] Could not remove deleted user's upload "
+                f"{path}: {exc}"
+            )
+
+    file_message = ""
+
+    if removed_files:
+        word = "recording" if removed_files == 1 else "recordings"
+        file_message = f" and removed {removed_files} uploaded {word}"
+
+    flash(
+        request,
+        f"{deleted_name} (@{deleted_username}) was permanently deleted"
+        f"{file_message}.",
+    )
+
+    return redirect("/admin/users")
 
 @app.post("/admin/users/{user_id}/password")
 async def admin_user_password(
