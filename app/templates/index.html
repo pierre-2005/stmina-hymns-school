@@ -1,19 +1,49 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="card">
-  <div class="card-h">
-    <h1 class="h1">Levels</h1>
-    <div class="muted">Select a level.</div>
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">St. Mina Coptic Orthodox Church · Calgary</span>
+    <h1>Learn the hymns clearly, one level at a time.</h1>
+    <p>Listen through SoundCloud, follow the text in your preferred languages, and practise from any device.</p>
+    {% if current_user %}
+      <a class="btn btn-primary" href="/portal">Open your {{ role_label|lower }} portal</a>
+    {% else %}
+      <a class="btn btn-primary" href="/login">Sign in to your portal</a>
+    {% endif %}
   </div>
-  <div class="card-b">
-    <div class="grid">
-      {% for lvl in site.levels %}
-        <a class="tile" href="/levels/{{ lvl.slug }}">
-          <div class="tile-title">{{ lvl.name }}</div>
-          <div class="tile-sub muted">{{ lvl.description }}</div>
-        </a>
-      {% endfor %}
+  <div class="hero-symbol" aria-hidden="true">Ⲙ</div>
+</section>
+
+<section class="section-heading">
+  <div>
+    <span class="eyebrow">Curriculum</span>
+    <h2>Choose a level</h2>
+  </div>
+  <span class="muted">{{ site.levels|length }} available</span>
+</section>
+
+<div class="card-grid">
+  {% for lvl in site.levels %}
+    <a class="feature-card" href="/levels/{{ lvl.slug }}">
+      <div class="feature-number">{{ '%02d'|format(loop.index) }}</div>
+      <div>
+        <h3>{{ lvl.name }}</h3>
+        <p>{{ lvl.description or 'Open this level to view its years and hymns.' }}</p>
+      </div>
+      <span class="card-arrow" aria-hidden="true">→</span>
+    </a>
+  {% else %}
+    <div class="empty-state">
+      <h3>No levels are published yet</h3>
+      <p>Add a published row to the <strong>levels</strong> sheet in <code>site.xlsx</code>.</p>
     </div>
-  </div>
+  {% endfor %}
 </div>
+
+{% if site.content_warnings and current_user and current_user.role == 'admin' %}
+  <details class="warning-panel">
+    <summary>{{ site.content_warnings|length }} content workbook warning(s)</summary>
+    <ul>{% for warning in site.content_warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
+  </details>
+{% endif %}
 {% endblock %}

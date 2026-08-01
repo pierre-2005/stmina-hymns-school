@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="breadcrumbs"><a href="/teacher/attendance">Attendance</a><span>›</span><span>{{ class_item.name }}</span></nav>
+<section class="page-heading page-heading-row"><div><span class="eyebrow">{{ class_item.teacher_name or 'Teacher not assigned' }}</span><h1>{{ class_item.name }}</h1><p>Mark each student, add optional notes, and save the session.</p></div>
+<form method="get" class="filter-form"><label class="field inline-field"><span>Date</span><input type="date" name="session_date" value="{{ selected_date }}" onchange="this.form.submit()"></label></form></section>
+
+<form method="post" action="/teacher/attendance/{{ class_item.id }}" class="surface">
+  <input type="hidden" name="csrf" value="{{ csrf_token }}"><input type="hidden" name="session_date" value="{{ selected_date }}">
+  <div class="attendance-table-wrap"><table class="data-table attendance-table"><thead><tr><th>Student</th><th>Status</th><th>Note</th></tr></thead><tbody>
+    {% for student in students %}{% set record = records.get(student.id, {}) %}
+      <tr><td><strong>{{ student.display_name }}</strong><small>@{{ student.username }}</small></td><td><select name="status_{{ student.id }}"><option value="present" {% if record.get('status', 'present') == 'present' %}selected{% endif %}>Present</option><option value="absent" {% if record.get('status') == 'absent' %}selected{% endif %}>Absent</option><option value="late" {% if record.get('status') == 'late' %}selected{% endif %}>Late</option><option value="excused" {% if record.get('status') == 'excused' %}selected{% endif %}>Excused</option></select></td><td><input name="note_{{ student.id }}" value="{{ record.get('note', '') }}" maxlength="500" placeholder="Optional note"></td></tr>
+    {% else %}<tr><td colspan="3"><div class="empty-state compact"><h3>No students enrolled</h3><p>Add students from the admin class page.</p></div></td></tr>{% endfor %}
+  </tbody></table></div>
+  <div class="form-footer"><label class="field grow"><span>Session notes</span><textarea name="session_notes" rows="2" maxlength="2000">{{ session_notes }}</textarea></label><button class="btn btn-primary" type="submit">Save attendance</button></div>
+</form>
+
+{% if history %}<section class="surface spaced-top"><div class="surface-heading"><h2>Recent sessions</h2></div><div class="compact-list">{% for item in history %}<a class="compact-list-row" href="?session_date={{ item.session_date }}"><div><strong>{{ item.session_date }}</strong><small>{{ item.marked_count }} students marked</small></div><span class="badge">{{ item.present_count or 0 }} present · {{ item.absent_count or 0 }} absent</span></a>{% endfor %}</div></section>{% endif %}
+{% endblock %}

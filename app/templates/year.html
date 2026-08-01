@@ -1,58 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="crumbs">
+<nav class="breadcrumbs" aria-label="Breadcrumb">
   <a href="/">Levels</a><span>›</span>
   <a href="/levels/{{ level.slug }}">{{ level.name }}</a><span>›</span>
   <span>{{ year.name }}</span>
-</div>
+</nav>
 
-<div class="card">
-  <div class="card-h">
-    <div class="head-row">
-      <div>
-        <h1 class="h1">{{ year.name }}</h1>
-        <div class="muted">{{ year.description }}</div>
-      </div>
-      <div class="searchbox">
-        <input id="hymnSearch" class="input" placeholder="Search hymns..." autocomplete="off" />
-      </div>
-    </div>
+<section class="page-heading page-heading-row">
+  <div>
+    <span class="eyebrow">{{ level.name }}</span>
+    <h1>{{ year.name }}</h1>
+    <p>{{ year.description }}</p>
   </div>
+  <label class="search-field">
+    <span class="sr-only">Search hymns</span>
+    <input id="hymnSearch" type="search" placeholder="Search hymns…" autocomplete="off">
+  </label>
+</section>
 
-  <div class="card-b">
-    <div class="table-wrap">
-      <table class="table" id="hymnTable">
-        <thead>
-          <tr><th>Hymn</th><th class="right">Recordings</th></tr>
-        </thead>
-        <tbody>
-          {% for h in year.hymns %}
-            <tr class="hymn-row" data-title="{{ h.title|lower }}">
-              <td>
-                <a href="/levels/{{ level.slug }}/{{ year.slug }}/{{ h.slug }}">{{ h.title }}</a>
-                <div class="muted small">{{ h.note }}</div>
-              </td>
-              <td class="right">
-                <span class="badge">{{ (h.recordings|length) if h.recordings else (1 if h.audio_url else 0) }}</span>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div class="mobile-list" id="hymnCards">
-      {% for h in year.hymns %}
-        <a class="mobile-card hymn-card" data-title="{{ h.title|lower }}"
-           href="/levels/{{ level.slug }}/{{ year.slug }}/{{ h.slug }}">
-          <div class="mobile-title">{{ h.title }}</div>
-          <div class="muted small">{{ h.note }}</div>
-          <div class="mobile-meta">
-            <span class="badge">Recordings: {{ (h.recordings|length) if h.recordings else (1 if h.audio_url else 0) }}</span>
-          </div>
-        </a>
-      {% endfor %}
-    </div>
-  </div>
+<div class="hymn-list" id="hymnCards">
+  {% for hymn in year.hymns %}
+    <a class="hymn-list-item hymn-card" data-title="{{ hymn.title|lower }} {{ hymn.note|lower }}" href="/levels/{{ level.slug }}/{{ year.slug }}/{{ hymn.slug }}">
+      <span class="hymn-index">{{ '%02d'|format(loop.index) }}</span>
+      <span class="hymn-list-copy">
+        <strong>{{ hymn.title }}</strong>
+        <small>{{ hymn.note or 'Open hymn' }}</small>
+      </span>
+      <span class="badge">{{ hymn.recordings|length }} SoundCloud track{{ '' if hymn.recordings|length == 1 else 's' }}</span>
+      <span class="card-arrow">→</span>
+    </a>
+  {% else %}
+    <div class="empty-state"><h3>No hymns published</h3><p>Add a row to the hymns sheet for this year.</p></div>
+  {% endfor %}
 </div>
+<p class="search-empty is-hidden" id="searchEmpty">No hymns match that search.</p>
 {% endblock %}

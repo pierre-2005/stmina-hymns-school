@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-heading"><span class="eyebrow">Student</span><h1>My practice recordings</h1><p>Record yourself saying or chanting a hymn, then upload the audio privately for your teacher.</p></section>
+<div class="two-column wide-left">
+  <section class="surface">
+    <div class="surface-heading"><h2>Previous submissions</h2><span class="badge">{{ submissions|length }}</span></div>
+    <div class="submission-list">
+      {% for item in submissions %}
+        <article class="submission-card">
+          <div class="submission-title"><div><h3>{{ item.hymn_title }}</h3><p>{{ item.class_name or 'No class' }} · {{ item.created_at[:10] }}</p></div><span class="status-badge status-{{ item.status }}">{{ item.status.replace('-', ' ')|title }}</span></div>
+          <audio controls preload="none" src="/submissions/{{ item.id }}/audio"></audio>
+          {% if item.notes %}<p><strong>Your note:</strong> {{ item.notes }}</p>{% endif %}
+          {% if item.teacher_feedback %}<div class="feedback-box"><strong>Teacher feedback</strong><p>{{ item.teacher_feedback }}</p></div>{% endif %}
+          <form method="post" action="/student/submissions/{{ item.id }}/delete" onsubmit="return confirm('Delete this recording?')">
+            <input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="btn btn-danger btn-small" type="submit">Delete</button>
+          </form>
+        </article>
+      {% else %}
+        <div class="empty-state compact"><h3>No recordings yet</h3><p>Your uploaded practice tracks will appear here.</p></div>
+      {% endfor %}
+    </div>
+  </section>
+  <aside class="surface sticky-panel">
+    <div class="surface-heading"><h2>Upload a recording</h2></div>
+    {% if classes %}
+      <form method="post" action="/student/submissions" enctype="multipart/form-data" class="form-stack">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+        <label class="field"><span>Class</span><select name="class_id" required>{% for c in classes %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}</select></label>
+        <label class="field"><span>Hymn</span><select name="hymn_ref" required><option value="">Choose a hymn…</option>{% for h in hymn_options %}<option value="{{ h.level_slug }}::{{ h.year_slug }}::{{ h.slug }}">{{ h.level_name }} · {{ h.year_name }} · {{ h.title }}</option>{% endfor %}</select></label>
+        <label class="field"><span>Audio file</span><input type="file" name="recording" accept="audio/*,.mp3,.m4a,.wav,.ogg,.webm,.aac" required><small>Maximum {{ max_upload_mb }} MB.</small></label>
+        <label class="field"><span>Note for your teacher (optional)</span><textarea name="notes" rows="4" maxlength="2000"></textarea></label>
+        <button class="btn btn-primary btn-block" type="submit">Upload privately</button>
+      </form>
+    {% else %}
+      <div class="empty-state compact"><h3>No class assigned</h3><p>An administrator must enrol you in a class before you can upload.</p></div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

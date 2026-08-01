@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<nav class="breadcrumbs"><a href="/admin/classes">Classes</a><span>›</span><span>{{ class_item.name }}</span></nav>
+<section class="page-heading"><span class="eyebrow">Class setup</span><h1>{{ class_item.name }}</h1><p>Assign a teacher and select the students enrolled in this class.</p></section>
+<form method="post" action="/admin/classes/{{ class_item.id }}" class="surface form-stack">
+<input type="hidden" name="csrf" value="{{ csrf_token }}">
+<div class="form-grid"><label class="field"><span>Class name</span><input name="name" value="{{ class_item.name }}" required></label><label class="field"><span>Teacher</span><select name="teacher_id"><option value="">Not assigned</option>{% for teacher in teachers %}<option value="{{ teacher.id }}" {% if class_item.teacher_id == teacher.id %}selected{% endif %}>{{ teacher.display_name }}</option>{% endfor %}</select></label><label class="field"><span>Level slug</span><input name="level_slug" value="{{ class_item.level_slug }}"></label><label class="field"><span>Year slug</span><input name="year_slug" value="{{ class_item.year_slug }}"></label><label class="check-field"><input type="checkbox" name="active" {% if class_item.active %}checked{% endif %}><span>Class is active</span></label></div>
+<div class="surface-heading inner-heading"><h2>Enrolled students</h2><span class="badge">Select all that apply</span></div>
+<div class="student-check-grid">{% for student in students %}<label class="student-check"><input type="checkbox" name="student_ids" value="{{ student.id }}" {% if student.enrolled %}checked{% endif %}><span><strong>{{ student.display_name }}</strong><small>@{{ student.username }}</small></span></label>{% else %}<div class="empty-state compact"><h3>No student accounts</h3><p>Create student users first.</p></div>{% endfor %}</div>
+<div class="form-footer"><a class="btn btn-quiet" href="/admin/classes">Cancel</a><button class="btn btn-primary" type="submit">Save class</button></div>
+</form>
+{% endblock %}

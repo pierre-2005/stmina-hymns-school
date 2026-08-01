@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-heading"><span class="eyebrow">Account</span><h1>{{ user.display_name }}</h1><p>@{{ user.username }} · {{ role_label }}</p></section>
+<div class="two-column">
+  <section class="surface">
+    <div class="surface-heading"><h2>Account details</h2></div>
+    <dl class="detail-list">
+      <div><dt>Display name</dt><dd>{{ user.display_name }}</dd></div>
+      <div><dt>Username</dt><dd>{{ user.username }}</dd></div>
+      <div><dt>Role</dt><dd><span class="role-badge role-{{ user.role }}">{{ role_label }}</span></dd></div>
+    </dl>
+  </section>
+  <section class="surface">
+    <div class="surface-heading"><h2>Change password</h2></div>
+    <form method="post" action="/account/password" class="form-stack">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+      <label class="field"><span>Current password</span><input type="password" name="current_password" required></label>
+      <label class="field"><span>New password</span><input type="password" name="new_password" minlength="8" required></label>
+      <label class="field"><span>Confirm new password</span><input type="password" name="confirm_password" minlength="8" required></label>
+      <button class="btn btn-primary" type="submit">Update password</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

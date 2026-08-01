@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-layout">
+  <section class="auth-panel auth-intro">
+    <span class="eyebrow">Member portal</span>
+    <h1>Welcome back.</h1>
+    <p>Students can submit private practice recordings. Teachers can track attendance, review submissions, and send developer feedback.</p>
+    <div class="auth-points">
+      <span>Private student recordings</span>
+      <span>Teacher class tools</span>
+      <span>Secure role-based access</span>
+    </div>
+  </section>
+  <section class="auth-panel auth-form-panel">
+    <form method="post" action="/login" class="form-stack">
+      <input type="hidden" name="csrf" value="{{ csrf_token }}">
+      <input type="hidden" name="next_url" value="{{ next_url }}">
+      <div><span class="eyebrow">Sign in</span><h2>Your account</h2></div>
+      {% if error %}<div class="form-error">{{ error }}</div>{% endif %}
+      <label class="field"><span>Username</span><input name="username" autocomplete="username" required autofocus></label>
+      <label class="field"><span>Password</span><input type="password" name="password" autocomplete="current-password" required></label>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+      <p class="helper-text">Contact your teacher or site administrator if you need an account.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}

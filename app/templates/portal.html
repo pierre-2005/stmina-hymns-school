@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="portal-hero">
+  <div><span class="eyebrow">{{ role_label }} portal</span><h1>Hello, {{ user.display_name }}.</h1><p>Choose a tool below to continue.</p></div>
+  <span class="role-badge role-{{ user.role }} role-large">{{ role_label }}</span>
+</section>
+
+<div class="dashboard-grid">
+  {% if user.role == 'student' %}
+    <a class="dashboard-card" href="/student/submissions"><span class="dashboard-icon">♫</span><h2>My recordings</h2><p>Upload hymn practice and read your teacher's feedback.</p><strong>{{ stats.submissions }} submitted</strong></a>
+  {% endif %}
+  {% if user.role in ['teacher', 'admin'] %}
+    <a class="dashboard-card" href="/teacher/attendance"><span class="dashboard-icon">✓</span><h2>Attendance</h2><p>Take attendance for the classes assigned to you.</p><strong>{{ classes|length }} classes</strong></a>
+    <a class="dashboard-card" href="/teacher/submissions"><span class="dashboard-icon">▶</span><h2>Student recordings</h2><p>Listen to practice submissions and leave feedback.</p><strong>{{ stats.submissions }} recordings</strong></a>
+    <a class="dashboard-card" href="/developer-comments"><span class="dashboard-icon">✎</span><h2>Developer comments</h2><p>Send bugs, ideas, and improvement requests.</p><strong>{{ stats.comments }} comments</strong></a>
+  {% endif %}
+  {% if user.role == 'admin' %}
+    <a class="dashboard-card" href="/admin/users"><span class="dashboard-icon">◎</span><h2>Users</h2><p>Create student, teacher, and administrator accounts.</p><strong>Manage accounts</strong></a>
+    <a class="dashboard-card" href="/admin/classes"><span class="dashboard-icon">▦</span><h2>Classes</h2><p>Assign teachers and enrol students in their classes.</p><strong>Manage classes</strong></a>
+  {% endif %}
+</div>
+
+{% if classes %}
+<section class="surface spaced-top"><div class="surface-heading"><h2>Your classes</h2></div>
+  <div class="compact-list">
+    {% for class_item in classes %}
+      <div class="compact-list-row"><div><strong>{{ class_item.name }}</strong><small>{{ class_item.teacher_name or 'Teacher not assigned' }}</small></div><span class="badge">{{ class_item.student_count if class_item.student_count is defined else '' }} students</span></div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}

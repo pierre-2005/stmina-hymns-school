@@ -1,162 +1,189 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // ---------- Year search ----------
-  const search = document.getElementById("hymnSearch");
-  if (search) {
-    const rows = Array.from(document.querySelectorAll(".hymn-row"));
-    const cards = Array.from(document.querySelectorAll(".hymn-card"));
+  initSearch();
+  initLanguageControls();
+  initLyricFontControls();
+  initSoundCloudSync();
+});
 
-    search.addEventListener("input", () => {
-      const q = (search.value || "").trim().toLowerCase();
-      rows.forEach(r => {
-        const t = (r.dataset.title || "").toLowerCase();
-        r.style.display = (!q || t.includes(q)) ? "" : "none";
-      });
-      cards.forEach(c => {
-        const t = (c.dataset.title || "").toLowerCase();
-        c.style.display = (!q || t.includes(q)) ? "" : "none";
-      });
+function initSearch() {
+  const search = document.getElementById("hymnSearch");
+  if (!search) return;
+
+  const cards = Array.from(document.querySelectorAll(".hymn-card"));
+  const empty = document.getElementById("searchEmpty");
+
+  function filter() {
+    const query = search.value.trim().toLocaleLowerCase();
+    let visibleCount = 0;
+    cards.forEach((card) => {
+      const matches = !query || (card.dataset.title || "").includes(query);
+      card.classList.toggle("is-hidden", !matches);
+      if (matches) visibleCount += 1;
+    });
+    if (empty) empty.classList.toggle("is-hidden", visibleCount !== 0);
+  }
+
+  search.addEventListener("input", filter);
+}
+
+function initLanguageControls() {
+  const table = document.getElementById("lyricsTable");
+  const wrap = document.getElementById("lyricsWrap");
+  if (!table || !wrap) return;
+
+  const toggles = Array.from(document.querySelectorAll(".language-toggle"));
+  const version = wrap.dataset.languageVersion || "default";
+  const storageKey = `stminahs:languages:${location.pathname}:${version}`;
+  const reset = document.getElementById("resetLanguagePrefs");
+
+  function readPreferences() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(storageKey) || "null");
+      return parsed && typeof parsed === "object" ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function setColumn(code, visible) {
+    table.querySelectorAll(`td[data-lang="${CSS.escape(code)}"]`).forEach((cell) => {
+      cell.classList.toggle("is-hidden", !visible);
     });
   }
 
-  // ---------- Hymn page ----------
-  const audio = document.getElementById("audio");
+  function setToggle(toggle, visible) {
+    toggle.classList.toggle("off", !visible);
+    const checkbox = toggle.querySelector(".lang-check");
+    const state = toggle.querySelector(".toggle-state");
+    if (checkbox) checkbox.checked = visible;
+    if (state) state.textContent = visible ? "ON" : "OFF";
+  }
+
+  function applyDefaults(clearStored = false) {
+    if (clearStored) localStorage.removeItem(storageKey);
+    const preferences = readPreferences();
+    toggles.forEach((toggle) => {
+      const code = toggle.dataset.langCode;
+      const defaultValue = toggle.dataset.default === "1";
+      const visible = Object.prototype.hasOwnProperty.call(preferences, code)
+        ? Boolean(preferences[code])
+        : defaultValue;
+      setToggle(toggle, visible);
+      setColumn(code, visible);
+    });
+  }
+
+  toggles.forEach((toggle) => {
+    const checkbox = toggle.querySelector(".lang-check");
+    if (!checkbox) return;
+    checkbox.addEventListener("change", () => {
+      const code = toggle.dataset.langCode;
+      const visible = checkbox.checked;
+      setToggle(toggle, visible);
+      setColumn(code, visible);
+      const preferences = readPreferences();
+      preferences[code] = visible;
+      localStorage.setItem(storageKey, JSON.stringify(preferences));
+    });
+  });
+
+  reset?.addEventListener("click", () => applyDefaults(true));
+  applyDefaults(false);
+}
+
+function initLyricFontControls() {
   const table = document.getElementById("lyricsTable");
   if (!table) return;
 
-  const keyBase = location.pathname;
-  const langStoreKey = `langs:${keyBase}`;
-  const fontStoreKey = `font:${keyBase}`;
-
-  // --- Language toggles ---
-  const toggles = Array.from(document.querySelectorAll(".lang-toggle"));
-  const langStoreKey = `langs:${location.pathname}`;
-
-  function setLangVisible(code, visible) {
-    document.querySelectorAll(`#lyricsTable td[data-lang="${code}"]`).forEach(td => {
-      td.classList.toggle("is-hidden", !visible);
-    });
-  }
-
-  function setToggleUI(toggleEl, on) {
-    toggleEl.classList.toggle("off", !on);
-    const pill = toggleEl.querySelector(".pill");
-    if (pill) pill.textContent = on ? "ON" : "OFF";
-  }
-
-  function readPrefs() {
-    try { return JSON.parse(localStorage.getItem(langStoreKey) || "{}"); }
-    catch { return null; }
-  }
-
-  function writePrefs(prefs) {
-    localStorage.setItem(langStoreKey, JSON.stringify(prefs));
-  }
-
-  function initLangToggles() {
-    const prefs = readPrefs(); // null if none / invalid
-
-    toggles.forEach(t => {
-      const code = t.getAttribute("data-lang-code");
-      const cb = t.querySelector(".lang-check");
-      if (!code || !cb) return;
-
-      // If prefs exist, use them; otherwise use the checkbox default (from sheet)
-      const on = (prefs && prefs[code] !== undefined) ? !!prefs[code] : cb.checked;
-
-      cb.checked = on;
-      setToggleUI(t, on);
-      setLangVisible(code, on);
-
-      cb.addEventListener("change", () => {
-        const nowOn = cb.checked;
-        setToggleUI(t, nowOn);
-        setLangVisible(code, nowOn);
-
-        const next = (readPrefs() || {});
-        next[code] = nowOn;
-        writePrefs(next);
-      });
-    });
-  }
-  
-  // --- Font size ---
-  const root = document.documentElement;
   const plus = document.getElementById("fontPlus");
   const minus = document.getElementById("fontMinus");
+  const storageKey = `stminahs:lyric-font:${location.pathname}`;
 
-  function setFont(px) {
-    px = Math.max(12, Math.min(32, px));
-    root.style.setProperty("--hymn-font", `${px}px`);
-    localStorage.setItem(fontStoreKey, String(px));
+  function setSize(size) {
+    const clamped = Math.max(13, Math.min(34, size));
+    document.documentElement.style.setProperty("--lyric-font-size", `${clamped}px`);
+    localStorage.setItem(storageKey, String(clamped));
   }
 
-  function loadFont() {
-    const v = parseInt(localStorage.getItem(fontStoreKey) || "18", 10);
-    setFont(Number.isNaN(v) ? 18 : v);
-  }
+  const saved = Number.parseInt(localStorage.getItem(storageKey) || "19", 10);
+  setSize(Number.isFinite(saved) ? saved : 19);
 
-  if (plus) plus.addEventListener("click", () => {
-    const cur = parseInt(getComputedStyle(root).getPropertyValue("--hymn-font")) || 18;
-    setFont(cur + 1);
+  plus?.addEventListener("click", () => {
+    const current = Number.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--lyric-font-size"), 10) || 19;
+    setSize(current + 1);
   });
-
-  if (minus) minus.addEventListener("click", () => {
-    const cur = parseInt(getComputedStyle(root).getPropertyValue("--hymn-font")) || 18;
-    setFont(cur - 1);
+  minus?.addEventListener("click", () => {
+    const current = Number.parseInt(getComputedStyle(document.documentElement).getPropertyValue("--lyric-font-size"), 10) || 19;
+    setSize(current - 1);
   });
+}
 
-  // --- Sync highlight + click-to-seek ---
-  const segRows = Array.from(table.querySelectorAll("tr.seg"));
+function initSoundCloudSync() {
+  const table = document.getElementById("lyricsTable");
+  const frames = Array.from(document.querySelectorAll("iframe.sc-player"));
+  if (!table || !frames.length || !window.SC?.Widget) return;
 
-  // FIX: your HTML uses data-start-ms, so JS must read dataset.startMs OR dataset.startMs? No:
-  // dataset.startMs maps to data-start-ms BUT ONLY if the attribute is data-start-ms EXACTLY (it is),
-  // however your earlier code used data-start-ms but created parse from dataset.startMs while some browsers can be picky.
-  // We'll read it safely using getAttribute.
-  const starts = segRows.map(r => {
-    const v = r.getAttribute("data-start-ms") || "0";
-    const n = parseInt(v, 10);
-    return Number.isFinite(n) ? n : 0;
-  });
+  const rows = Array.from(table.querySelectorAll("tr.lyric-row"));
+  if (!rows.length) return;
 
-  function findActiveIdx(tMs) {
-    let lo = 0, hi = starts.length - 1, ans = 0;
-    while (lo <= hi) {
-      const mid = (lo + hi) >> 1;
-      if (starts[mid] <= tMs) { ans = mid; lo = mid + 1; }
-      else hi = mid - 1;
+  const starts = rows.map((row) => Number.parseInt(row.dataset.startMs || "0", 10) || 0);
+  const widgets = frames.map((frame) => window.SC.Widget(frame));
+  let activeWidget = widgets[0];
+  let activeRow = -1;
+  let lastAutoScroll = 0;
+
+  function findRow(positionMs) {
+    let low = 0;
+    let high = starts.length - 1;
+    let answer = 0;
+    while (low <= high) {
+      const middle = (low + high) >> 1;
+      if (starts[middle] <= positionMs) {
+        answer = middle;
+        low = middle + 1;
+      } else {
+        high = middle - 1;
+      }
     }
-    return ans;
+    return answer;
   }
 
-  let last = -1;
-  function setActive(idx) {
-    if (idx === last) return;
-    if (last >= 0) segRows[last].classList.remove("active");
-    if (segRows[idx]) {
-      segRows[idx].classList.add("active");
-      segRows[idx].scrollIntoView({ block: "center", behavior: "smooth" });
-      last = idx;
+  function activate(index, shouldScroll = true) {
+    if (!rows[index] || index === activeRow) return;
+    if (activeRow >= 0) rows[activeRow].classList.remove("active");
+    rows[index].classList.add("active");
+    activeRow = index;
+    const now = Date.now();
+    if (shouldScroll && now - lastAutoScroll > 1400) {
+      rows[index].scrollIntoView({ behavior: "smooth", block: "center" });
+      lastAutoScroll = now;
     }
   }
 
-  segRows.forEach((r, i) => {
-    r.addEventListener("click", () => {
-      if (!audio) return;
-      const v = r.getAttribute("data-start-ms") || "0";
-      const ms = parseInt(v, 10) || 0;
-      audio.currentTime = ms / 1000.0;
-      audio.play().catch(() => {});
-      setActive(i);
+  widgets.forEach((widget) => {
+    widget.bind(window.SC.Widget.Events.PLAY, () => { activeWidget = widget; });
+    widget.bind(window.SC.Widget.Events.PLAY_PROGRESS, (event) => {
+      activeWidget = widget;
+      activate(findRow(event.currentPosition), true);
+    });
+    widget.bind(window.SC.Widget.Events.FINISH, () => {
+      if (activeRow >= 0) rows[activeRow].classList.remove("active");
+      activeRow = -1;
     });
   });
 
-  if (audio) {
-    audio.addEventListener("timeupdate", () => {
-      setActive(findActiveIdx(audio.currentTime * 1000));
+  rows.forEach((row, index) => {
+    const seek = () => {
+      activeWidget.seekTo(starts[index]);
+      activeWidget.play();
+      activate(index, false);
+    };
+    row.addEventListener("click", seek);
+    row.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        seek();
+      }
     });
-  }
-
-  // init
-  initLangToggles();
-  loadFont();
-});
+  });
+}

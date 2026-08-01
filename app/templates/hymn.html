@@ -1,102 +1,89 @@
 {% extends "base.html" %}
+{% block extra_head %}
+  <link rel="preconnect" href="https://w.soundcloud.com">
+{% endblock %}
 {% block content %}
-<div class="crumbs">
+<nav class="breadcrumbs" aria-label="Breadcrumb">
   <a href="/">Levels</a><span>›</span>
   <a href="/levels/{{ level.slug }}">{{ level.name }}</a><span>›</span>
   <a href="/levels/{{ level.slug }}/{{ year.slug }}">{{ year.name }}</a><span>›</span>
   <span>{{ hymn.title }}</span>
-</div>
+</nav>
 
-<div class="card">
-  <div class="card-h">
-    <h1 class="h1">{{ hymn.title }}</h1>
-    <div class="muted">{{ hymn.note }}</div>
+<section class="page-heading">
+  <span class="eyebrow">{{ level.name }} · {{ year.name }}</span>
+  <h1>{{ hymn.title }}</h1>
+  <p>{{ hymn.note }}</p>
+</section>
+
+<section class="surface soundcloud-section" aria-label="Hymn recordings">
+  <div class="surface-heading">
+    <div><span class="eyebrow">Listen</span><h2>SoundCloud recording{{ '' if recordings|length == 1 else 's' }}</h2></div>
+  </div>
+  <div class="soundcloud-stack">
+    {% for recording in recordings %}
+      <article class="soundcloud-card">
+        {% if recordings|length > 1 %}<h3>{{ recording.label }}</h3>{% endif %}
+        <iframe
+          id="soundcloudPlayer{{ loop.index }}"
+          class="sc-player"
+          title="{{ recording.label }} — {{ hymn.title }}"
+          scrolling="no"
+          frameborder="0"
+          allow="autoplay"
+          loading="lazy"
+          src="{{ recording.embed_url }}">
+        </iframe>
+      </article>
+    {% else %}
+      <div class="empty-state compact"><h3>No SoundCloud track added</h3><p>Paste a public SoundCloud track URL into the recordings sheet.</p></div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="surface lyrics-section">
+  <div class="surface-heading lyrics-heading">
+    <div><span class="eyebrow">Follow along</span><h2>Hymn text</h2></div>
+    <div class="font-controls" aria-label="Text size">
+      <button class="icon-btn" type="button" id="fontMinus" aria-label="Decrease lyric font size">A−</button>
+      <button class="icon-btn" type="button" id="fontPlus" aria-label="Increase lyric font size">A+</button>
+      <button class="btn btn-quiet btn-small" type="button" id="resetLanguagePrefs">Reset languages</button>
+    </div>
   </div>
 
-  <div class="card-b">
-
-    <div class="playerbar">
-      <audio
-        id="audio"
-        class="audio"
-        controls
-        preload="metadata"
-        src="{{ recordings[0].url if recordings and recordings[0].url else '' }}"
-      ></audio>
-    </div>
-
-    <div class="controls">
-      <div class="lang-row">
-        {% for lang in languages %}
-            <label class="lang-toggle" data-lang-code="{{ lang.code }}" data-default="{{ '1' if lang.default_on else '0' }}">
-            <span class="lang-name">{{ lang.name }}</span>
-            <input type="checkbox" class="lang-check">
-            <span class="pill">ON</span>
-          </label>
-        {% endfor %}
-      </div>
-
-      <div class="font-row">
-        <span class="muted">Font:</span>
-        <button class="btn" type="button" id="fontPlus">+</button>
-        <button class="btn" type="button" id="fontMinus">−</button>
-      </div>
-    </div>
-
-<div class="playerbar">
-  {% if recordings and recordings[0].url %}
-    <iframe
-      class="sc-player"
-      scrolling="no"
-      frameborder="no"
-      allow="autoplay"
-      src="{{ recordings[0].url }}"
-      loading="lazy"
-    ></iframe>
-  {% else %}
-    <div class="muted">No recording link set yet.</div>
-  {% endif %}
-</div>
-
-<div class="controls">
-  <div class="lang-row">
+  <div class="language-controls" aria-label="Language visibility">
     {% for lang in languages %}
-      {% set on = lang.default_on %}
-      <label class="lang-toggle {{ 'off' if not on else '' }}"
-             data-lang-code="{{ lang.code }}"
-             data-default="{{ '1' if lang.default_on else '0' }}">
-        <span class="lang-name">{{ lang.name }}</span>
-        <input type="checkbox" class="lang-check" {% if on %}checked{% endif %}>
-        <span class="pill">{{ 'ON' if on else 'OFF' }}</span>
+      {% set enabled = lang.default_on %}
+      <label class="language-toggle {{ '' if enabled else 'off' }}" data-lang-code="{{ lang.code }}" data-default="{{ '1' if enabled else '0' }}">
+        <input type="checkbox" class="lang-check" {% if enabled %}checked{% endif %}>
+        <span class="toggle-name">{{ lang.name }}</span>
+        <span class="toggle-state">{{ 'ON' if enabled else 'OFF' }}</span>
       </label>
     {% endfor %}
   </div>
 
-  <div class="font-row">
-    <span class="muted">Font:</span>
-    <button class="btn" type="button" id="fontPlus">+</button>
-    <button class="btn" type="button" id="fontMinus">−</button>
+  <div class="lyrics-wrap" id="lyricsWrap" data-language-version="{{ site.language_preferences_version }}">
+    <table class="lyrics-table" id="lyricsTable">
+      <tbody>
+        {% for seg in segments %}
+          <tr class="lyric-row" data-start-ms="{{ seg.start_ms }}" tabindex="0">
+            {% for lang in languages %}
+              <td class="lyric-cell lang-{{ lang.code }} {{ '' if lang.default_on else 'is-hidden' }}"
+                  data-lang="{{ lang.code }}"
+                  dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}">
+                {{ (seg.texts.get(lang.code, '') | e).replace('\n', '<br>') | safe }}
+              </td>
+            {% endfor %}
+          </tr>
+        {% else %}
+          <tr><td class="empty-cell">No lyric rows have been added yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-</div>
-
-    <div class="lyrics-wrap">
-      <table class="lyrics" id="lyricsTable">
-        <tbody>
-          {% for seg in segments %}
-            <tr class="seg" data-start-ms="{{ seg.start_ms }}">
-              {% for lang in languages %}
-                <td class="cell lang-{{ lang.code }} {{ '' if lang.default_on else 'is-hidden' }}"
-                    data-lang="{{ lang.code }}"
-                    dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}">
-                  {{ (seg.texts.get(lang.code,'') | e).replace('\n','<br>') | safe }}
-                </td>
-              {% endfor %}
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    
-  </div>
-</div>
+  {% if segments %}<p class="helper-text">Tap a lyric row to seek the active SoundCloud player to that timestamp.</p>{% endif %}
+</section>
+{% endblock %}
+{% block extra_scripts %}
+  <script src="https://w.soundcloud.com/player/api.js" defer></script>
 {% endblock %}

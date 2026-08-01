@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-heading"><span class="eyebrow">Teacher tools</span><h1>Attendance</h1><p>Select a class to take attendance or review recent sessions.</p></section>
+<div class="card-grid">
+  {% for c in classes %}
+    <a class="feature-card" href="/teacher/attendance/{{ c.id }}"><div class="feature-number">{{ c.student_count }}</div><div><h3>{{ c.name }}</h3><p>{{ c.teacher_name or 'Teacher not assigned' }} · {{ c.student_count }} students</p></div><span class="card-arrow">→</span></a>
+  {% else %}
+    <div class="empty-state"><h3>No classes assigned</h3><p>An administrator must assign a class to your teacher account.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

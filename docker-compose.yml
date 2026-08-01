@@ -1,15 +1,26 @@
 services:
   web:
-    build: .
+    build:
+      context: .
     container_name: stminahs-web
     environment:
       TZ: America/Edmonton
       CONTENT_PATH: /app/content/site.xlsx
+      DATABASE_PATH: /app/data/stminahs.db
+      UPLOAD_DIR: /app/uploads
+      MAX_UPLOAD_MB: "40"
+      COOKIE_SECURE: "true"
+      SESSION_SECRET: ${SESSION_SECRET}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-Site Administrator}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     volumes:
-      - stminahs_content:/app/content
+      - stminahs_data:/app/data
+      - stminahs_uploads:/app/uploads
     ports:
       - "127.0.0.1:8090:8000"
     restart: unless-stopped
 
 volumes:
-  stminahs_content:
+  stminahs_data:
+  stminahs_uploads:

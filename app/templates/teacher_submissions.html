@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-heading page-heading-row"><div><span class="eyebrow">Teacher tools</span><h1>Student recordings</h1><p>Listen, review, and provide private feedback.</p></div>
+<form method="get" class="filter-form"><select name="class_id" onchange="this.form.submit()"><option value="">All assigned classes</option>{% for c in classes %}<option value="{{ c.id }}" {% if selected_class == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></form></section>
+<div class="submission-list">
+  {% for item in submissions %}
+    <article class="surface submission-card">
+      <div class="submission-title"><div><span class="eyebrow">{{ item.class_name or 'Unassigned' }}</span><h2>{{ item.student_name }} · {{ item.hymn_title }}</h2><p>@{{ item.username }} · {{ item.created_at[:10] }}</p></div><span class="status-badge status-{{ item.status }}">{{ item.status.replace('-', ' ')|title }}</span></div>
+      <audio controls preload="none" src="/submissions/{{ item.id }}/audio"></audio>
+      {% if item.notes %}<p><strong>Student note:</strong> {{ item.notes }}</p>{% endif %}
+      <form method="post" action="/teacher/submissions/{{ item.id }}/review" class="review-form">
+        <input type="hidden" name="csrf" value="{{ csrf_token }}">
+        <label class="field"><span>Status</span><select name="review_status"><option value="reviewed" {% if item.status == 'reviewed' %}selected{% endif %}>Reviewed</option><option value="needs-practice" {% if item.status == 'needs-practice' %}selected{% endif %}>Needs practice</option><option value="approved" {% if item.status == 'approved' %}selected{% endif %}>Approved</option><option value="submitted" {% if item.status == 'submitted' %}selected{% endif %}>Submitted</option></select></label>
+        <label class="field grow"><span>Feedback</span><textarea name="feedback" rows="3" maxlength="4000">{{ item.teacher_feedback }}</textarea></label>
+        <button class="btn btn-primary" type="submit">Save review</button>
+      </form>
+    </article>
+  {% else %}
+    <div class="empty-state"><h3>No recordings found</h3><p>Student submissions for your assigned classes will appear here.</p></div>
+  {% endfor %}
+</div>
+{% endblock %}

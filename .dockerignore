@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+__pycache__
+*.pyc
+*.db
+*.db-shm
+*.db-wal
+data
+uploads
