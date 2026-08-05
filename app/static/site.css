@@ -460,3 +460,82 @@ img, iframe, audio { max-width: 100%; }
     font-size: 11px;
   }
 }
+
+/* Stack hymn languages vertically on phones */
+@media (max-width: 700px) {
+  .lyrics-wrap {
+    overflow-x: visible;
+  }
+
+  .lyrics,
+  .lyrics tbody,
+  .lyrics .seg,
+  .lyrics .cell {
+    display: block;
+    width: 100%;
+  }
+
+  .lyrics {
+    border-spacing: 0;
+  }
+
+  .lyrics .seg {
+    margin-bottom: 16px;
+    padding: 5px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  .lyrics .cell {
+    position: relative;
+    padding: 38px 14px 14px;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    border-radius: 0;
+    text-align: left;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .lyrics .cell:last-child {
+    border-bottom: 0;
+  }
+
+  .lyrics .cell::before {
+    content: attr(data-lang-name);
+    position: absolute;
+    top: 11px;
+    left: 14px;
+    color: var(--accent);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .lyrics .cell[dir="rtl"] {
+    text-align: right;
+  }
+
+  .lyrics .cell[dir="rtl"]::before {
+    right: 14px;
+    left: auto;
+  }
+
+  .lyrics .is-hidden {
+    display: none !important;
+  }
+
+  .lyrics .seg.active {
+    border-color: rgba(122, 38, 63, 0.55);
+    box-shadow: 0 0 0 3px rgba(122, 38, 63, 0.12);
+  }
+
+  .lyrics .seg.active .cell {
+    box-shadow: none;
+  }
+}
