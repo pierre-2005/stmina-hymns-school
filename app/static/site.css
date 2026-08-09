@@ -328,7 +328,6 @@ img, iframe, audio { max-width: 100%; }
   .user-actions .inline-form { width: 100%; }
   .user-actions input { flex: 1; width: auto; }
   .auth-panel { padding: 34px 24px; }
-  .lyrics-table { min-width: 540px; }
   .language-controls { grid-template-columns: 1fr; }
   .footer-inner { flex-direction: column; gap: 1px; padding: 18px 0; }
   .footer-dot { display: none; }
@@ -461,81 +460,184 @@ img, iframe, audio { max-width: 100%; }
   }
 }
 
-/* Stack hymn languages vertically on phones */
+
+
+/* =========================================================
+   MOBILE HYMN LYRICS
+   Stack each language vertically instead of horizontally.
+   ========================================================= */
+
 @media (max-width: 700px) {
+
+  /* Do NOT allow the lyric container to become wider
+     than the phone screen. */
   .lyrics-wrap {
-    overflow-x: visible;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
-  .lyrics,
-  .lyrics tbody,
-  .lyrics .seg,
-  .lyrics .cell {
+  /* Override the old min-width: 540px rule. */
+  .lyrics-table {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .lyrics-table tbody {
     display: block;
     width: 100%;
   }
 
-  .lyrics {
-    border-spacing: 0;
-  }
-
-  .lyrics .seg {
-    margin-bottom: 16px;
-    padding: 5px;
-    border: 1px solid var(--border);
+  /*
+   * One lyric timestamp becomes a card.
+   * English/Coptic/etc. are stacked inside it.
+   */
+  .lyric-row {
+    display: block;
+    width: 100%;
+    margin: 0 0 16px;
+    border: 1px solid var(--line);
     border-radius: 16px;
-    background: var(--card);
+    background: #fff;
     overflow: hidden;
+    box-shadow: 0 5px 16px rgba(74, 24, 39, 0.05);
   }
 
-  .lyrics .cell {
+  /* Each language becomes one full-width section. */
+  .lyric-cell {
+    display: block;
     position: relative;
-    padding: 38px 14px 14px;
-    border: 0;
-    border-bottom: 1px solid var(--border);
-    border-radius: 0;
-    text-align: left;
-    overflow-wrap: anywhere;
+
+    width: 100%;
+    max-width: 100%;
+
+    padding: 38px 15px 16px;
+
+    border: 0 !important;
+    border-bottom: 1px solid var(--line) !important;
+    border-radius: 0 !important;
+
+    background: #fff;
+
+    line-height: 1.6;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
     word-break: normal;
   }
 
-  .lyrics .cell:last-child {
-    border-bottom: 0;
+  /* No divider after final visible language. */
+  .lyric-cell:last-child {
+    border-bottom: 0 !important;
   }
 
-  .lyrics .cell::before {
+  /*
+   * Language name displayed above each text section:
+   * ENGLISH
+   * COPTIC
+   * COPTIC-ENGLISH
+   */
+  .lyric-cell::before {
     content: attr(data-lang-name);
+
     position: absolute;
-    top: 11px;
-    left: 14px;
-    color: var(--accent);
-    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
+    top: 12px;
+    left: 15px;
+
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
+
+    color: var(--burgundy-700);
+
+    font-size: 11px;
+    font-weight: 900;
     line-height: 1;
+
     text-transform: uppercase;
+    letter-spacing: 0.1em;
   }
 
-  .lyrics .cell[dir="rtl"] {
+  /* RTL support if you add Arabic in the future. */
+  .lyric-cell[dir="rtl"] {
     text-align: right;
   }
 
-  .lyrics .cell[dir="rtl"]::before {
-    right: 14px;
+  .lyric-cell[dir="rtl"]::before {
     left: auto;
+    right: 15px;
   }
 
-  .lyrics .is-hidden {
+  /*
+   * Coptic still uses Avva Shenouda.
+   */
+  .lyric-cell.lang-cop {
+    font-family:
+      "Avva Shenouda",
+      "Noto Sans Coptic",
+      sans-serif;
+
+    font-size: calc(var(--lyric-font-size) * 1.06);
+  }
+
+  /*
+   * CRITICAL:
+   * Language toggles still completely hide the selected
+   * language instead of leaving an empty space.
+   */
+  .lyric-cell.is-hidden {
     display: none !important;
   }
 
-  .lyrics .seg.active {
-    border-color: rgba(122, 38, 63, 0.55);
-    box-shadow: 0 0 0 3px rgba(122, 38, 63, 0.12);
+  /* Hover doesn't really make sense on phones. */
+  .lyric-row:hover .lyric-cell {
+    background: #fff;
   }
 
-  .lyrics .seg.active .cell {
+  /*
+   * Highlight entire lyric group when SoundCloud
+   * reaches that timestamp.
+   */
+  .lyric-row.active {
+    border-color: #cf92a2;
+    box-shadow:
+      0 0 0 3px rgba(122, 38, 63, 0.10),
+      0 8px 24px rgba(74, 24, 39, 0.08);
+  }
+
+  .lyric-row.active .lyric-cell {
+    background: #fff4f6;
     box-shadow: none;
+  }
+
+  /*
+   * Controls also fit better vertically on phones.
+   */
+  .language-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .language-toggle {
+    width: 100%;
+  }
+
+  .font-controls {
+    width: 100%;
+  }
+
+  /* SoundCloud stays inside the phone viewport. */
+  .sc-player {
+    width: 100%;
+    max-width: 100%;
+    height: 132px;
   }
 }

@@ -69,10 +69,10 @@
           <tr class="lyric-row" data-start-ms="{{ seg.start_ms }}" tabindex="0">
             {% for lang in languages %}
               <td
-              class="cell lang-{{ lang.code }} {{ '' if lang.default_on else 'is-hidden' }}"
-              data-lang="{{ lang.code }}"
-              data-lang-name="{{ lang.name }}"
-              dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}">
+                class="lyric-cell cell lang-{{ lang.code }} {{ '' if lang.default_on else 'is-hidden' }}"
+                data-lang="{{ lang.code }}"
+                data-lang-name="{{ lang.name }}"
+                dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}">
               {{ (seg.texts.get(lang.code, '') | e).replace('\n', '<br>') | safe }}
               </td>
             {% endfor %}
