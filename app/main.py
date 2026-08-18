@@ -28,7 +28,9 @@ from .auth import (
     verify_csrf,
     verify_password,
 )
+from .content_api import router as content_api_router
 from .content_loader import ContentError, find_hymn, find_level, find_year, flatten_hymns, load_site
+from .content_store import ensure_content_json
 from .db import db_conn, init_db, utc_now_iso
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -50,6 +52,9 @@ async def lifespan(_: FastAPI):
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     init_db()
     seed_initial_admin()
+    # v3 uses persistent JSON content in /app/data. On the first v3 startup,
+    # the current Excel workbook is migrated automatically so no curriculum is lost.
+    ensure_content_json()
     yield
 
 
@@ -63,12 +68,15 @@ app.add_middleware(
     max_age=60 * 60 * 24 * 14,
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.include_router(content_api_router)
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
 def get_site() -> dict[str, Any]:
-    content_path = os.getenv("CONTENT_PATH", "/app/content/site.xlsx")
-    return load_site(content_path)
+    # The Content Manager writes this file atomically. load_site automatically
+    # invalidates its cache whenever the file mtime/size changes, so published
+    # changes appear without restarting or redeploying the container.
+    return load_site(str(ensure_content_json()))
 
 
 def pop_flash(request: Request) -> dict[str, str] | None:
@@ -1010,6 +1018,46 @@ async def admin_user_create(
             return redirect("/admin/users")
         raise
     flash(request, f"{display_name.strip()} was added.")
+    return redirect("/admin/users")
+
+
+@app.post("/admin/users/{user_id}/toggle")
+async def admin_user_toggle(
+    request: Request,
+    user_id: int,
+    csrf: str = Form(...),
+):
+    verify_csrf(request, csrf)
+    current = require_user(request, "admin")
+
+    if user_id == current["id"]:
+        flash(request, "You cannot deactivate the account you are currently using.", "error")
+        return redirect("/admin/users")
+
+    with db_conn() as db:
+        row = db.execute(
+            "SELECT id, display_name, role, active FROM users WHERE id = ?",
+            (user_id,),
+        ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404)
+
+        new_active = 0 if row["active"] else 1
+        if row["role"] == "admin" and not new_active:
+            other_active_admins = db.execute(
+                "SELECT COUNT(*) AS n FROM users WHERE role = 'admin' AND active = 1 AND id <> ?",
+                (user_id,),
+            ).fetchone()["n"]
+            if other_active_admins == 0:
+                flash(request, "You cannot deactivate the last active administrator account.", "error")
+                return redirect("/admin/users")
+
+        db.execute(
+            "UPDATE users SET active = ?, updated_at = ? WHERE id = ?",
+            (new_active, utc_now_iso(), user_id),
+        )
+
+    flash(request, f"{row['display_name']} was {'activated' if new_active else 'deactivated'}.")
     return redirect("/admin/users")
 
 

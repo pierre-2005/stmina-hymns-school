@@ -1,125 +1,177 @@
-# St. Mina Hymns School
+# St. Mina Hymns School — v3
 
-A FastAPI + Jinja website for St. Mina Coptic Orthodox Church in Calgary.
+FastAPI + Jinja website for St. Mina Coptic Orthodox Church in Calgary, plus the new cross-platform **St. Mina Hymns School Content Manager**.
 
-## Features
+## What changed in v3
 
-- Levels → years → hymns, managed through `content/site.xlsx`
-- Responsive SoundCloud players using normal public SoundCloud track links
-- English, Coptic, and Coptic-English columns with spreadsheet-controlled defaults
-- SoundCloud lyric seeking/highlighting through the SoundCloud Widget API
-- Student, teacher, and administrator login roles
-- Private student audio submissions stored in Docker volumes
-- Teacher review and feedback for student recordings
-- Attendance for assigned classes
-- Developer comments and admin status tracking
-- Admin user and class management
-- Responsive burgundy/cream design
+The website no longer requires Excel → GitHub → Portainer redeploys for normal curriculum edits.
 
-## Coptic font
-
-Keep your existing `Avva_Shenouda.ttf` file at:
+On the first v3 startup, the existing `content/site.xlsx` workbook is migrated into:
 
 ```text
-app/static/fonts/Avva_Shenouda.ttf
+/app/data/site-content.json
 ```
 
-The downloadable project does not include the font file, so copy your existing licensed font into that path before building.
+That path lives inside the existing persistent `stminahs_data` Docker volume.
 
-## Important content workflow
+After migration, the desktop Content Manager edits and publishes that JSON through an authenticated HTTPS API. The website detects the file change automatically, so new levels, years, hymns, recordings, languages, and lyrics appear without restarting Docker.
 
-`content/site.xlsx` is copied into the Docker image during the build. Do **not** mount a named volume over `/app/content`, because that hides the newest workbook from the image.
+The old workbook remains in the repository as a one-time migration/fallback source, but it is no longer the normal editing workflow.
 
-To update hymn content:
+## Content Manager
 
-1. Edit `content/site.xlsx`.
-2. Commit and push it to GitHub.
-3. In Portainer, update/redeploy the Git stack and make sure the image is rebuilt.
-
-The SQLite database and student audio files remain persistent because only `/app/data` and `/app/uploads` use named volumes.
-
-## SoundCloud links
-
-In the `recordings` sheet, paste the normal public track URL in the `url` column, for example:
+Source:
 
 ```text
-https://soundcloud.com/account-name/track-name
+manager/stmina_content_manager.py
 ```
 
-Do not manually build an iframe URL. The app converts the public link into a responsive SoundCloud widget URL.
+It provides a GUI for:
 
-## Portainer environment variables
+- levels
+- years
+- hymns
+- published/hidden state
+- ordering
+- SoundCloud recordings
+- timestamped multilingual lyrics
+- languages and default visibility
+- site title/subtitle/footer
+- validation
+- instant publishing
+- optional GitHub JSON backup
+- optional Portainer redeploy trigger for code changes
+- local JSON draft save/open
 
-Set these in the stack environment:
+### Authentication
 
-- `SESSION_SECRET`: a long random value
-- `ADMIN_USERNAME`: initial administrator username
-- `ADMIN_DISPLAY_NAME`: name shown in the top-right corner
-- `ADMIN_PASSWORD`: initial administrator password
-- `ADMIN_SETUP_KEY`: private recovery key used by the browser-based administrator setup page
+The Content Manager does not contain a master password and does not store administrator passwords.
 
-Generate a session secret:
+To publish, the operator must enter a valid **active Administrator account** from the website. The website verifies the existing scrypt password hash and issues a short-lived signed Content Manager token. The token is held only in memory by the manager.
+
+Student and Teacher accounts cannot use the publishing API.
+
+## Required Portainer variables for v3
+
+Keep all of the existing variables, then add:
+
+```text
+CONTENT_API_SECRET=<new long random secret>
+CONTENT_API_TOKEN_TTL=7200
+```
+
+Generate `CONTENT_API_SECRET` separately from `SESSION_SECRET`:
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-The first administrator is only created when the database has no users. If the initial credentials do not work, do not use the Portainer console. Instead:
+Do not reuse your administrator password as `CONTENT_API_SECRET`.
 
-1. Set `ADMIN_SETUP_KEY` in Portainer to a private value of at least 20 characters.
-2. Redeploy the stack.
-3. Open `https://stminahs.overvault.ca/setup-admin`.
-4. Enter that setup key and choose the administrator username and password.
-5. The site creates or resets the administrator and signs you in automatically.
+### Optional GitHub backup
 
-After signing in, use **Portal → Users** to create teacher and student accounts.
-
-## Deploy
-
-```bash
-docker compose up --build -d
-```
-
-Local origin:
+If you want every publish to be backed up to GitHub, configure:
 
 ```text
-http://127.0.0.1:8090
+GITHUB_TOKEN=<fine-grained GitHub token>
+GITHUB_REPO=pierre-2005/stmina-hymns-school
+GITHUB_BRANCH=main
+GITHUB_CONTENT_PATH=content/site-content.json
 ```
 
-Cloudflare Tunnel public hostname:
+The token should only have the repository permissions needed to write repository contents. Keep it in Portainer; the desktop manager never receives it.
+
+### Optional Portainer redeploy button
+
+Enable a stack webhook for the Git-backed Hymns School stack and set:
 
 ```text
-stminahs.overvault.ca
+PORTAINER_WEBHOOK_URL=<Portainer stack webhook URL>
 ```
 
-If cloudflared is using host networking, route it to:
+Keep the webhook URL in Portainer. The desktop manager calls the Hymns School API, and the server triggers the webhook on its behalf.
 
-```text
-http://localhost:8090
-```
+Use the redeploy button only for code/template/CSS/JavaScript/Docker changes that have already been pushed to GitHub. Normal hymn content changes do not need a redeploy.
+
+## Existing website features retained
+
+- Levels → Years → Hymns public curriculum
+- responsive SoundCloud player
+- multilingual synchronized lyrics
+- Coptic Avva Shenouda font
+- student / teacher / administrator accounts
+- private student recordings
+- teacher review and feedback
+- attendance
+- classes and enrolment
+- developer comments
+- administrator recovery
+- permanent user deletion safeguards
+- responsive mobile design
 
 ## Persistent data
 
-- `stminahs_data`: SQLite users, classes, attendance, comments, and upload metadata
-- `stminahs_uploads`: private student audio files
+The existing volumes remain:
 
-Back up both volumes before migrating the site.
+```text
+stminahs_data
+stminahs_uploads
+```
 
-## Student recording privacy
+`stminahs_data` now contains:
 
-Uploaded recordings are not mounted as public static files. The app serves each file through an authenticated route and checks that the requester is:
+```text
+stminahs.db
+site-content.json
+content-backups/
+```
 
-- the student who uploaded it,
-- the teacher assigned to its class, or
-- an administrator.
+Do not delete this volume during ordinary redeployments.
 
-## Workbook sheets
+## First v3 deployment
 
-- `Instructions`: plain-language editing guide
-- `meta`: site title, subtitle, footer
-- `languages`: language name/order/default visibility
-- `levels`: homepage level cards
-- `years`: years inside each level
-- `hymns`: hymns inside each year
-- `recordings`: SoundCloud track URLs
-- `segments`: timestamped multilingual lyric rows
+1. Back up the `stminahs_data` and `stminahs_uploads` volumes.
+2. Push the v3 repository files to GitHub.
+3. Add `CONTENT_API_SECRET` in Portainer.
+4. Optionally configure GitHub backup and the Portainer webhook variables.
+5. Pull and redeploy the Git-backed stack with a rebuild.
+6. Open `/health` and confirm `ok: true`.
+7. Start the Content Manager.
+8. Sign in using a website Administrator username/password.
+9. Confirm the existing workbook content appears in the manager.
+10. Make a small test edit, validate, and publish it.
+
+The initial v3 container startup automatically creates `/app/data/site-content.json` from the existing workbook if the JSON file does not already exist.
+
+## Content backups
+
+Before every successful publish, the server copies the previous JSON into:
+
+```text
+/app/data/content-backups/
+```
+
+The newest 50 automatic backups are retained.
+
+GitHub backup is additional and optional.
+
+## Running the manager from source
+
+```bash
+cd manager
+python stmina_content_manager.py
+```
+
+The source app uses only Python's standard library and Tkinter.
+
+## Standalone Windows/macOS/Linux builds
+
+See `manager/README.md`.
+
+The included GitHub Actions workflow builds separate artifacts for Windows, macOS, and Linux:
+
+```text
+.github/workflows/build-content-manager.yml
+```
+
+A standalone executable does not require Python on the end user's computer. Builds are OS-specific, so Windows, macOS, and Linux each receive their own build.

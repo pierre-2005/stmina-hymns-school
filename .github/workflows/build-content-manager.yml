@@ -1,0 +1,51 @@
+name: Build Content Manager
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "manager/**"
+      - ".github/workflows/build-content-manager.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: StMinaHymnsManager-Windows
+          - os: macos-latest
+            artifact: StMinaHymnsManager-macOS
+          - os: ubuntu-latest
+            artifact: StMinaHymnsManager-Linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: manager/requirements-build.txt
+
+      - name: Install build dependency
+        run: python -m pip install -r manager/requirements-build.txt
+
+      - name: Build standalone manager
+        working-directory: manager
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name StMinaHymnsManager stmina_content_manager.py
+
+      - name: Upload standalone app
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact }}
+          path: manager/dist/*
+          if-no-files-found: error

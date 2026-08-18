@@ -9,3 +9,6 @@ data/*
 uploads/*
 !uploads/.gitkeep
 .DS_Store
+manager/build/
+manager/dist/
+manager/*.spec

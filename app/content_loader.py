@@ -357,16 +357,122 @@ def _load_xlsx(content_path: str) -> Dict[str, Any]:
 
 
 def _load_json(content_path: str) -> Dict[str, Any]:
+    """Load the Content Manager JSON format and prepare only published content for the public site."""
     with open(content_path, "r", encoding="utf-8") as file:
-        site = json.load(file)
+        raw = json.load(file)
 
-    for level in site.get("levels", []):
-        for year in level.get("years", []):
-            for hymn in year.get("hymns", []):
-                for recording in hymn.get("recordings", []):
-                    recording["embed_url"] = soundcloud_embed_url(recording.get("url", ""))
-                for segment in hymn.get("segments", []):
-                    segment["start_ms"] = segment.get("start_ms", _parse_time_to_ms(segment.get("t", "0:00")))
+    site: Dict[str, Any] = {
+        "site_title": _clean(raw.get("site_title")) or "St. Mina Hymns School",
+        "site_subtitle": _clean(raw.get("site_subtitle")) or "St. Mina Coptic Orthodox Church • Calgary, AB",
+        "footer_text": _clean(raw.get("footer_text")) or "St. Mina Coptic Orthodox Church (Calgary)",
+        "languages": [],
+        "levels": [],
+        "content_warnings": [],
+    }
+
+    languages = []
+    for index, language in enumerate(raw.get("languages", []) or []):
+        if not isinstance(language, dict):
+            continue
+        code = _clean(language.get("code")).lower()
+        if not code:
+            continue
+        languages.append(
+            {
+                "code": code,
+                "name": _clean(language.get("name")) or code,
+                "is_rtl": _truthy(language.get("is_rtl"), default=False),
+                "default_on": _truthy(language.get("default_on"), default=True),
+                "sort": _safe_int(language.get("sort"), index * 10),
+            }
+        )
+    site["languages"] = sorted(languages, key=lambda item: (item["sort"], item["name"].casefold()))
+
+    levels = []
+    for level_index, level in enumerate(raw.get("levels", []) or []):
+        if not isinstance(level, dict) or not _truthy(level.get("published"), default=True):
+            continue
+        out_level = {
+            "slug": _clean(level.get("slug")),
+            "name": _clean(level.get("name")) or _clean(level.get("slug")),
+            "description": _clean(level.get("description")),
+            "sort": _safe_int(level.get("sort"), level_index * 10),
+            "years": [],
+        }
+
+        years = []
+        for year_index, year in enumerate(level.get("years", []) or []):
+            if not isinstance(year, dict) or not _truthy(year.get("published"), default=True):
+                continue
+            out_year = {
+                "slug": _clean(year.get("slug")),
+                "level_slug": out_level["slug"],
+                "name": _clean(year.get("name")) or _clean(year.get("slug")),
+                "description": _clean(year.get("description")),
+                "sort": _safe_int(year.get("sort"), year_index * 10),
+                "hymns": [],
+            }
+
+            hymns = []
+            for hymn_index, hymn in enumerate(year.get("hymns", []) or []):
+                if not isinstance(hymn, dict) or not _truthy(hymn.get("published"), default=True):
+                    continue
+                out_hymn = {
+                    "slug": _clean(hymn.get("slug")),
+                    "title": _clean(hymn.get("title")) or _clean(hymn.get("slug")),
+                    "note": _clean(hymn.get("note")),
+                    "sort": _safe_int(hymn.get("sort"), hymn_index * 10),
+                    "recordings": [],
+                    "segments": [],
+                }
+
+                for recording_index, recording in enumerate(hymn.get("recordings", []) or []):
+                    if not isinstance(recording, dict) or not _truthy(recording.get("published"), default=True):
+                        continue
+                    raw_url = _clean(recording.get("url"))
+                    embed_url = soundcloud_embed_url(raw_url)
+                    if not raw_url or not embed_url:
+                        continue
+                    out_hymn["recordings"].append(
+                        {
+                            "label": _clean(recording.get("label")) or "Recording",
+                            "url": raw_url,
+                            "embed_url": embed_url,
+                            "sort": _safe_int(recording.get("sort"), recording_index * 10),
+                        }
+                    )
+
+                for segment_index, segment in enumerate(hymn.get("segments", []) or []):
+                    if not isinstance(segment, dict) or not _truthy(segment.get("published"), default=True):
+                        continue
+                    texts = {
+                        _clean(code).lower(): str(value)
+                        for code, value in (segment.get("texts") or {}).items()
+                        if _clean(code) and value is not None and _clean(value)
+                    }
+                    if not texts:
+                        continue
+                    timestamp = _clean(segment.get("t")) or "0:00"
+                    out_hymn["segments"].append(
+                        {
+                            "t": timestamp,
+                            "start_ms": _parse_time_to_ms(timestamp),
+                            "texts": texts,
+                            "sort": _safe_int(segment.get("sort"), segment_index * 10),
+                        }
+                    )
+
+                out_hymn["recordings"].sort(key=lambda item: (item["sort"], item["label"].casefold()))
+                out_hymn["segments"].sort(key=lambda item: (item["start_ms"], item["sort"]))
+                hymns.append(out_hymn)
+
+            out_year["hymns"] = sorted(hymns, key=lambda item: (item["sort"], item["title"].casefold()))
+            years.append(out_year)
+
+        out_level["years"] = sorted(years, key=lambda item: (item["sort"], item["name"].casefold()))
+        levels.append(out_level)
+
+    site["levels"] = sorted(levels, key=lambda item: (item["sort"], item["name"].casefold()))
     return _normalise_site(site)
 
 

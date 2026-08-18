@@ -4,11 +4,6 @@
   <div class="hero-copy">
     <span class="eyebrow">St. Mina Coptic Orthodox Church · Calgary</span>
     <h1>Learn the Hymns and Rites of the Coptic Orthodox Church</h1>
-    {% if current_user %}
-      <a class="btn btn-primary" href="/portal">Open your {{ role_label|lower }} portal</a>
-    {% else %}
-      <a class="btn btn-primary" href="/login">Sign in to your portal</a>
-    {% endif %}
   </div>
   <div class="hero-symbol" aria-hidden="true">ⲡⲓϩⲩⲙⲛⲟⲇⲟⲥ</div>
 </section>
@@ -34,14 +29,14 @@
   {% else %}
     <div class="empty-state">
       <h3>No levels are published yet</h3>
-      <p>Add a published row to the <strong>levels</strong> sheet in <code>site.xlsx</code>.</p>
+      <p>Use the St. Mina Hymns School Content Manager to add or publish a curriculum level.</p>
     </div>
   {% endfor %}
 </div>
 
 {% if site.content_warnings and current_user and current_user.role == 'admin' %}
   <details class="warning-panel">
-    <summary>{{ site.content_warnings|length }} content workbook warning(s)</summary>
+    <summary>{{ site.content_warnings|length }} content warning(s)</summary>
     <ul>{% for warning in site.content_warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
   </details>
 {% endif %}

@@ -5,21 +5,45 @@ services:
     container_name: stminahs-web
     environment:
       TZ: America/Edmonton
+
+      # Legacy workbook used only for the one-time v3 migration.
       CONTENT_PATH: /app/content/site.xlsx
+
+      # v3 live content. This is inside the persistent stminahs_data volume.
+      CONTENT_JSON_PATH: /app/data/site-content.json
+      CONTENT_BACKUP_DIR: /app/data/content-backups
+
       DATABASE_PATH: /app/data/stminahs.db
       UPLOAD_DIR: /app/uploads
       MAX_UPLOAD_MB: "40"
       COOKIE_SECURE: "true"
+
       SESSION_SECRET: ${SESSION_SECRET}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-Site Administrator}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       ADMIN_SETUP_KEY: ${ADMIN_SETUP_KEY}
+
+      # Required for the desktop Content Manager. Generate a separate long secret.
+      CONTENT_API_SECRET: ${CONTENT_API_SECRET}
+      CONTENT_API_TOKEN_TTL: ${CONTENT_API_TOKEN_TTL:-7200}
+
+      # Optional GitHub content backup. Keep the token in Portainer, never in the desktop app.
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_REPO: ${GITHUB_REPO:-pierre-2005/stmina-hymns-school}
+      GITHUB_BRANCH: ${GITHUB_BRANCH:-main}
+      GITHUB_CONTENT_PATH: ${GITHUB_CONTENT_PATH:-content/site-content.json}
+
+      # Optional Portainer stack webhook. Keep the webhook URL server-side.
+      PORTAINER_WEBHOOK_URL: ${PORTAINER_WEBHOOK_URL:-}
+
     volumes:
       - stminahs_data:/app/data
       - stminahs_uploads:/app/uploads
+
     ports:
       - "127.0.0.1:8090:8000"
+
     restart: unless-stopped
 
 volumes:
