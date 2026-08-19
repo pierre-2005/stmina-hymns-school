@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.0"
+APP_VERSION = "3.1"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -344,6 +344,328 @@ class LyricDialog(tk.Toplevel):
         }
         self.destroy()
 
+class CopyHymnDialog(tk.Toplevel):
+    """Choose one or more destination years for a full hymn copy."""
+
+    def __init__(
+        self,
+        parent: tk.Misc,
+        content: dict[str, Any],
+        source_ref: tuple[str, int | None, int | None, int | None],
+        hymn: dict[str, Any],
+    ):
+        super().__init__(parent)
+
+        self.title("Copy hymn to other years")
+        self.transient(parent)
+        self.grab_set()
+
+        self.geometry("640x620")
+        self.minsize(540, 460)
+
+        self.result: list[tuple[int, int]] | None = None
+
+        self.destination_vars: dict[
+            tuple[int, int],
+            tk.BooleanVar,
+        ] = {}
+
+        _kind, source_li, source_yi, _source_hi = source_ref
+
+        self.source_li = (
+            int(source_li)
+            if source_li is not None
+            else -1
+        )
+
+        self.source_yi = (
+            int(source_yi)
+            if source_yi is not None
+            else -1
+        )
+
+        outer = ttk.Frame(
+            self,
+            padding=16,
+        )
+
+        outer.pack(
+            fill="both",
+            expand=True,
+        )
+
+        ttk.Label(
+            outer,
+            text=(
+                f"Copy: "
+                f"{hymn.get('title') or hymn.get('slug') or 'Selected hymn'}"
+            ),
+            style="Heading.TLabel",
+        ).pack(anchor="w")
+
+        ttk.Label(
+            outer,
+            text=(
+                "Choose every year that should receive a copy. "
+                "The complete hymn is copied, including its note, "
+                "published state, SoundCloud recordings, and "
+                "lyric/timestamp rows."
+            ),
+            wraplength=585,
+        ).pack(
+            anchor="w",
+            pady=(4, 12),
+        )
+
+        ttk.Label(
+            outer,
+            text=(
+                "Copies are independent after they are created. "
+                "Editing one later will not change the others."
+            ),
+            wraplength=585,
+        ).pack(
+            anchor="w",
+            pady=(0, 12),
+        )
+
+        button_row = ttk.Frame(outer)
+
+        button_row.pack(
+            fill="x",
+            pady=(0, 8),
+        )
+
+        ttk.Button(
+            button_row,
+            text="Select all",
+            command=self._select_all,
+        ).pack(side="left")
+
+        ttk.Button(
+            button_row,
+            text="Clear all",
+            command=self._clear_all,
+        ).pack(
+            side="left",
+            padx=(6, 0),
+        )
+
+        list_frame = ttk.Frame(outer)
+
+        list_frame.pack(
+            fill="both",
+            expand=True,
+        )
+
+        canvas = tk.Canvas(
+            list_frame,
+            highlightthickness=0,
+        )
+
+        scrollbar = ttk.Scrollbar(
+            list_frame,
+            orient="vertical",
+            command=canvas.yview,
+        )
+
+        inner = ttk.Frame(
+            canvas,
+            padding=(4, 2, 8, 8),
+        )
+
+        inner.bind(
+            "<Configure>",
+            lambda _event: canvas.configure(
+                scrollregion=canvas.bbox("all")
+            ),
+        )
+
+        window_id = canvas.create_window(
+            (0, 0),
+            window=inner,
+            anchor="nw",
+        )
+
+        canvas.bind(
+            "<Configure>",
+            lambda event: canvas.itemconfigure(
+                window_id,
+                width=event.width,
+            ),
+        )
+
+        canvas.configure(
+            yscrollcommand=scrollbar.set
+        )
+
+        canvas.pack(
+            side="left",
+            fill="both",
+            expand=True,
+        )
+
+        scrollbar.pack(
+            side="right",
+            fill="y",
+        )
+
+        destination_count = 0
+
+        for li, level in enumerate(
+            content.get("levels", [])
+        ):
+            level_name = (
+                level.get("name")
+                or level.get("slug")
+                or f"Level {li + 1}"
+            )
+
+            ttk.Label(
+                inner,
+                text=level_name,
+                style="Heading.TLabel",
+            ).pack(
+                anchor="w",
+                pady=(10 if li else 2, 3),
+            )
+
+            years = level.get(
+                "years",
+                [],
+            )
+
+            if not years:
+                ttk.Label(
+                    inner,
+                    text="No years in this level.",
+                ).pack(
+                    anchor="w",
+                    padx=(18, 0),
+                    pady=(0, 4),
+                )
+
+                continue
+
+            for yi, year in enumerate(years):
+                year_name = (
+                    year.get("name")
+                    or year.get("slug")
+                    or f"Year {yi + 1}"
+                )
+
+                # Do not allow copying into
+                # the exact year it already belongs to.
+                if (
+                    li == self.source_li
+                    and yi == self.source_yi
+                ):
+                    ttk.Label(
+                        inner,
+                        text=(
+                            f"✓ {year_name}  "
+                            "(current year)"
+                        ),
+                    ).pack(
+                        anchor="w",
+                        padx=(18, 0),
+                        pady=2,
+                    )
+
+                    continue
+
+                var = tk.BooleanVar(
+                    value=False
+                )
+
+                self.destination_vars[
+                    (li, yi)
+                ] = var
+
+                destination_count += 1
+
+                ttk.Checkbutton(
+                    inner,
+                    text=year_name,
+                    variable=var,
+                ).pack(
+                    anchor="w",
+                    padx=(18, 0),
+                    pady=2,
+                )
+
+        if destination_count == 0:
+            ttk.Label(
+                inner,
+                text=(
+                    "There are no other years available. "
+                    "Add another year first."
+                ),
+            ).pack(
+                anchor="w",
+                pady=12,
+            )
+
+        actions = ttk.Frame(outer)
+
+        actions.pack(
+            fill="x",
+            pady=(12, 0),
+        )
+
+        ttk.Button(
+            actions,
+            text="Cancel",
+            command=self.destroy,
+        ).pack(side="right")
+
+        ttk.Button(
+            actions,
+            text="Copy to selected years",
+            command=self._save,
+        ).pack(
+            side="right",
+            padx=(0, 8),
+        )
+
+        self.bind(
+            "<Escape>",
+            lambda _event: self.destroy(),
+        )
+
+        self.wait_visibility()
+        self.focus_force()
+        self.wait_window()
+
+    def _select_all(self) -> None:
+        for var in self.destination_vars.values():
+            var.set(True)
+
+    def _clear_all(self) -> None:
+        for var in self.destination_vars.values():
+            var.set(False)
+
+    def _save(self) -> None:
+        selected = [
+            ref
+            for ref, var
+            in self.destination_vars.items()
+            if bool(var.get())
+        ]
+
+        if not selected:
+            messagebox.showinfo(
+                "Choose a destination",
+                "Select at least one destination year.",
+                parent=self,
+            )
+
+            return
+
+        self.result = selected
+
+        self.destroy()
+
 
 class ContentManagerApp(tk.Tk):
     def __init__(self):
@@ -601,8 +923,10 @@ class ContentManagerApp(tk.Tk):
         ttk.Button(tree_buttons, text="Delete", command=self.delete_selected).pack(side="right")
         move_buttons = ttk.Frame(left)
         move_buttons.pack(fill="x", pady=(5, 0))
+
         ttk.Button(move_buttons, text="Move up", command=lambda: self.move_selected(-1)).pack(side="left")
         ttk.Button(move_buttons, text="Move down", command=lambda: self.move_selected(1)).pack(side="left", padx=(4, 0))
+        ttk.Button(move_buttons,text="Copy hymn…",command=self.copy_selected_hymn,).pack(side="right",)
 
         self.notebook = ttk.Notebook(right)
         self.notebook.pack(fill="both", expand=True)
@@ -839,6 +1163,175 @@ class ContentManagerApp(tk.Tk):
         hymns.append(hymn)
         self.mark_dirty()
         self.rebuild_tree(("hymn", li, yi, len(hymns) - 1))
+
+    def copy_selected_hymn(self) -> None:
+        ref = self.selected_ref()
+
+        hymn = self.get_ref_object(ref)
+
+        if (
+            not ref
+            or ref[0] != "hymn"
+            or not hymn
+        ):
+            messagebox.showinfo(
+                "Select a hymn",
+                "Select the hymn you want to copy first.",
+                parent=self,
+            )
+
+            return
+
+        dialog = CopyHymnDialog(
+            self,
+            self.content,
+            ref,
+            hymn,
+        )
+
+        if not dialog.result:
+            return
+
+        source_title = str(
+            hymn.get("title")
+            or hymn.get("slug")
+            or "Hymn"
+        )
+
+        source_slug = str(
+            hymn.get("slug")
+            or ""
+        ).strip()
+
+        copied_destinations: list[str] = []
+
+        skipped_destinations: list[str] = []
+
+        last_copy_ref: tuple[
+            str,
+            int | None,
+            int | None,
+            int | None,
+        ] | None = None
+
+        for li, yi in dialog.result:
+
+            try:
+                level = self.content[
+                    "levels"
+                ][li]
+
+                year = level[
+                    "years"
+                ][yi]
+
+            except (
+                KeyError,
+                IndexError,
+                TypeError,
+            ):
+                continue
+
+            hymns = year.setdefault(
+                "hymns",
+                [],
+            )
+
+            # Check whether the same hymn slug
+            # already exists in this destination year.
+            duplicate = next(
+                (
+                    item
+                    for item in hymns
+                    if str(
+                        item.get("slug")
+                        or ""
+                    ).strip().casefold()
+                    == source_slug.casefold()
+                ),
+                None,
+            )
+
+            destination_name = (
+                f"{level.get('name') or level.get('slug') or 'Level'}"
+                " → "
+                f"{year.get('name') or year.get('slug') or 'Year'}"
+            )
+
+            # Never create accidental duplicate hymns
+            # inside the exact same year.
+            if duplicate is not None:
+                skipped_destinations.append(
+                    destination_name
+                )
+
+                continue
+
+            # Deepcopy is important:
+            # recordings and lyric rows need to become
+            # independent copies, not shared Python objects.
+            copied_hymn = deepcopy(hymn)
+
+            copied_hymn["sort"] = next_sort(
+                hymns
+            )
+
+            hymns.append(
+                copied_hymn
+            )
+
+            copied_destinations.append(
+                destination_name
+            )
+
+            last_copy_ref = (
+                "hymn",
+                li,
+                yi,
+                len(hymns) - 1,
+            )
+
+        if copied_destinations:
+            self.mark_dirty()
+
+            self.rebuild_tree(
+                last_copy_ref or ref
+            )
+
+        if not copied_destinations:
+            messagebox.showwarning(
+                "Nothing copied",
+                (
+                    f"'{source_title}' was not copied.\n\n"
+                    "Every selected destination already contains "
+                    "a hymn with the same slug."
+                ),
+                parent=self,
+            )
+
+            return
+
+        message = (
+            f"Copied '{source_title}' to "
+            f"{len(copied_destinations)} "
+            f"{'year' if len(copied_destinations) == 1 else 'years'}."
+        )
+
+        if skipped_destinations:
+            message += (
+                "\n\nSkipped because the hymn "
+                "already exists there:\n• "
+                + "\n• ".join(
+                    skipped_destinations
+                )
+            )
+
+        messagebox.showinfo(
+            "Hymn copied",
+            message,
+            parent=self,
+        )
+
 
     def delete_selected(self) -> None:
         ref = self.selected_ref()
