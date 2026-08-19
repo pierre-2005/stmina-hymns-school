@@ -33,7 +33,99 @@
       "description": "Foundations",
       "sort": 10,
       "published": true,
-      "years": []
+      "years": [
+        {
+          "slug": "year-1",
+          "name": "Year 1",
+          "description": "",
+          "sort": 10,
+          "published": true,
+          "hymns": []
+        },
+        {
+          "slug": "year-2",
+          "name": "Year 2",
+          "description": "",
+          "sort": 20,
+          "published": true,
+          "hymns": []
+        }
+      ]
+    },
+    {
+      "slug": "level-2",
+      "name": "Level 2",
+      "description": "",
+      "sort": 20,
+      "published": true,
+      "years": [
+        {
+          "slug": "year-1",
+          "name": "Year 1",
+          "description": "",
+          "sort": 10,
+          "published": true,
+          "hymns": []
+        },
+        {
+          "slug": "year-2",
+          "name": "Year 2",
+          "description": "",
+          "sort": 20,
+          "published": true,
+          "hymns": []
+        }
+      ]
+    },
+    {
+      "slug": "level-3",
+      "name": "Level 3",
+      "description": "",
+      "sort": 30,
+      "published": true,
+      "years": [
+        {
+          "slug": "year-1",
+          "name": "Year 1",
+          "description": "",
+          "sort": 10,
+          "published": true,
+          "hymns": []
+        },
+        {
+          "slug": "year-2",
+          "name": "Year 2",
+          "description": "",
+          "sort": 20,
+          "published": true,
+          "hymns": []
+        }
+      ]
+    },
+    {
+      "slug": "level-4",
+      "name": "Level 4",
+      "description": "",
+      "sort": 40,
+      "published": true,
+      "years": [
+        {
+          "slug": "year-1",
+          "name": "Year 1",
+          "description": "",
+          "sort": 10,
+          "published": true,
+          "hymns": []
+        },
+        {
+          "slug": "year-2",
+          "name": "Year 2",
+          "description": "",
+          "sort": 20,
+          "published": true,
+          "hymns": []
+        }
+      ]
     }
   ]
 }
