@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "site_title": "St. Mina Hymns School",
+  "site_subtitle": "St. Mina Coptic Orthodox Church • Calgary, AB",
+  "footer_text": "St. Mina Coptic Orthodox Church (Calgary)",
+  "languages": [
+    {
+      "code": "en",
+      "name": "English",
+      "is_rtl": false,
+      "default_on": true,
+      "sort": 10
+    },
+    {
+      "code": "cop",
+      "name": "Coptic",
+      "is_rtl": false,
+      "default_on": true,
+      "sort": 20
+    },
+    {
+      "code": "cop_en",
+      "name": "Coptic-English",
+      "is_rtl": false,
+      "default_on": false,
+      "sort": 30
+    }
+  ],
+  "levels": [
+    {
+      "slug": "level-1",
+      "name": "Level 1",
+      "description": "Foundations",
+      "sort": 10,
+      "published": true,
+      "years": []
+    }
+  ]
+}
