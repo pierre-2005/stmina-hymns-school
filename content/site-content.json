@@ -40,7 +40,28 @@
           "description": "",
           "sort": 10,
           "published": true,
-          "hymns": []
+          "hymns": [
+            {
+              "slug": "conclusion-of-the-orthodox-creed",
+              "title": "Conclusion of the Orthodox Creed",
+              "note": "",
+              "sort": 10,
+              "published": true,
+              "recordings": [],
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We look for the resurrection of the dead, and the life of the age to come. Amen.",
+                    "cop": "Tengov2t èbol qa t̀h3 ǹ5ànactacic ǹte nire4mwovt: nem piwnq ǹte pièwn e0n3ov. Àm3n.",
+                    "cop_en": "Ten gosht evol kha et hee-enti anastasis, ente-ni refmoo-oot, nem pi-onkh ente pi-eoo-oon ethneeyou. Amen."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
+            }
+          ]
         },
         {
           "slug": "year-2",
