@@ -73,7 +73,13 @@
                 data-lang="{{ lang.code }}"
                 data-lang-name="{{ lang.name }}"
                 dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}">
-              {{ (seg.texts.get(lang.code, '') | e).replace('\n', '<br>') | safe }}
+              {% set lyric_text = seg.texts.get(lang.code, '') %}
+
+              {% if lang.code == 'cop' %}
+                {{ (lyric_text | avva_legacy | e).replace('\n', '<br>') | safe }}
+              {% else %}
+                {{ (lyric_text | e).replace('\n', '<br>') | safe }}
+              {% endif %}
               </td>
             {% endfor %}
           </tr>

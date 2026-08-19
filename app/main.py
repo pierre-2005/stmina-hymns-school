@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import unicodedata
 import asyncio
 import os
 import re
@@ -71,6 +72,47 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.include_router(content_api_router)
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
+def avva_legacy_text(value: Any) -> str:
+    """
+    Convert Unicode combining grave accents into the legacy
+    accent encoding expected by Avva Shenouda.
+
+    Examples:
+        è  ->  `e
+        t̀  ->  `t
+        ǹ  ->  `n
+        à  ->  `a
+
+    This only changes the text sent to the browser.
+    The saved hymn content is left untouched.
+    """
+    text = unicodedata.normalize("NFD", str(value or ""))
+
+    output: list[str] = []
+    i = 0
+
+    while i < len(text):
+        char = text[i]
+
+        # Base character followed by Unicode combining grave.
+        if (
+            i + 1 < len(text)
+            and text[i + 1] == "\u0300"
+        ):
+            # Avva Shenouda expects the legacy grave character
+            # before the character it belongs to.
+            output.append("`")
+            output.append(char)
+            i += 2
+            continue
+
+        output.append(char)
+        i += 1
+
+    return "".join(output)
+
+
+templates.env.filters["avva_legacy"] = avva_legacy_text
 
 def get_site() -> dict[str, Any]:
     # The Content Manager writes this file atomically. load_site automatically
