@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import socket
 import json
 import os
 import re
@@ -45,35 +46,102 @@ class ContentApiClient:
             raise ValueError("Enter a valid website URL, such as https://stminahs.overvault.ca")
         return value
 
-    def _request(self, method: str, path: str, data: dict[str, Any] | None = None, auth: bool = True) -> dict[str, Any]:
+    def _request(
+        self,
+        method: str,
+        path: str,
+        data: dict[str, Any] | None = None,
+        auth: bool = True,
+        timeout: int = 10,
+    ) -> dict[str, Any]:
         headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
             "User-Agent": f"stmina-content-manager/{APP_VERSION}",
         }
+
         if auth:
             if not self.token:
                 raise ApiError("Sign in before using this action.", 401)
+
             headers["Authorization"] = f"Bearer {self.token}"
-        payload = json.dumps(data).encode("utf-8") if data is not None else None
-        request = Request(self.base_url + path, data=payload, headers=headers, method=method)
+
+        payload = (
+            json.dumps(data).encode("utf-8")
+            if data is not None
+            else None
+        )
+
+        request = Request(
+            self.base_url + path,
+            data=payload,
+            headers=headers,
+            method=method,
+        )
+
         try:
-            with urlopen(request, timeout=30) as response:
+            with urlopen(request, timeout=timeout) as response:
                 body = response.read().decode("utf-8")
-                return json.loads(body) if body else {"ok": True}
+
+                if not body:
+                    return {"ok": True}
+
+                return json.loads(body)
+
         except HTTPError as exc:
-            raw = exc.read().decode("utf-8", errors="replace")
+            raw = exc.read().decode(
+                "utf-8",
+                errors="replace",
+            )
+
             detail = raw
+
             try:
                 parsed = json.loads(raw)
-                detail = parsed.get("detail") or parsed.get("message") or raw
+
+                detail = (
+                    parsed.get("detail")
+                    or parsed.get("message")
+                    or raw
+                )
+
             except Exception:
                 pass
-            raise ApiError(str(detail) or f"HTTP {exc.code}", exc.code) from exc
+
+            raise ApiError(
+                str(detail) or f"HTTP {exc.code}",
+                exc.code,
+            ) from exc
+
+        except (TimeoutError, socket.timeout) as exc:
+            raise ApiError(
+                "The website took too long to respond.\n\n"
+                f"Website: {self.base_url}\n\n"
+                "Check that the website is online and that the v3 "
+                "Content API has been deployed."
+            ) from exc
+
         except URLError as exc:
-            raise ApiError(f"Could not connect to {self.base_url}: {exc.reason}") from exc
+            raise ApiError(
+                "Could not connect to the Hymns School website.\n\n"
+                f"Website: {self.base_url}\n"
+                f"Reason: {exc.reason}"
+            ) from exc
+
         except json.JSONDecodeError as exc:
-            raise ApiError("The website returned an invalid response.") from exc
+            raise ApiError(
+                "The website returned an invalid response. "
+                "The server may still be running the older website version."
+            ) from exc
+
+
+    def health(self) -> dict[str, Any]:
+        return self._request(
+        "GET",
+        "/health",
+        auth=False,
+        timeout=5,
+    )
 
     def login(self, username: str, password: str) -> dict[str, Any]:
         result = self._request(
@@ -383,33 +451,115 @@ class ContentManagerApp(tk.Tk):
         url = self.login_url.get().strip()
         username = self.login_username.get().strip()
         password = self.login_password.get()
+
         if not username or not password:
-            self.login_error.configure(text="Enter your administrator username and password.")
+            self.login_error.configure(
+                text="Enter your administrator username and password."
+            )
             return
+
         try:
             client = ContentApiClient(url)
+
         except ValueError as exc:
             self.login_error.configure(text=str(exc))
             return
 
-        def work() -> tuple[ContentApiClient, dict[str, Any], dict[str, Any]]:
-            login_result = client.login(username, password)
-            current = client.current()
+        self.login_error.configure(text="")
+
+        def work() -> tuple[
+            ContentApiClient,
+            dict[str, Any],
+            dict[str, Any],
+        ]:
+            # Step 1: make sure the website itself responds.
+            try:
+                health = client.health()
+            except Exception as exc:
+                raise ApiError(
+                    "The Hymns School website could not be reached.\n\n"
+                    f"{exc}"
+                ) from exc
+
+            if not health.get("ok"):
+                raise ApiError(
+                    "The website responded, but its health check failed."
+                )
+
+            # Step 2: authenticate the administrator.
+            try:
+                login_result = client.login(
+                    username,
+                    password,
+                )
+            except ApiError as exc:
+                if exc.status == 404:
+                    raise ApiError(
+                        "The website is online, but the Content Manager API "
+                        "was not found.\n\n"
+                        "The Raspberry Pi is probably still running the "
+                        "older website version. Redeploy v3 in Portainer."
+                    ) from exc
+
+                raise
+
+            # Step 3: download the current curriculum.
+            try:
+                current = client.current()
+            except ApiError as exc:
+                raise ApiError(
+                    "Login succeeded, but the current hymn curriculum "
+                    "could not be loaded.\n\n"
+                    f"{exc}"
+                ) from exc
+
             return client, login_result, current
 
-        def done(result: tuple[ContentApiClient, dict[str, Any], dict[str, Any]]) -> None:
+        def done(
+            result: tuple[
+                ContentApiClient,
+                dict[str, Any],
+                dict[str, Any],
+            ]
+        ) -> None:
             client_obj, _login_result, current = result
+
             self.client = client_obj
-            self.content = current.get("content") or default_content()
-            self.remote_status = current.get("status") or {}
-            self.remote_revision = str(self.remote_status.get("revision", ""))
+
+            self.content = (
+                current.get("content")
+                or default_content()
+            )
+
+            self.remote_status = (
+                current.get("status")
+                or {}
+            )
+
+            self.remote_revision = str(
+                self.remote_status.get(
+                    "revision",
+                    "",
+                )
+            )
+
             self.saved_url = client_obj.base_url
+
             self._save_settings()
+
+            # Never retain the administrator password.
             self.login_password.set("")
+
             self.dirty = False
+
             self.build_editor()
 
-        self.run_async("Signing in and loading website content…", work, done)
+        self.run_async(
+            "Connecting to the Hymns School website…",
+            work,
+            done,
+        )
+
 
     def build_editor(self) -> None:
         self.unbind("<Return>")
