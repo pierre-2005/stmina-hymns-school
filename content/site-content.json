@@ -161,6 +161,114 @@
               "published": true,
               "recordings": [],
               "segments": []
+            },
+            {
+              "slug": "conclusion-of-the-hymn-of-intercessions-english",
+              "title": "Conclusion of the Hymn of Intercessions (English)",
+              "note": "(We worship you O Christ)",
+              "sort": 100,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "second-canticle-psalm-135-english",
+              "title": "Second Canticle (English)",
+              "note": "(Psalm 135)",
+              "sort": 110,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "conclusion-of-the-doxologies-english",
+              "title": "Conclusion of the Doxologies (English)",
+              "note": "",
+              "sort": 120,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "responses-after-the-fraction-english",
+              "title": "Responses after the Fraction (English)",
+              "note": "",
+              "sort": 130,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "the-paralax-hymn-our-lord-coptic",
+              "title": "The Paralax Hymn Our Lord (Nativity - Coptic)",
+              "note": "(Apenchoice)",
+              "sort": 140,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "his-foundations-coptic",
+              "title": "His Foundations (Coptic)",
+              "note": "(Nef centi)",
+              "sort": 150,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "o-king-of-peace-pascha-coptic",
+              "title": "O King of Peace (Pascha - Coptic)",
+              "note": "(Eporo ente ti hirini)",
+              "sort": 160,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "psalm-response-resurrection-coptic",
+              "title": "Psalm Response (Resurrection - Coptic)",
+              "note": "",
+              "sort": 170,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "gospel-response-resurrection-coptic",
+              "title": "Gospel Response (Resurrection - Coptic)",
+              "note": "",
+              "sort": 180,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "hymn-of-intercession-kiahk-english",
+              "title": "Hymn of Intercession (Kiahk - English)",
+              "note": "",
+              "sort": 190,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "concluding-hymn-kiahk-english",
+              "title": "Concluding Hymn (Kiahk - English)",
+              "note": "",
+              "sort": 200,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "the-resurrection-doxology-english",
+              "title": "The Resurrection Doxology (English)",
+              "note": "",
+              "sort": 210,
+              "published": true,
+              "recordings": [],
+              "segments": []
             }
           ]
         }
