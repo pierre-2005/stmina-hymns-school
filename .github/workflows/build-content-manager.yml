@@ -41,8 +41,16 @@ jobs:
 
       - name: Build standalone manager
         working-directory: manager
-        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name StMinaHymnsManager stmina_content_manager.py
-
+        run: >
+          python -m PyInstaller
+          --noconfirm
+          --clean
+          --onefile
+          --windowed
+          --name StMinaHymnsManager
+          --add-data "../app/static/images/stmina-logo.png:assets"
+          stmina_content_manager.py
+      
       - name: Upload standalone app
         uses: actions/upload-artifact@v7
         with:

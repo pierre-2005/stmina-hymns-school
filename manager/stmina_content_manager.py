@@ -1,25 +1,217 @@
 from __future__ import annotations
 
-import socket
 import json
 import os
 import re
+import socket
 import sys
 import threading
 import tkinter as tk
+import unicodedata
 from copy import deepcopy
 from pathlib import Path
-from tkinter import filedialog, messagebox, simpledialog, ttk
+from tkinter import filedialog, messagebox, simpledialog, ttk, font as tkfont
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.1"
+APP_VERSION = "3.2"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
+
+
+# Website-matched visual theme
+BURGUNDY_950 = "#35101b"
+BURGUNDY_900 = "#4d1627"
+BURGUNDY_800 = "#632036"
+BURGUNDY_700 = "#7a263f"
+BURGUNDY_600 = "#91344d"
+ROSE_100 = "#f6e9ec"
+ROSE_50 = "#fcf6f7"
+CREAM = "#fffaf4"
+PAPER = "#ffffff"
+INK = "#201a1c"
+MUTED = "#6f6669"
+LINE = "#e9dfe1"
+SUCCESS = "#276749"
+DANGER = "#a12b3c"
+
+# ---------------------------------------------------------------------------
+# Unicode Coptic -> Avva Shenouda legacy mapping
+# Integrated from the user's standalone converter.
+# ---------------------------------------------------------------------------
+
+UNICODE_TO_AVVA = {
+    "Ⲁ": "A", "ⲁ": "a",
+    "Ⲃ": "B", "ⲃ": "b",
+    "Ⲅ": "J", "ⲅ": "j",
+    "Ⲇ": "D", "ⲇ": "d",
+    "Ⲉ": "E", "ⲉ": "e",
+    "Ⲍ": "Z", "ⲍ": "z",
+    "Ⲏ": "#", "ⲏ": "3",
+    "Ⲑ": ")", "ⲑ": "0",
+    "Ⲓ": "I", "ⲓ": "i",
+    "Ⲕ": "K", "ⲕ": "k",
+    "Ⲗ": "L", "ⲗ": "l",
+    "Ⲙ": "M", "ⲙ": "m",
+    "Ⲛ": "N", "ⲛ": "n",
+    "Ⲝ": "&", "ⲝ": "7",
+    "Ⲟ": "O", "ⲟ": "o",
+    "Ⲡ": "P", "ⲡ": "p",
+    "Ⲣ": "R", "ⲣ": "r",
+    "Ⲥ": "C", "ⲥ": "c",
+    "Ⲧ": "T", "ⲧ": "t",
+    "Ⲩ": "V", "ⲩ": "v",
+    "Ⲫ": "F", "ⲫ": "f",
+    "Ⲭ": "X", "ⲭ": "x",
+    "Ⲯ": "Y", "ⲯ": "y",
+    "Ⲱ": "W", "ⲱ": "w",
+    "Ϣ": "@", "ϣ": "2",
+    "Ϥ": "$", "ϥ": "4",
+    "Ϧ": "Q", "ϧ": "q",
+    "Ϩ": "H", "ϩ": "h",
+    "Ϫ": "G", "ϫ": "g",
+    "Ϭ": "S", "ϭ": "s",
+    "Ϯ": "%", "ϯ": "5",
+    "ⲋ": "6",
+    "⳥": "U",
+    "⳪": "u",
+    "ⳮ": "+",
+}
+
+SPECIAL_SEQUENCES = {
+    "ⲇ\u0305": "ä",
+    "ⲩ\u0305": "ö",
+}
+
+AVVA_TO_UNICODE = {value: key for key, value in UNICODE_TO_AVVA.items()}
+AVVA_SPECIAL_TO_UNICODE = {value: key for key, value in SPECIAL_SEQUENCES.items()}
+
+
+def contains_unicode_coptic(text: str) -> bool:
+    """Return True when text contains Unicode Coptic characters."""
+    for ch in str(text or ""):
+        cp = ord(ch)
+        if 0x2C80 <= cp <= 0x2CFF or 0x03E2 <= cp <= 0x03EF:
+            return True
+    return False
+
+
+def unicode_coptic_to_avva(text: str) -> str:
+    """
+    Convert Unicode Coptic to the legacy Avva Shenouda encoding.
+
+    In addition to the original converter mapping, this handles Unicode
+    combining grave accents in the form expected by Avva Shenouda.
+    Example: ⲉ + U+0300 -> `e
+    """
+    text = unicodedata.normalize("NFD", str(text or ""))
+    output: list[str] = []
+    i = 0
+
+    while i < len(text):
+        if i + 1 < len(text):
+            pair = text[i:i + 2]
+            if pair in SPECIAL_SEQUENCES:
+                output.append(SPECIAL_SEQUENCES[pair])
+                i += 2
+                continue
+
+        ch = text[i]
+
+        if ch in UNICODE_TO_AVVA:
+            mapped = UNICODE_TO_AVVA[ch]
+
+            j = i + 1
+            combining_marks: list[str] = []
+            while j < len(text) and unicodedata.combining(text[j]):
+                combining_marks.append(text[j])
+                j += 1
+
+            prefix = ""
+            suffix = ""
+            for mark in combining_marks:
+                if mark == "\u0300":
+                    prefix += "`"
+                else:
+                    suffix += mark
+
+            output.append(prefix + mapped + suffix)
+            i = j
+            continue
+
+        output.append(ch)
+        i += 1
+
+    return "".join(output)
+
+
+def avva_to_unicode_coptic(text: str) -> str:
+    """Best-effort reverse conversion for editing existing legacy lyrics."""
+    text = str(text or "")
+    output: list[str] = []
+    i = 0
+
+    while i < len(text):
+        ch = text[i]
+
+        if ch in AVVA_SPECIAL_TO_UNICODE:
+            output.append(AVVA_SPECIAL_TO_UNICODE[ch])
+            i += 1
+            continue
+
+        if ch == "`" and i + 1 < len(text):
+            next_ch = text[i + 1]
+            if next_ch in AVVA_TO_UNICODE:
+                output.append(AVVA_TO_UNICODE[next_ch] + "\u0300")
+                i += 2
+                continue
+
+        if ch in AVVA_TO_UNICODE:
+            output.append(AVVA_TO_UNICODE[ch])
+        else:
+            output.append(ch)
+
+        i += 1
+
+    return unicodedata.normalize("NFC", "".join(output))
+
+
+def find_logo_path() -> Path | None:
+    """Find the St. Mina logo in source mode or inside a PyInstaller bundle."""
+    candidates: list[Path] = []
+
+    bundle_root = getattr(sys, "_MEIPASS", None)
+    if bundle_root:
+        candidates.append(Path(bundle_root) / "assets" / "stmina-logo.png")
+
+    here = Path(__file__).resolve().parent
+    candidates.extend(
+        [
+            here / "assets" / "stmina-logo.png",
+            here.parent / "app" / "static" / "images" / "stmina-logo.png",
+            here / "stmina-logo.png",
+        ]
+    )
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def load_scaled_png(path: Path, target_px: int = 58) -> tk.PhotoImage:
+    """Load a PNG using Tk only and shrink it near target_px."""
+    image = tk.PhotoImage(file=str(path))
+    largest = max(image.width(), image.height())
+    if largest > target_px:
+        factor = max(1, round(largest / target_px))
+        image = image.subsample(factor, factor)
+    return image
+
 
 
 class ApiError(RuntimeError):
@@ -59,89 +251,36 @@ class ContentApiClient:
             "Content-Type": "application/json",
             "User-Agent": f"stmina-content-manager/{APP_VERSION}",
         }
-
         if auth:
             if not self.token:
                 raise ApiError("Sign in before using this action.", 401)
-
             headers["Authorization"] = f"Bearer {self.token}"
-
-        payload = (
-            json.dumps(data).encode("utf-8")
-            if data is not None
-            else None
-        )
-
-        request = Request(
-            self.base_url + path,
-            data=payload,
-            headers=headers,
-            method=method,
-        )
-
+        payload = json.dumps(data).encode("utf-8") if data is not None else None
+        request = Request(self.base_url + path, data=payload, headers=headers, method=method)
         try:
             with urlopen(request, timeout=timeout) as response:
                 body = response.read().decode("utf-8")
-
-                if not body:
-                    return {"ok": True}
-
-                return json.loads(body)
-
+                return json.loads(body) if body else {"ok": True}
         except HTTPError as exc:
-            raw = exc.read().decode(
-                "utf-8",
-                errors="replace",
-            )
-
+            raw = exc.read().decode("utf-8", errors="replace")
             detail = raw
-
             try:
                 parsed = json.loads(raw)
-
-                detail = (
-                    parsed.get("detail")
-                    or parsed.get("message")
-                    or raw
-                )
-
+                detail = parsed.get("detail") or parsed.get("message") or raw
             except Exception:
                 pass
-
-            raise ApiError(
-                str(detail) or f"HTTP {exc.code}",
-                exc.code,
-            ) from exc
-
+            raise ApiError(str(detail) or f"HTTP {exc.code}", exc.code) from exc
         except (TimeoutError, socket.timeout) as exc:
             raise ApiError(
-                "The website took too long to respond.\n\n"
-                f"Website: {self.base_url}\n\n"
-                "Check that the website is online and that the v3 "
-                "Content API has been deployed."
+                f"The website took too long to respond.\n\nWebsite: {self.base_url}"
             ) from exc
-
         except URLError as exc:
-            raise ApiError(
-                "Could not connect to the Hymns School website.\n\n"
-                f"Website: {self.base_url}\n"
-                f"Reason: {exc.reason}"
-            ) from exc
-
+            raise ApiError(f"Could not connect to {self.base_url}: {exc.reason}") from exc
         except json.JSONDecodeError as exc:
-            raise ApiError(
-                "The website returned an invalid response. "
-                "The server may still be running the older website version."
-            ) from exc
-
+            raise ApiError("The website returned an invalid response.") from exc
 
     def health(self) -> dict[str, Any]:
-        return self._request(
-        "GET",
-        "/health",
-        auth=False,
-        timeout=5,
-    )
+        return self._request("GET", "/health", auth=False, timeout=5)
 
     def login(self, username: str, password: str) -> dict[str, Any]:
         result = self._request(
@@ -219,13 +358,43 @@ class BusyDialog(tk.Toplevel):
         self.resizable(False, False)
         self.transient(parent)
         self.grab_set()
-        ttk.Label(self, text=message, padding=(24, 18)).pack()
-        bar = ttk.Progressbar(self, mode="indeterminate", length=280)
-        bar.pack(padx=24, pady=(0, 20))
+        self.configure(bg=CREAM)
+
+        card = tk.Frame(
+            self,
+            bg=PAPER,
+            padx=24,
+            pady=20,
+            highlightbackground=LINE,
+            highlightthickness=1,
+        )
+        card.pack(fill="both", expand=True)
+
+        tk.Label(
+            card,
+            text=message,
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 10, "bold"),
+        ).pack()
+
+        bar = ttk.Progressbar(
+            card,
+            mode="indeterminate",
+            length=300,
+        )
+        bar.pack(pady=(14, 0))
         bar.start(12)
+
         self.update_idletasks()
-        x = parent.winfo_rootx() + max(0, (parent.winfo_width() - self.winfo_width()) // 2)
-        y = parent.winfo_rooty() + max(0, (parent.winfo_height() - self.winfo_height()) // 2)
+        x = parent.winfo_rootx() + max(
+            0,
+            (parent.winfo_width() - self.winfo_width()) // 2,
+        )
+        y = parent.winfo_rooty() + max(
+            0,
+            (parent.winfo_height() - self.winfo_height()) // 2,
+        )
         self.geometry(f"+{x}+{y}")
 
 
@@ -281,68 +450,539 @@ class RecordDialog(tk.Toplevel):
         self.destroy()
 
 
+
+class CopticConverterDialog(tk.Toplevel):
+    """Standalone Unicode Coptic -> Avva converter built into the manager."""
+
+    def __init__(
+        self,
+        parent: tk.Misc,
+        initial_unicode: str = "",
+        initial_avva: str = "",
+        on_use: Callable[[str], None] | None = None,
+    ):
+        super().__init__(parent)
+        self.title("Coptic Converter")
+        self.transient(parent)
+        self.grab_set()
+        self.geometry("980x620")
+        self.minsize(760, 500)
+        self.configure(bg=CREAM)
+        self.on_use = on_use
+
+        installed = set(tkfont.families())
+        self.avva_family = next(
+            (
+                candidate
+                for candidate in (
+                    "Avva_Shenouda",
+                    "Avva Shenouda",
+                    "AVVA_SHENOUDA",
+                    "CS Avva Shenouda",
+                )
+                if candidate in installed
+            ),
+            None,
+        )
+
+        outer = tk.Frame(self, bg=CREAM, padx=20, pady=20)
+        outer.pack(fill="both", expand=True)
+
+        header = tk.Frame(outer, bg=BURGUNDY_900, padx=18, pady=14)
+        header.pack(fill="x")
+
+        tk.Label(
+            header,
+            text="Coptic Font Converter",
+            bg=BURGUNDY_900,
+            fg="white",
+            font=("Segoe UI", 16, "bold"),
+        ).pack(anchor="w")
+
+        tk.Label(
+            header,
+            text="Unicode / Noto Sans Coptic  →  Legacy Avva Shenouda",
+            bg=BURGUNDY_900,
+            fg="#f3cfd7",
+            font=("Segoe UI", 10),
+        ).pack(anchor="w", pady=(2, 0))
+
+        card = tk.Frame(
+            outer,
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=16,
+            pady=16,
+        )
+        card.pack(fill="both", expand=True, pady=(14, 0))
+        card.grid_columnconfigure(0, weight=1)
+        card.grid_columnconfigure(2, weight=1)
+        card.grid_rowconfigure(1, weight=1)
+
+        tk.Label(
+            card,
+            text="Unicode Coptic",
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 11, "bold"),
+        ).grid(row=0, column=0, sticky="w", pady=(0, 7))
+
+        tk.Label(
+            card,
+            text="Avva Shenouda output",
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 11, "bold"),
+        ).grid(row=0, column=2, sticky="w", pady=(0, 7))
+
+        self.input_text = tk.Text(
+            card,
+            wrap="word",
+            undo=True,
+            font=("Segoe UI", 16),
+            padx=12,
+            pady=12,
+            relief="flat",
+            highlightbackground=LINE,
+            highlightthickness=1,
+        )
+        self.input_text.grid(row=1, column=0, sticky="nsew")
+        self.input_text.insert("1.0", initial_unicode)
+
+        controls = tk.Frame(card, bg=PAPER, padx=12)
+        controls.grid(row=1, column=1, sticky="ns")
+
+        ttk.Button(
+            controls,
+            text="Convert →",
+            style="Primary.TButton",
+            command=self.convert,
+        ).pack(pady=(65, 8), fill="x")
+
+        ttk.Button(
+            controls,
+            text="Clear",
+            style="Quiet.TButton",
+            command=self.clear,
+        ).pack(pady=8, fill="x")
+
+        output_font = (self.avva_family or "Courier New", 18)
+        self.output_text = tk.Text(
+            card,
+            wrap="word",
+            undo=True,
+            font=output_font,
+            padx=12,
+            pady=12,
+            relief="flat",
+            highlightbackground=LINE,
+            highlightthickness=1,
+        )
+        self.output_text.grid(row=1, column=2, sticky="nsew")
+        self.output_text.insert("1.0", initial_avva)
+
+        bottom = tk.Frame(card, bg=PAPER)
+        bottom.grid(row=2, column=0, columnspan=3, sticky="ew", pady=(12, 0))
+
+        if self.avva_family:
+            status_text = f"Avva preview font detected: {self.avva_family}"
+        else:
+            status_text = (
+                "Avva font is not installed on this computer. Conversion still works; "
+                "the output preview may look like Latin characters."
+            )
+
+        self.status = tk.Label(
+            bottom,
+            text=status_text,
+            bg=PAPER,
+            fg=MUTED,
+            font=("Segoe UI", 9),
+        )
+        self.status.pack(side="left")
+
+        if self.on_use:
+            ttk.Button(
+                bottom,
+                text="Use converted text",
+                style="Primary.TButton",
+                command=self.use_output,
+            ).pack(side="right")
+
+        ttk.Button(
+            bottom,
+            text="Close",
+            style="Quiet.TButton",
+            command=self.destroy,
+        ).pack(side="right", padx=(0, 8))
+
+        self.bind("<Control-Return>", lambda _e: self.convert())
+        self.bind("<Escape>", lambda _e: self.destroy())
+        self.input_text.focus_set()
+
+    def convert(self) -> None:
+        source = self.input_text.get("1.0", "end-1c")
+        if not source.strip():
+            messagebox.showinfo(
+                "Nothing to convert",
+                "Paste Unicode Coptic into the left box first.",
+                parent=self,
+            )
+            return
+
+        converted = unicode_coptic_to_avva(source)
+        self.output_text.delete("1.0", "end")
+        self.output_text.insert("1.0", converted)
+        self.status.configure(text=f"Converted {len(source)} characters.")
+
+    def clear(self) -> None:
+        self.input_text.delete("1.0", "end")
+        self.output_text.delete("1.0", "end")
+        self.input_text.focus_set()
+
+    def use_output(self) -> None:
+        text = self.output_text.get("1.0", "end-1c")
+        if not text.strip():
+            self.convert()
+            text = self.output_text.get("1.0", "end-1c")
+        if text.strip() and self.on_use:
+            self.on_use(text)
+            self.destroy()
+
+
 class LyricDialog(tk.Toplevel):
-    def __init__(self, parent: tk.Misc, languages: list[dict[str, Any]], initial: dict[str, Any] | None = None):
+    """
+    Timestamped lyric editor.
+
+    For the language code 'cop', Unicode Coptic can be pasted directly.
+    The manager converts it to Avva Shenouda legacy text before saving.
+    Existing Avva text can also be edited directly.
+    """
+
+    def __init__(
+        self,
+        parent: tk.Misc,
+        languages: list[dict[str, Any]],
+        initial: dict[str, Any] | None = None,
+    ):
         super().__init__(parent)
         self.title("Lyric row")
         self.transient(parent)
         self.grab_set()
-        self.geometry("760x620")
+        self.geometry("900x720")
+        self.minsize(760, 560)
+        self.configure(bg=CREAM)
+
         self.result: dict[str, Any] | None = None
         initial = initial or {}
         self.time_var = tk.StringVar(value=str(initial.get("t", "0:00")))
         self.published_var = tk.BooleanVar(value=bool(initial.get("published", True)))
         self.text_widgets: dict[str, tk.Text] = {}
+        self.coptic_unicode_widget: tk.Text | None = None
+        self.coptic_avva_widget: tk.Text | None = None
 
-        outer = ttk.Frame(self, padding=16)
+        outer = tk.Frame(self, bg=CREAM, padx=18, pady=18)
         outer.pack(fill="both", expand=True)
-        top = ttk.Frame(outer)
-        top.pack(fill="x")
-        ttk.Label(top, text="Timestamp").pack(side="left")
-        ttk.Entry(top, textvariable=self.time_var, width=15).pack(side="left", padx=(8, 18))
-        ttk.Checkbutton(top, text="Published", variable=self.published_var).pack(side="left")
-        ttk.Label(outer, text="Use formats such as 0:06.5 or 2:15.").pack(anchor="w", pady=(5, 10))
 
-        canvas = tk.Canvas(outer, highlightthickness=0)
-        scroll = ttk.Scrollbar(outer, orient="vertical", command=canvas.yview)
-        inner = ttk.Frame(canvas)
-        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=inner, anchor="nw")
+        top_card = tk.Frame(
+            outer,
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=16,
+            pady=14,
+        )
+        top_card.pack(fill="x")
+
+        tk.Label(
+            top_card,
+            text="Lyric row",
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 15, "bold"),
+        ).grid(row=0, column=0, columnspan=4, sticky="w", pady=(0, 10))
+
+        tk.Label(
+            top_card,
+            text="Timestamp",
+            bg=PAPER,
+            fg=INK,
+            font=("Segoe UI", 10, "bold"),
+        ).grid(row=1, column=0, sticky="w")
+
+        ttk.Entry(
+            top_card,
+            textvariable=self.time_var,
+            width=16,
+        ).grid(row=1, column=1, sticky="w", padx=(8, 18))
+
+        ttk.Checkbutton(
+            top_card,
+            text="Published",
+            variable=self.published_var,
+        ).grid(row=1, column=2, sticky="w")
+
+        tk.Label(
+            top_card,
+            text="Examples: 0:06.5  •  2:15  •  1:02:03",
+            bg=PAPER,
+            fg=MUTED,
+            font=("Segoe UI", 9),
+        ).grid(row=2, column=0, columnspan=4, sticky="w", pady=(7, 0))
+
+        editor_card = tk.Frame(
+            outer,
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=14,
+            pady=12,
+        )
+        editor_card.pack(fill="both", expand=True, pady=(12, 0))
+
+        canvas = tk.Canvas(editor_card, highlightthickness=0, bg=PAPER)
+        scroll = ttk.Scrollbar(editor_card, orient="vertical", command=canvas.yview)
+        inner = tk.Frame(canvas, bg=PAPER)
+
+        inner.bind(
+            "<Configure>",
+            lambda _e: canvas.configure(scrollregion=canvas.bbox("all")),
+        )
+
+        window_id = canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.bind(
+            "<Configure>",
+            lambda event: canvas.itemconfigure(window_id, width=event.width),
+        )
         canvas.configure(yscrollcommand=scroll.set)
         canvas.pack(side="left", fill="both", expand=True)
         scroll.pack(side="right", fill="y")
 
         texts = initial.get("texts") or {}
-        for language in languages:
-            code = language.get("code", "")
-            ttk.Label(inner, text=f"{language.get('name', code)} ({code})").pack(anchor="w", pady=(8, 3))
-            text = tk.Text(inner, width=76, height=6, wrap="word")
-            text.insert("1.0", str(texts.get(code, "")))
-            text.pack(fill="x", expand=True)
-            self.text_widgets[code] = text
 
-        actions = ttk.Frame(self, padding=(16, 8, 16, 16))
-        actions.pack(fill="x")
-        ttk.Button(actions, text="Cancel", command=self.destroy).pack(side="right")
-        ttk.Button(actions, text="Save lyric row", command=self._save).pack(side="right", padx=(0, 8))
+        for language in languages:
+            code = str(language.get("code", "")).strip()
+            name = str(language.get("name", code)).strip() or code
+            existing = str(texts.get(code, ""))
+
+            section = tk.Frame(
+                inner,
+                bg=ROSE_50 if code == "cop" else PAPER,
+                highlightbackground=LINE,
+                highlightthickness=1,
+                padx=12,
+                pady=10,
+            )
+            section.pack(fill="x", pady=(0, 10))
+
+            heading = tk.Frame(section, bg=section["bg"])
+            heading.pack(fill="x")
+
+            tk.Label(
+                heading,
+                text=f"{name} ({code})",
+                bg=section["bg"],
+                fg=BURGUNDY_950,
+                font=("Segoe UI", 10, "bold"),
+            ).pack(side="left")
+
+            if code == "cop":
+                ttk.Button(
+                    heading,
+                    text="Open full Coptic converter",
+                    style="Quiet.TButton",
+                    command=self._open_converter,
+                ).pack(side="right")
+
+                tk.Label(
+                    section,
+                    text="Paste Unicode Coptic here",
+                    bg=section["bg"],
+                    fg=MUTED,
+                    font=("Segoe UI", 9),
+                ).pack(anchor="w", pady=(8, 4))
+
+                unicode_box = tk.Text(
+                    section,
+                    height=5,
+                    wrap="word",
+                    font=("Segoe UI", 14),
+                    padx=10,
+                    pady=9,
+                    relief="flat",
+                    highlightbackground=LINE,
+                    highlightthickness=1,
+                )
+                unicode_box.pack(fill="x")
+                if existing:
+                    unicode_box.insert("1.0", avva_to_unicode_coptic(existing))
+                self.coptic_unicode_widget = unicode_box
+
+                convert_row = tk.Frame(section, bg=section["bg"])
+                convert_row.pack(fill="x", pady=7)
+
+                ttk.Button(
+                    convert_row,
+                    text="Convert Unicode → Avva",
+                    style="Primary.TButton",
+                    command=self._convert_coptic_inline,
+                ).pack(side="left")
+
+                tk.Label(
+                    convert_row,
+                    text="The Avva version below is what will be saved to the website.",
+                    bg=section["bg"],
+                    fg=MUTED,
+                    font=("Segoe UI", 9),
+                ).pack(side="left", padx=(10, 0))
+
+                installed = set(tkfont.families())
+                avva_family = next(
+                    (
+                        candidate
+                        for candidate in (
+                            "Avva_Shenouda",
+                            "Avva Shenouda",
+                            "AVVA_SHENOUDA",
+                            "CS Avva Shenouda",
+                        )
+                        if candidate in installed
+                    ),
+                    None,
+                )
+
+                tk.Label(
+                    section,
+                    text="Avva Shenouda output / saved value",
+                    bg=section["bg"],
+                    fg=MUTED,
+                    font=("Segoe UI", 9),
+                ).pack(anchor="w", pady=(2, 4))
+
+                avva_box = tk.Text(
+                    section,
+                    height=5,
+                    wrap="word",
+                    font=(avva_family or "Courier New", 16),
+                    padx=10,
+                    pady=9,
+                    relief="flat",
+                    highlightbackground=LINE,
+                    highlightthickness=1,
+                )
+                avva_box.pack(fill="x")
+                avva_box.insert("1.0", existing)
+                self.coptic_avva_widget = avva_box
+                self.text_widgets[code] = avva_box
+
+            else:
+                text = tk.Text(
+                    section,
+                    height=5,
+                    wrap="word",
+                    font=("Segoe UI", 12),
+                    padx=10,
+                    pady=9,
+                    relief="flat",
+                    highlightbackground=LINE,
+                    highlightthickness=1,
+                )
+                text.pack(fill="x", pady=(8, 0))
+                text.insert("1.0", existing)
+                self.text_widgets[code] = text
+
+        actions = tk.Frame(outer, bg=CREAM)
+        actions.pack(fill="x", pady=(12, 0))
+
+        ttk.Button(
+            actions,
+            text="Cancel",
+            style="Quiet.TButton",
+            command=self.destroy,
+        ).pack(side="right")
+
+        ttk.Button(
+            actions,
+            text="Save lyric row",
+            style="Primary.TButton",
+            command=self._save,
+        ).pack(side="right", padx=(0, 8))
+
         self.bind("<Escape>", lambda _e: self.destroy())
         self.wait_visibility()
         self.focus_force()
         self.wait_window()
 
+    def _convert_coptic_inline(self) -> None:
+        if not self.coptic_unicode_widget or not self.coptic_avva_widget:
+            return
+        source = self.coptic_unicode_widget.get("1.0", "end-1c")
+        converted = unicode_coptic_to_avva(source)
+        self.coptic_avva_widget.delete("1.0", "end")
+        self.coptic_avva_widget.insert("1.0", converted)
+
+    def _open_converter(self) -> None:
+        unicode_text = (
+            self.coptic_unicode_widget.get("1.0", "end-1c")
+            if self.coptic_unicode_widget
+            else ""
+        )
+        avva_text = (
+            self.coptic_avva_widget.get("1.0", "end-1c")
+            if self.coptic_avva_widget
+            else ""
+        )
+
+        def use(text: str) -> None:
+            if not self.coptic_avva_widget:
+                return
+            self.coptic_avva_widget.delete("1.0", "end")
+            self.coptic_avva_widget.insert("1.0", text)
+            if self.coptic_unicode_widget:
+                self.coptic_unicode_widget.delete("1.0", "end")
+                self.coptic_unicode_widget.insert("1.0", avva_to_unicode_coptic(text))
+
+        CopticConverterDialog(
+            self,
+            initial_unicode=unicode_text,
+            initial_avva=avva_text,
+            on_use=use,
+        )
+
     def _save(self) -> None:
         timestamp = self.time_var.get().strip()
         if not timestamp:
-            messagebox.showerror("Missing timestamp", "Enter a timestamp.", parent=self)
+            messagebox.showerror(
+                "Missing timestamp",
+                "Enter a timestamp.",
+                parent=self,
+            )
             return
-        texts = {code: widget.get("1.0", "end-1c").strip() for code, widget in self.text_widgets.items()}
+
+        # If the Unicode Coptic box contains Unicode Coptic, automatically
+        # refresh the Avva value before saving. This removes the need to run
+        # a separate converter program.
+        if self.coptic_unicode_widget and self.coptic_avva_widget:
+            source = self.coptic_unicode_widget.get("1.0", "end-1c").strip()
+            if source and contains_unicode_coptic(source):
+                converted = unicode_coptic_to_avva(source)
+                self.coptic_avva_widget.delete("1.0", "end")
+                self.coptic_avva_widget.insert("1.0", converted)
+
+        texts = {
+            code: widget.get("1.0", "end-1c").strip()
+            for code, widget in self.text_widgets.items()
+        }
         texts = {code: text for code, text in texts.items() if text}
+
         self.result = {
             "t": timestamp,
             "texts": texts,
             "published": bool(self.published_var.get()),
         }
         self.destroy()
+
 
 class CopyHymnDialog(tk.Toplevel):
     """Choose one or more destination years for a full hymn copy."""
@@ -355,284 +995,111 @@ class CopyHymnDialog(tk.Toplevel):
         hymn: dict[str, Any],
     ):
         super().__init__(parent)
-
         self.title("Copy hymn to other years")
         self.transient(parent)
         self.grab_set()
-
         self.geometry("640x620")
         self.minsize(540, 460)
+        self.configure(bg=CREAM)
 
         self.result: list[tuple[int, int]] | None = None
-
-        self.destination_vars: dict[
-            tuple[int, int],
-            tk.BooleanVar,
-        ] = {}
+        self.destination_vars: dict[tuple[int, int], tk.BooleanVar] = {}
 
         _kind, source_li, source_yi, _source_hi = source_ref
+        self.source_li = int(source_li) if source_li is not None else -1
+        self.source_yi = int(source_yi) if source_yi is not None else -1
 
-        self.source_li = (
-            int(source_li)
-            if source_li is not None
-            else -1
-        )
+        outer = tk.Frame(self, bg=CREAM, padx=18, pady=18)
+        outer.pack(fill="both", expand=True)
 
-        self.source_yi = (
-            int(source_yi)
-            if source_yi is not None
-            else -1
-        )
-
-        outer = ttk.Frame(
-            self,
-            padding=16,
-        )
-
-        outer.pack(
-            fill="both",
-            expand=True,
-        )
-
-        ttk.Label(
+        card = tk.Frame(
             outer,
-            text=(
-                f"Copy: "
-                f"{hymn.get('title') or hymn.get('slug') or 'Selected hymn'}"
-            ),
-            style="Heading.TLabel",
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=16,
+            pady=16,
+        )
+        card.pack(fill="both", expand=True)
+
+        tk.Label(
+            card,
+            text=f"Copy {hymn.get('title') or hymn.get('slug') or 'selected hymn'}",
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 15, "bold"),
         ).pack(anchor="w")
 
-        ttk.Label(
-            outer,
+        tk.Label(
+            card,
             text=(
-                "Choose every year that should receive a copy. "
-                "The complete hymn is copied, including its note, "
-                "published state, SoundCloud recordings, and "
-                "lyric/timestamp rows."
+                "Choose every destination year. Lyrics, timestamps, notes, "
+                "publication state and SoundCloud recordings are copied."
             ),
-            wraplength=585,
-        ).pack(
-            anchor="w",
-            pady=(4, 12),
-        )
+            bg=PAPER,
+            fg=MUTED,
+            wraplength=570,
+            justify="left",
+        ).pack(anchor="w", pady=(4, 12))
 
-        ttk.Label(
-            outer,
-            text=(
-                "Copies are independent after they are created. "
-                "Editing one later will not change the others."
-            ),
-            wraplength=585,
-        ).pack(
-            anchor="w",
-            pady=(0, 12),
-        )
+        buttons = tk.Frame(card, bg=PAPER)
+        buttons.pack(fill="x", pady=(0, 8))
+        ttk.Button(buttons, text="Select all", style="Quiet.TButton", command=self._select_all).pack(side="left")
+        ttk.Button(buttons, text="Clear all", style="Quiet.TButton", command=self._clear_all).pack(side="left", padx=(6, 0))
 
-        button_row = ttk.Frame(outer)
+        list_frame = tk.Frame(card, bg=PAPER)
+        list_frame.pack(fill="both", expand=True)
 
-        button_row.pack(
-            fill="x",
-            pady=(0, 8),
-        )
+        canvas = tk.Canvas(list_frame, highlightthickness=0, bg=PAPER)
+        scrollbar = ttk.Scrollbar(list_frame, orient="vertical", command=canvas.yview)
+        inner = tk.Frame(canvas, bg=PAPER)
+        inner.bind("<Configure>", lambda _event: canvas.configure(scrollregion=canvas.bbox("all")))
+        window_id = canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.bind("<Configure>", lambda event: canvas.itemconfigure(window_id, width=event.width))
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
 
-        ttk.Button(
-            button_row,
-            text="Select all",
-            command=self._select_all,
-        ).pack(side="left")
-
-        ttk.Button(
-            button_row,
-            text="Clear all",
-            command=self._clear_all,
-        ).pack(
-            side="left",
-            padx=(6, 0),
-        )
-
-        list_frame = ttk.Frame(outer)
-
-        list_frame.pack(
-            fill="both",
-            expand=True,
-        )
-
-        canvas = tk.Canvas(
-            list_frame,
-            highlightthickness=0,
-        )
-
-        scrollbar = ttk.Scrollbar(
-            list_frame,
-            orient="vertical",
-            command=canvas.yview,
-        )
-
-        inner = ttk.Frame(
-            canvas,
-            padding=(4, 2, 8, 8),
-        )
-
-        inner.bind(
-            "<Configure>",
-            lambda _event: canvas.configure(
-                scrollregion=canvas.bbox("all")
-            ),
-        )
-
-        window_id = canvas.create_window(
-            (0, 0),
-            window=inner,
-            anchor="nw",
-        )
-
-        canvas.bind(
-            "<Configure>",
-            lambda event: canvas.itemconfigure(
-                window_id,
-                width=event.width,
-            ),
-        )
-
-        canvas.configure(
-            yscrollcommand=scrollbar.set
-        )
-
-        canvas.pack(
-            side="left",
-            fill="both",
-            expand=True,
-        )
-
-        scrollbar.pack(
-            side="right",
-            fill="y",
-        )
-
-        destination_count = 0
-
-        for li, level in enumerate(
-            content.get("levels", [])
-        ):
-            level_name = (
-                level.get("name")
-                or level.get("slug")
-                or f"Level {li + 1}"
-            )
-
-            ttk.Label(
+        for li, level in enumerate(content.get("levels", [])):
+            tk.Label(
                 inner,
-                text=level_name,
-                style="Heading.TLabel",
-            ).pack(
-                anchor="w",
-                pady=(10 if li else 2, 3),
-            )
+                text=level.get("name") or level.get("slug") or f"Level {li + 1}",
+                bg=PAPER,
+                fg=BURGUNDY_800,
+                font=("Segoe UI", 10, "bold"),
+            ).pack(anchor="w", pady=(10 if li else 2, 3))
 
-            years = level.get(
-                "years",
-                [],
-            )
+            for yi, year in enumerate(level.get("years", [])):
+                name = year.get("name") or year.get("slug") or f"Year {yi + 1}"
 
-            if not years:
-                ttk.Label(
-                    inner,
-                    text="No years in this level.",
-                ).pack(
-                    anchor="w",
-                    padx=(18, 0),
-                    pady=(0, 4),
-                )
-
-                continue
-
-            for yi, year in enumerate(years):
-                year_name = (
-                    year.get("name")
-                    or year.get("slug")
-                    or f"Year {yi + 1}"
-                )
-
-                # Do not allow copying into
-                # the exact year it already belongs to.
-                if (
-                    li == self.source_li
-                    and yi == self.source_yi
-                ):
-                    ttk.Label(
+                if li == self.source_li and yi == self.source_yi:
+                    tk.Label(
                         inner,
-                        text=(
-                            f"✓ {year_name}  "
-                            "(current year)"
-                        ),
-                    ).pack(
-                        anchor="w",
-                        padx=(18, 0),
-                        pady=2,
-                    )
-
+                        text=f"✓ {name} (current year)",
+                        bg=PAPER,
+                        fg=MUTED,
+                    ).pack(anchor="w", padx=(18, 0), pady=2)
                     continue
 
-                var = tk.BooleanVar(
-                    value=False
-                )
-
-                self.destination_vars[
-                    (li, yi)
-                ] = var
-
-                destination_count += 1
-
-                ttk.Checkbutton(
-                    inner,
-                    text=year_name,
-                    variable=var,
-                ).pack(
+                var = tk.BooleanVar(value=False)
+                self.destination_vars[(li, yi)] = var
+                ttk.Checkbutton(inner, text=name, variable=var).pack(
                     anchor="w",
                     padx=(18, 0),
                     pady=2,
                 )
 
-        if destination_count == 0:
-            ttk.Label(
-                inner,
-                text=(
-                    "There are no other years available. "
-                    "Add another year first."
-                ),
-            ).pack(
-                anchor="w",
-                pady=12,
-            )
-
-        actions = ttk.Frame(outer)
-
-        actions.pack(
-            fill="x",
-            pady=(12, 0),
-        )
-
-        ttk.Button(
-            actions,
-            text="Cancel",
-            command=self.destroy,
-        ).pack(side="right")
-
+        actions = tk.Frame(card, bg=PAPER)
+        actions.pack(fill="x", pady=(12, 0))
+        ttk.Button(actions, text="Cancel", style="Quiet.TButton", command=self.destroy).pack(side="right")
         ttk.Button(
             actions,
             text="Copy to selected years",
+            style="Primary.TButton",
             command=self._save,
-        ).pack(
-            side="right",
-            padx=(0, 8),
-        )
+        ).pack(side="right", padx=(0, 8))
 
-        self.bind(
-            "<Escape>",
-            lambda _event: self.destroy(),
-        )
-
+        self.bind("<Escape>", lambda _event: self.destroy())
         self.wait_visibility()
         self.focus_force()
         self.wait_window()
@@ -646,24 +1113,15 @@ class CopyHymnDialog(tk.Toplevel):
             var.set(False)
 
     def _save(self) -> None:
-        selected = [
-            ref
-            for ref, var
-            in self.destination_vars.items()
-            if bool(var.get())
-        ]
-
+        selected = [ref for ref, var in self.destination_vars.items() if bool(var.get())]
         if not selected:
             messagebox.showinfo(
                 "Choose a destination",
                 "Select at least one destination year.",
                 parent=self,
             )
-
             return
-
         self.result = selected
-
         self.destroy()
 
 
@@ -680,8 +1138,17 @@ class ContentManagerApp(tk.Tk):
         self.tree_map: dict[str, tuple[str, int | None, int | None, int | None]] = {}
         self.current_ref: tuple[str, int | None, int | None, int | None] | None = None
         self.dirty = False
+        self.configure(bg=CREAM)
         self._load_settings()
         self._configure_style()
+        self.brand_logo: tk.PhotoImage | None = None
+        logo_path = find_logo_path()
+        if logo_path:
+            try:
+                self.brand_logo = load_scaled_png(logo_path, 58)
+                self.iconphoto(True, self.brand_logo)
+            except tk.TclError:
+                self.brand_logo = None
         self.show_login()
         self.protocol("WM_DELETE_WINDOW", self.on_close)
 
@@ -691,9 +1158,152 @@ class ContentManagerApp(tk.Tk):
             style.theme_use("clam")
         except tk.TclError:
             pass
-        style.configure("Title.TLabel", font=("TkDefaultFont", 16, "bold"))
-        style.configure("Heading.TLabel", font=("TkDefaultFont", 11, "bold"))
-        style.configure("Danger.TButton", foreground="#8f2536")
+
+        base_font = ("Segoe UI", 10)
+        style.configure(".", font=base_font, background=CREAM, foreground=INK)
+        style.configure("TFrame", background=CREAM)
+        style.configure("Card.TFrame", background=PAPER)
+        style.configure("TLabel", background=CREAM, foreground=INK)
+        style.configure(
+            "Title.TLabel",
+            background=CREAM,
+            foreground=BURGUNDY_950,
+            font=("Segoe UI", 18, "bold"),
+        )
+        style.configure(
+            "Heading.TLabel",
+            background=CREAM,
+            foreground=BURGUNDY_950,
+            font=("Segoe UI", 11, "bold"),
+        )
+        style.configure(
+            "CardHeading.TLabel",
+            background=PAPER,
+            foreground=BURGUNDY_950,
+            font=("Segoe UI", 11, "bold"),
+        )
+        style.configure(
+            "Muted.TLabel",
+            background=CREAM,
+            foreground=MUTED,
+            font=("Segoe UI", 9),
+        )
+        style.configure(
+            "CardMuted.TLabel",
+            background=PAPER,
+            foreground=MUTED,
+            font=("Segoe UI", 9),
+        )
+        style.configure(
+            "Primary.TButton",
+            background=BURGUNDY_700,
+            foreground="white",
+            bordercolor=BURGUNDY_700,
+            focusthickness=0,
+            padding=(12, 8),
+            font=("Segoe UI", 10, "bold"),
+        )
+        style.map(
+            "Primary.TButton",
+            background=[("active", BURGUNDY_600), ("pressed", BURGUNDY_900)],
+            bordercolor=[("active", BURGUNDY_600)],
+            foreground=[("disabled", "#eadde1"), ("!disabled", "white")],
+        )
+        style.configure(
+            "Quiet.TButton",
+            background=PAPER,
+            foreground=BURGUNDY_800,
+            bordercolor="#ddcbd0",
+            focusthickness=0,
+            padding=(10, 7),
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.map(
+            "Quiet.TButton",
+            background=[("active", ROSE_50)],
+            bordercolor=[("active", "#cda8b3")],
+        )
+        style.configure(
+            "Danger.TButton",
+            background="#fff4f5",
+            foreground=DANGER,
+            bordercolor="#efc5cc",
+            focusthickness=0,
+            padding=(10, 7),
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.map(
+            "Danger.TButton",
+            background=[("active", "#ffe8eb")],
+        )
+        style.configure(
+            "TEntry",
+            fieldbackground=PAPER,
+            foreground=INK,
+            bordercolor="#d9cbd0",
+            lightcolor="#d9cbd0",
+            darkcolor="#d9cbd0",
+            padding=(9, 8),
+        )
+        style.map(
+            "TEntry",
+            bordercolor=[("focus", BURGUNDY_600)],
+            lightcolor=[("focus", BURGUNDY_600)],
+            darkcolor=[("focus", BURGUNDY_600)],
+        )
+        style.configure(
+            "TCheckbutton",
+            background=CREAM,
+            foreground=INK,
+        )
+        style.map(
+            "TCheckbutton",
+            background=[("active", CREAM)],
+        )
+        style.configure(
+            "Treeview",
+            background=PAPER,
+            fieldbackground=PAPER,
+            foreground=INK,
+            bordercolor=LINE,
+            rowheight=30,
+            font=("Segoe UI", 10),
+        )
+        style.configure(
+            "Treeview.Heading",
+            background=ROSE_50,
+            foreground=BURGUNDY_900,
+            bordercolor=LINE,
+            font=("Segoe UI", 9, "bold"),
+            padding=(8, 8),
+        )
+        style.map(
+            "Treeview",
+            background=[("selected", BURGUNDY_700)],
+            foreground=[("selected", "white")],
+        )
+        style.configure(
+            "TNotebook",
+            background=CREAM,
+            borderwidth=0,
+        )
+        style.configure(
+            "TNotebook.Tab",
+            background=ROSE_50,
+            foreground=BURGUNDY_800,
+            padding=(14, 8),
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.map(
+            "TNotebook.Tab",
+            background=[("selected", PAPER), ("active", ROSE_100)],
+            foreground=[("selected", BURGUNDY_950)],
+        )
+        style.configure(
+            "Horizontal.TProgressbar",
+            troughcolor=ROSE_100,
+            background=BURGUNDY_700,
+        )
 
     def _load_settings(self) -> None:
         self.saved_url = DEFAULT_SITE_URL
@@ -717,216 +1327,427 @@ class ContentManagerApp(tk.Tk):
     def show_login(self) -> None:
         self.clear_window()
         self.client = None
-        frame = ttk.Frame(self, padding=40)
-        frame.place(relx=0.5, rely=0.46, anchor="center")
-        ttk.Label(frame, text="St. Mina Hymns School", style="Title.TLabel").grid(row=0, column=0, columnspan=2, pady=(0, 5))
-        ttk.Label(frame, text="Content Manager — administrator sign in required to publish").grid(row=1, column=0, columnspan=2, pady=(0, 24))
-        ttk.Label(frame, text="Website").grid(row=2, column=0, sticky="w", pady=6)
-        ttk.Label(frame, text="Administrator username").grid(row=3, column=0, sticky="w", pady=6)
-        ttk.Label(frame, text="Password").grid(row=4, column=0, sticky="w", pady=6)
+        self.configure(bg=CREAM)
+
+        outer = tk.Frame(self, bg=CREAM)
+        outer.pack(fill="both", expand=True)
+
+        hero = tk.Frame(outer, bg=BURGUNDY_900, padx=28, pady=20)
+        hero.pack(fill="x")
+
+        if self.brand_logo:
+            tk.Label(
+                hero,
+                image=self.brand_logo,
+                bg=BURGUNDY_900,
+                borderwidth=0,
+            ).pack(side="left", padx=(0, 14))
+
+        title_box = tk.Frame(hero, bg=BURGUNDY_900)
+        title_box.pack(side="left")
+        tk.Label(
+            title_box,
+            text="St. Mina Hymns School",
+            bg=BURGUNDY_900,
+            fg="white",
+            font=("Segoe UI", 18, "bold"),
+        ).pack(anchor="w")
+        tk.Label(
+            title_box,
+            text="Content Manager",
+            bg=BURGUNDY_900,
+            fg="#f3cfd7",
+            font=("Segoe UI", 10, "bold"),
+        ).pack(anchor="w", pady=(2, 0))
+
+        center = tk.Frame(outer, bg=CREAM)
+        center.pack(fill="both", expand=True)
+
+        card = tk.Frame(
+            center,
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=30,
+            pady=28,
+        )
+        card.place(relx=0.5, rely=0.46, anchor="center", width=620)
+
+        tk.Label(
+            card,
+            text="Administrator sign in",
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 17, "bold"),
+        ).grid(row=0, column=0, columnspan=2, sticky="w")
+
+        tk.Label(
+            card,
+            text="Sign in with an active Hymns School Administrator account to load and publish curriculum.",
+            bg=PAPER,
+            fg=MUTED,
+            font=("Segoe UI", 9),
+            wraplength=540,
+            justify="left",
+        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(4, 18))
+
         self.login_url = tk.StringVar(value=self.saved_url)
         self.login_username = tk.StringVar()
         self.login_password = tk.StringVar()
-        ttk.Entry(frame, textvariable=self.login_url, width=46).grid(row=2, column=1, sticky="ew", padx=(12, 0), pady=6)
-        username_entry = ttk.Entry(frame, textvariable=self.login_username, width=46)
-        username_entry.grid(row=3, column=1, sticky="ew", padx=(12, 0), pady=6)
-        password_entry = ttk.Entry(frame, textvariable=self.login_password, show="•", width=46)
-        password_entry.grid(row=4, column=1, sticky="ew", padx=(12, 0), pady=6)
-        self.login_error = ttk.Label(frame, text="", foreground="#8f2536", wraplength=520)
-        self.login_error.grid(row=5, column=0, columnspan=2, pady=(8, 0))
-        ttk.Button(frame, text="Sign in and load website", command=self.login).grid(row=6, column=0, columnspan=2, sticky="ew", pady=(18, 0))
-        ttk.Label(
-            frame,
-            text="Your password is sent only to your Hymns School website over HTTPS. It is not saved by this program.",
-            wraplength=560,
-        ).grid(row=7, column=0, columnspan=2, pady=(12, 0))
-        frame.columnconfigure(1, weight=1)
-        username_entry.focus_set()
+
+        labels = [
+            ("Website", self.login_url, False),
+            ("Administrator username", self.login_username, False),
+            ("Password", self.login_password, True),
+        ]
+
+        username_entry = None
+
+        for row, (label, variable, is_password) in enumerate(labels, start=2):
+            tk.Label(
+                card,
+                text=label,
+                bg=PAPER,
+                fg=INK,
+                font=("Segoe UI", 9, "bold"),
+            ).grid(row=row, column=0, sticky="w", pady=7)
+
+            entry = ttk.Entry(
+                card,
+                textvariable=variable,
+                width=44,
+                show="•" if is_password else "",
+            )
+            entry.grid(row=row, column=1, sticky="ew", padx=(14, 0), pady=7)
+
+            if label == "Administrator username":
+                username_entry = entry
+
+        self.login_error = tk.Label(
+            card,
+            text="",
+            bg=PAPER,
+            fg=DANGER,
+            font=("Segoe UI", 9, "bold"),
+            wraplength=540,
+            justify="left",
+        )
+        self.login_error.grid(
+            row=5,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            pady=(8, 0),
+        )
+
+        ttk.Button(
+            card,
+            text="Sign in and load website",
+            style="Primary.TButton",
+            command=self.login,
+        ).grid(
+            row=6,
+            column=0,
+            columnspan=2,
+            sticky="ew",
+            pady=(18, 0),
+        )
+
+        tk.Label(
+            card,
+            text=(
+                "Your password is sent only to your Hymns School website over HTTPS. "
+                "The manager does not save it."
+            ),
+            bg=PAPER,
+            fg=MUTED,
+            font=("Segoe UI", 8),
+            wraplength=540,
+            justify="left",
+        ).grid(
+            row=7,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            pady=(12, 0),
+        )
+
+        card.columnconfigure(1, weight=1)
+
+        if username_entry:
+            username_entry.focus_set()
+
         self.bind("<Return>", lambda _e: self.login())
 
-    def run_async(self, message: str, work: Callable[[], Any], done: Callable[[Any], None]) -> None:
+    def run_async(
+        self,
+        message: str,
+        work: Callable[[], Any],
+        done: Callable[[Any], None],
+    ) -> None:
         busy = BusyDialog(self, message)
+
+        def finish_ok(result: Any) -> None:
+            try:
+                if busy.winfo_exists():
+                    busy.destroy()
+            except tk.TclError:
+                pass
+
+            try:
+                done(result)
+            except Exception as exc:
+                messagebox.showerror(
+                    "Content Manager",
+                    f"An error occurred while displaying the result:\n\n{exc}",
+                    parent=self,
+                )
+
+        def finish_error(exc: Exception) -> None:
+            try:
+                if busy.winfo_exists():
+                    busy.destroy()
+            except tk.TclError:
+                pass
+
+            if isinstance(exc, ApiError) and exc.status == 401 and self.client:
+                self.client.logout()
+
+            messagebox.showerror(
+                "Content Manager",
+                str(exc),
+                parent=self,
+            )
 
         def runner() -> None:
             try:
                 result = work()
             except Exception as exc:
-                self.after(0, lambda: finish_error(exc))
+                self.after(0, lambda exc=exc: finish_error(exc))
             else:
-                self.after(0, lambda: finish_ok(result))
+                self.after(0, lambda result=result: finish_ok(result))
 
-        def finish_ok(result: Any) -> None:
-            if busy.winfo_exists():
-                busy.destroy()
-            done(result)
-
-        def finish_error(exc: Exception) -> None:
-            if busy.winfo_exists():
-                busy.destroy()
-            if isinstance(exc, ApiError) and exc.status == 401 and self.client:
-                self.client.logout()
-            messagebox.showerror("Content Manager", str(exc), parent=self)
-
-        threading.Thread(target=runner, daemon=True).start()
+        threading.Thread(
+            target=runner,
+            daemon=True,
+            name="stmina-content-manager-worker",
+        ).start()
 
     def login(self) -> None:
         url = self.login_url.get().strip()
         username = self.login_username.get().strip()
         password = self.login_password.get()
-
         if not username or not password:
-            self.login_error.configure(
-                text="Enter your administrator username and password."
-            )
+            self.login_error.configure(text="Enter your administrator username and password.")
             return
-
         try:
             client = ContentApiClient(url)
-
         except ValueError as exc:
             self.login_error.configure(text=str(exc))
             return
 
-        self.login_error.configure(text="")
-
-        def work() -> tuple[
-            ContentApiClient,
-            dict[str, Any],
-            dict[str, Any],
-        ]:
-            # Step 1: make sure the website itself responds.
-            try:
-                health = client.health()
-            except Exception as exc:
-                raise ApiError(
-                    "The Hymns School website could not be reached.\n\n"
-                    f"{exc}"
-                ) from exc
-
-            if not health.get("ok"):
-                raise ApiError(
-                    "The website responded, but its health check failed."
-                )
-
-            # Step 2: authenticate the administrator.
-            try:
-                login_result = client.login(
-                    username,
-                    password,
-                )
-            except ApiError as exc:
-                if exc.status == 404:
-                    raise ApiError(
-                        "The website is online, but the Content Manager API "
-                        "was not found.\n\n"
-                        "The Raspberry Pi is probably still running the "
-                        "older website version. Redeploy v3 in Portainer."
-                    ) from exc
-
-                raise
-
-            # Step 3: download the current curriculum.
-            try:
-                current = client.current()
-            except ApiError as exc:
-                raise ApiError(
-                    "Login succeeded, but the current hymn curriculum "
-                    "could not be loaded.\n\n"
-                    f"{exc}"
-                ) from exc
-
+        def work() -> tuple[ContentApiClient, dict[str, Any], dict[str, Any]]:
+            login_result = client.login(username, password)
+            current = client.current()
             return client, login_result, current
 
-        def done(
-            result: tuple[
-                ContentApiClient,
-                dict[str, Any],
-                dict[str, Any],
-            ]
-        ) -> None:
+        def done(result: tuple[ContentApiClient, dict[str, Any], dict[str, Any]]) -> None:
             client_obj, _login_result, current = result
-
             self.client = client_obj
-
-            self.content = (
-                current.get("content")
-                or default_content()
-            )
-
-            self.remote_status = (
-                current.get("status")
-                or {}
-            )
-
-            self.remote_revision = str(
-                self.remote_status.get(
-                    "revision",
-                    "",
-                )
-            )
-
+            self.content = current.get("content") or default_content()
+            self.remote_status = current.get("status") or {}
+            self.remote_revision = str(self.remote_status.get("revision", ""))
             self.saved_url = client_obj.base_url
-
             self._save_settings()
-
-            # Never retain the administrator password.
             self.login_password.set("")
-
             self.dirty = False
-
             self.build_editor()
 
-        self.run_async(
-            "Connecting to the Hymns School website…",
-            work,
-            done,
-        )
-
+        self.run_async("Signing in and loading website content…", work, done)
 
     def build_editor(self) -> None:
         self.unbind("<Return>")
         self.clear_window()
-        top = ttk.Frame(self, padding=(12, 9))
-        top.pack(fill="x")
-        user = self.client.user if self.client else {}
-        ttk.Label(top, text=APP_NAME, style="Heading.TLabel").pack(side="left")
-        ttk.Label(top, text=f"  {self.client.base_url if self.client else ''}").pack(side="left")
-        ttk.Button(top, text="Sign out", command=self.sign_out).pack(side="right")
-        ttk.Label(top, text=f"Signed in: {user.get('display_name', '')}  ").pack(side="right")
+        self.configure(bg=CREAM)
 
-        toolbar = ttk.Frame(self, padding=(12, 0, 12, 8))
-        toolbar.pack(fill="x")
-        ttk.Button(toolbar, text="Refresh from website", command=self.refresh_remote).pack(side="left")
-        ttk.Button(toolbar, text="Open local draft…", command=self.open_draft).pack(side="left", padx=(6, 0))
-        ttk.Button(toolbar, text="Save local draft…", command=self.save_draft).pack(side="left", padx=(6, 0))
-        ttk.Button(toolbar, text="Export JSON…", command=self.export_json).pack(side="left", padx=(6, 0))
-        self.dirty_label = ttk.Label(toolbar, text="")
+        user = self.client.user if self.client else {}
+
+        # Branded header matching the website.
+        top = tk.Frame(self, bg=BURGUNDY_900, padx=16, pady=10)
+        top.pack(fill="x")
+
+        if self.brand_logo:
+            tk.Label(top, image=self.brand_logo, bg=BURGUNDY_900, borderwidth=0).pack(
+                side="left",
+                padx=(0, 10),
+            )
+
+        brand_text = tk.Frame(top, bg=BURGUNDY_900)
+        brand_text.pack(side="left")
+
+        tk.Label(
+            brand_text,
+            text="St. Mina Hymns School",
+            bg=BURGUNDY_900,
+            fg="white",
+            font=("Segoe UI", 13, "bold"),
+        ).pack(anchor="w")
+
+        tk.Label(
+            brand_text,
+            text=f"Content Manager  ·  {self.client.base_url if self.client else ''}",
+            bg=BURGUNDY_900,
+            fg="#f3cfd7",
+            font=("Segoe UI", 8),
+        ).pack(anchor="w", pady=(1, 0))
+
+        ttk.Button(
+            top,
+            text="Sign out",
+            style="Quiet.TButton",
+            command=self.sign_out,
+        ).pack(side="right", padx=(8, 0))
+
+        tk.Label(
+            top,
+            text=f"Administrator  ·  {user.get('display_name', '')}",
+            bg=ROSE_100,
+            fg=BURGUNDY_800,
+            font=("Segoe UI", 9, "bold"),
+            padx=10,
+            pady=5,
+        ).pack(side="right")
+
+        toolbar = tk.Frame(
+            self,
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=12,
+            pady=8,
+        )
+        toolbar.pack(fill="x", padx=12, pady=(10, 8))
+
+        ttk.Button(
+            toolbar,
+            text="Refresh website",
+            style="Quiet.TButton",
+            command=self.refresh_remote,
+        ).pack(side="left")
+
+        ttk.Button(
+            toolbar,
+            text="Open draft…",
+            style="Quiet.TButton",
+            command=self.open_draft,
+        ).pack(side="left", padx=(6, 0))
+
+        ttk.Button(
+            toolbar,
+            text="Save draft…",
+            style="Quiet.TButton",
+            command=self.save_draft,
+        ).pack(side="left", padx=(6, 0))
+
+        ttk.Button(
+            toolbar,
+            text="Coptic Converter",
+            style="Primary.TButton",
+            command=self.open_coptic_converter,
+        ).pack(side="left", padx=(12, 0))
+
+        ttk.Button(
+            toolbar,
+            text="Export JSON…",
+            style="Quiet.TButton",
+            command=self.export_json,
+        ).pack(side="left", padx=(6, 0))
+
+        self.dirty_label = tk.Label(
+            toolbar,
+            text="",
+            bg=PAPER,
+            fg=MUTED,
+            font=("Segoe UI", 9, "bold"),
+        )
         self.dirty_label.pack(side="right")
 
         body = ttk.Panedwindow(self, orient="horizontal")
         body.pack(fill="both", expand=True, padx=12, pady=(0, 8))
 
-        left = ttk.Frame(body, padding=8)
-        right = ttk.Frame(body, padding=8)
+        left = ttk.Frame(body, padding=12, style="Card.TFrame")
+        right = ttk.Frame(body, padding=12, style="Card.TFrame")
         body.add(left, weight=1)
         body.add(right, weight=3)
 
-        ttk.Label(left, text="Curriculum", style="Heading.TLabel").pack(anchor="w", pady=(0, 6))
-        self.curriculum_tree = ttk.Treeview(left, show="tree", selectmode="browse")
+        ttk.Label(
+            left,
+            text="Curriculum",
+            style="CardHeading.TLabel",
+        ).pack(anchor="w", pady=(0, 8))
+
+        self.curriculum_tree = ttk.Treeview(
+            left,
+            show="tree",
+            selectmode="browse",
+        )
         self.curriculum_tree.pack(fill="both", expand=True)
         self.curriculum_tree.bind("<<TreeviewSelect>>", self.on_tree_select)
-        tree_buttons = ttk.Frame(left)
-        tree_buttons.pack(fill="x", pady=(7, 0))
-        ttk.Button(tree_buttons, text="+ Level", command=self.add_level).pack(side="left")
-        ttk.Button(tree_buttons, text="+ Year", command=self.add_year).pack(side="left", padx=(4, 0))
-        ttk.Button(tree_buttons, text="+ Hymn", command=self.add_hymn).pack(side="left", padx=(4, 0))
-        ttk.Button(tree_buttons, text="Delete", command=self.delete_selected).pack(side="right")
-        move_buttons = ttk.Frame(left)
-        move_buttons.pack(fill="x", pady=(5, 0))
 
-        ttk.Button(move_buttons, text="Move up", command=lambda: self.move_selected(-1)).pack(side="left")
-        ttk.Button(move_buttons, text="Move down", command=lambda: self.move_selected(1)).pack(side="left", padx=(4, 0))
-        ttk.Button(move_buttons,text="Copy hymn…",command=self.copy_selected_hymn,).pack(side="right",)
+        tree_buttons = ttk.Frame(left, style="Card.TFrame")
+        tree_buttons.pack(fill="x", pady=(8, 0))
+
+        ttk.Button(
+            tree_buttons,
+            text="+ Level",
+            style="Quiet.TButton",
+            command=self.add_level,
+        ).pack(side="left")
+
+        ttk.Button(
+            tree_buttons,
+            text="+ Year",
+            style="Quiet.TButton",
+            command=self.add_year,
+        ).pack(side="left", padx=(4, 0))
+
+        ttk.Button(
+            tree_buttons,
+            text="+ Hymn",
+            style="Primary.TButton",
+            command=self.add_hymn,
+        ).pack(side="left", padx=(4, 0))
+
+        ttk.Button(
+            tree_buttons,
+            text="Delete",
+            style="Danger.TButton",
+            command=self.delete_selected,
+        ).pack(side="right")
+
+        move_buttons = ttk.Frame(left, style="Card.TFrame")
+        move_buttons.pack(fill="x", pady=(6, 0))
+
+        ttk.Button(
+            move_buttons,
+            text="Move up",
+            style="Quiet.TButton",
+            command=lambda: self.move_selected(-1),
+        ).pack(side="left")
+
+        ttk.Button(
+            move_buttons,
+            text="Move down",
+            style="Quiet.TButton",
+            command=lambda: self.move_selected(1),
+        ).pack(side="left", padx=(4, 0))
+
+        ttk.Button(
+            move_buttons,
+            text="Copy hymn…",
+            style="Quiet.TButton",
+            command=self.copy_selected_hymn,
+        ).pack(side="right")
 
         self.notebook = ttk.Notebook(right)
         self.notebook.pack(fill="both", expand=True)
@@ -1164,89 +1985,46 @@ class ContentManagerApp(tk.Tk):
         self.mark_dirty()
         self.rebuild_tree(("hymn", li, yi, len(hymns) - 1))
 
+    def open_coptic_converter(self) -> None:
+        CopticConverterDialog(self)
+
     def copy_selected_hymn(self) -> None:
         ref = self.selected_ref()
-
         hymn = self.get_ref_object(ref)
 
-        if (
-            not ref
-            or ref[0] != "hymn"
-            or not hymn
-        ):
+        if not ref or ref[0] != "hymn" or not hymn:
             messagebox.showinfo(
                 "Select a hymn",
                 "Select the hymn you want to copy first.",
                 parent=self,
             )
-
             return
 
-        dialog = CopyHymnDialog(
-            self,
-            self.content,
-            ref,
-            hymn,
-        )
-
+        dialog = CopyHymnDialog(self, self.content, ref, hymn)
         if not dialog.result:
             return
 
-        source_title = str(
-            hymn.get("title")
-            or hymn.get("slug")
-            or "Hymn"
-        )
-
-        source_slug = str(
-            hymn.get("slug")
-            or ""
-        ).strip()
+        source_title = str(hymn.get("title") or hymn.get("slug") or "Hymn")
+        source_slug = str(hymn.get("slug") or "").strip()
 
         copied_destinations: list[str] = []
-
         skipped_destinations: list[str] = []
-
-        last_copy_ref: tuple[
-            str,
-            int | None,
-            int | None,
-            int | None,
-        ] | None = None
+        last_copy_ref: tuple[str, int | None, int | None, int | None] | None = None
 
         for li, yi in dialog.result:
-
             try:
-                level = self.content[
-                    "levels"
-                ][li]
-
-                year = level[
-                    "years"
-                ][yi]
-
-            except (
-                KeyError,
-                IndexError,
-                TypeError,
-            ):
+                level = self.content["levels"][li]
+                year = level["years"][yi]
+            except (KeyError, IndexError, TypeError):
                 continue
 
-            hymns = year.setdefault(
-                "hymns",
-                [],
-            )
+            hymns = year.setdefault("hymns", [])
 
-            # Check whether the same hymn slug
-            # already exists in this destination year.
             duplicate = next(
                 (
                     item
                     for item in hymns
-                    if str(
-                        item.get("slug")
-                        or ""
-                    ).strip().casefold()
+                    if str(item.get("slug") or "").strip().casefold()
                     == source_slug.casefold()
                 ),
                 None,
@@ -1258,72 +2036,42 @@ class ContentManagerApp(tk.Tk):
                 f"{year.get('name') or year.get('slug') or 'Year'}"
             )
 
-            # Never create accidental duplicate hymns
-            # inside the exact same year.
             if duplicate is not None:
-                skipped_destinations.append(
-                    destination_name
-                )
-
+                skipped_destinations.append(destination_name)
                 continue
 
-            # Deepcopy is important:
-            # recordings and lyric rows need to become
-            # independent copies, not shared Python objects.
             copied_hymn = deepcopy(hymn)
+            copied_hymn["sort"] = next_sort(hymns)
+            hymns.append(copied_hymn)
 
-            copied_hymn["sort"] = next_sort(
-                hymns
-            )
-
-            hymns.append(
-                copied_hymn
-            )
-
-            copied_destinations.append(
-                destination_name
-            )
-
-            last_copy_ref = (
-                "hymn",
-                li,
-                yi,
-                len(hymns) - 1,
-            )
+            copied_destinations.append(destination_name)
+            last_copy_ref = ("hymn", li, yi, len(hymns) - 1)
 
         if copied_destinations:
             self.mark_dirty()
-
-            self.rebuild_tree(
-                last_copy_ref or ref
-            )
+            self.rebuild_tree(last_copy_ref or ref)
 
         if not copied_destinations:
             messagebox.showwarning(
                 "Nothing copied",
                 (
                     f"'{source_title}' was not copied.\n\n"
-                    "Every selected destination already contains "
-                    "a hymn with the same slug."
+                    "Every selected destination already contains a hymn "
+                    "with the same slug."
                 ),
                 parent=self,
             )
-
             return
 
         message = (
-            f"Copied '{source_title}' to "
-            f"{len(copied_destinations)} "
+            f"Copied '{source_title}' to {len(copied_destinations)} "
             f"{'year' if len(copied_destinations) == 1 else 'years'}."
         )
 
         if skipped_destinations:
             message += (
-                "\n\nSkipped because the hymn "
-                "already exists there:\n• "
-                + "\n• ".join(
-                    skipped_destinations
-                )
+                "\n\nSkipped because the hymn already exists there:\n• "
+                + "\n• ".join(skipped_destinations)
             )
 
         messagebox.showinfo(
@@ -1331,7 +2079,6 @@ class ContentManagerApp(tk.Tk):
             message,
             parent=self,
         )
-
 
     def delete_selected(self) -> None:
         ref = self.selected_ref()
