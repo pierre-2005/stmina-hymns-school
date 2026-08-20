@@ -24,7 +24,7 @@
       <span class="hymn-index">{{ '%02d'|format(loop.index) }}</span>
       <span class="hymn-list-copy">
         <strong>{{ hymn.title }}</strong>
-        <small>{{ hymn.note or 'Open hymn' }}</small>
+        <small>{{ hymn.note }}</small>
       </span>
       <span class="badge">{{ hymn.recordings|length }} SoundCloud track{{ '' if hymn.recordings|length == 1 else 's' }}</span>
       <span class="card-arrow">→</span>
