@@ -43,8 +43,8 @@
           "hymns": [
             {
               "slug": "conclusion-of-the-orthodox-creed",
-              "title": "Conclusion of the Orthodox Creed",
-              "note": "",
+              "title": "Conclusion of the Orthodox Creed (Matins/Vespers - Long)",
+              "note": "(Ten gosht evol)",
               "sort": 10,
               "published": true,
               "recordings": [],
@@ -69,7 +69,100 @@
           "description": "",
           "sort": 20,
           "published": true,
-          "hymns": []
+          "hymns": [
+            {
+              "slug": "response-to-the-pauline-epistle",
+              "title": "Response to the Pauline Epistle (Coptic)",
+              "note": "(Pi-ehmot ghar)",
+              "sort": 10,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "annual-gospel-response",
+              "title": "Annual Gospel Response (Coptic)",
+              "note": "(Ooniato)",
+              "sort": 20,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "alleluia-the-thought-of-man",
+              "title": "Alleluia The thought of man (Coptic)",
+              "note": "(Alleluia Je-efmevi)",
+              "sort": 30,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "hymn-of-the-censer",
+              "title": "Hymn of the Censer (Coptic)",
+              "note": "(Tai-shori)",
+              "sort": 40,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "conclusion-of-the-orthodox-creed",
+              "title": "Conclusion of the Orthodox Creed (Matins/Vespers - Short - Coptic)",
+              "note": "(Ten gosht evol)",
+              "sort": 50,
+              "published": true,
+              "recordings": [],
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We look for the resurrection of the dead, and the life of the age to come. Amen.",
+                    "cop": "Tengov2t èbol qa t̀h3 ǹ5ànactacic ǹte nire4mwovt: nem piwnq ǹte pièwn e0n3ov. Àm3n.",
+                    "cop_en": "Ten gosht evol kha et hee-enti anastasis, ente-ni refmoo-oot, nem pi-onkh ente pi-eoo-oon ethneeyou. Amen."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
+            },
+            {
+              "slug": "all-you-wise-men-ending",
+              "title": "All You Wise Men (Ending - Coptic)",
+              "note": "(Ni savev teero)",
+              "sort": 60,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "according-to-your-mercy-o-lord",
+              "title": "According to your mercy O Lord (Basilian - Coptic)",
+              "note": "(Kata to eleos)",
+              "sort": 70,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "praxis-response-english",
+              "title": "Praxis Response (English)",
+              "note": "(St. Mary)",
+              "sort": 80,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "the-matins-doxology-for-the-virgin",
+              "title": "The Matins Doxology for the Virgin (English)",
+              "note": "",
+              "sort": 90,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            }
+          ]
         }
       ]
     },
