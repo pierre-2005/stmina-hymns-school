@@ -77,7 +77,38 @@
               "sort": 10,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The grace of our Lord Jesus Christ, be with your saintly spirit, my lord the honored father the high priest Papa Abba (...).",
+                    "cop": "Pi`hmot jar `mpeno̅c̅ I3̅c̅ Px̅c̅: e4`e2wpi nem pek`ajion `pnevma: pao̅c̅ `niwt ettai3ovt `n`arx3`erevc papa abba (...)",
+                    "cop_en": "Pi ehmot ghar em-pen-choice Isos pi khristos: ef-e-shoapi nem pek-agion ep-nevma: pa-choice en-yot et-ta-yoat en-arshi-erevs papa avva (...)"
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "And our father the Bishop Abba (...)",
+                    "cop": "Nem peniwt `n`epickopoc abba (...).",
+                    "cop_en": "nem pen yoat en-e-piskopos avva (...)"
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "May the clergy and all the people be safe in the Lord. Amen. So it shall be.",
+                    "cop": "Mare pi`kl3roc: nem pilaoc t3r4: `ovgai qen Po̅c̅: ge `am3n ec`e2wpi.",
+                    "cop_en": "mare pi-ek-leeros: nem pi-la-os teerf: oo-gai khen ep-choice je ameen es-e-shoapi."
+                  },
+                  "sort": 30,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "annual-gospel-response",
