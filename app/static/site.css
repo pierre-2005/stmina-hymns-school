@@ -1289,22 +1289,19 @@ audio {
  */
 .coptic-overline {
   /*
-   * Use our own positioned line instead of CSS text-decoration: overline.
+   * Every overlined Coptic glyph gets its own wrapper.
    *
-   * Avva Shenouda has unusual vertical font metrics, so the browser's native
-   * overline sits much too high above the letters. This wrapper keeps the
-   * glyph on the normal baseline while giving us exact control of the line.
+   * line-height MUST be 1 here. The previous version inherited the lyric
+   * line-height (about 1.6), which made the wrapper much taller than the
+   * actual glyph and caused the overline to float far above the letters.
    */
   position: relative;
   display: inline-block;
 
-  text-decoration: none !important;
-
-  /*
-   * Do not change the inherited line-height or baseline of the Coptic sentence.
-   */
-  line-height: inherit;
+  line-height: 1;
   vertical-align: baseline;
+
+  text-decoration: none !important;
 }
 
 .coptic-overline::after {
@@ -1312,25 +1309,19 @@ audio {
 
   position: absolute;
 
-  /*
-   * Small inset keeps the line from sticking past the first/last glyph.
-   */
-  left: 0.04em;
-  right: 0.04em;
+  left: 0.02em;
+  right: 0.02em;
 
   /*
-   * LOWER than a browser-native overline so it sits close to the Avva glyphs.
-   *
-   * If you ever want it microscopically lower/higher, this is the one value
-   * to adjust. A larger value moves the line DOWN.
+   * This value is calculated per glyph by coptic_render.py from the real
+   * Avva_Shenouda.ttf glyph height.
    */
-  top: 0.20em;
+  top: var(--coptic-overline-top, 0.240em);
 
-  height: 0.055em;
+  height: 0.050em;
   min-height: 1px;
 
   background: currentColor;
-  border-radius: 999px;
 
   pointer-events: none;
 }

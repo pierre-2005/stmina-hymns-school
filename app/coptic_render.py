@@ -50,19 +50,15 @@ UNICODE_TO_AVVA = {
 }
 
 
-# These two combinations have dedicated legacy positions in Avva Shenouda.
-# Keep them exactly as in the original converter.
+# These two exact combinations are part of the original Avva converter and
+# have dedicated legacy glyph positions in the Avva Shenouda font.
 SPECIAL_SEQUENCES = {
     "ⲇ\u0305": "ä",
     "ⲩ\u0305": "ö",
 }
 
 
-# Marks used by Coptic sources for abbreviation / nomina-sacra overlines.
-#
-# We DO NOT send these combining marks to the browser next to Avva's legacy
-# ASCII glyphs. Browsers can font-fallback an entire grapheme and expose the
-# literal ASCII code, e.g. Avva eta "3" becomes visible as digit 3.
+# Unicode marks commonly used as Coptic abbreviation / nomina-sacra lines.
 OVERLINE_MARKS = {
     "\u0304",  # COMBINING MACRON
     "\u0305",  # COMBINING OVERLINE
@@ -71,6 +67,98 @@ OVERLINE_MARKS = {
 
 
 AVVA_GLYPHS = set(UNICODE_TO_AVVA.values()) | set(SPECIAL_SEQUENCES.values())
+
+
+# ---------------------------------------------------------------------------
+# IMPORTANT: exact Avva Shenouda vertical metrics
+# ---------------------------------------------------------------------------
+#
+# The previous CSS fix used one fixed vertical position for every overline.
+# That cannot work with Avva Shenouda because its legacy glyphs have very
+# different ink heights:
+#
+#   lowercase eta "3"  -> short glyph
+#   uppercase eta "#"  -> tall glyph
+#   several other letters have medium/tall ascenders
+#
+# These values were calculated from the actual Avva_Shenouda.ttf used by the
+# project. They represent the CSS `top` position for the overline when the
+# wrapper has line-height: 1.
+#
+# This lets the line sit just above the ACTUAL glyph rather than floating at a
+# fixed distance above the whole line box.
+#
+LEGACY_OVERLINE_TOP_EM = {
+    # Uppercase Avva legacy glyphs
+    "A": 0.003,
+    "B": 0.006,
+    "J": 0.002,
+    "D": 0.002,
+    "E": 0.000,
+    "Z": 0.002,
+    "#": 0.002,
+    ")": 0.002,
+    "I": 0.004,
+    "K": 0.002,
+    "L": 0.002,
+    "M": 0.002,
+    "N": 0.002,
+    "&": 0.005,
+    "O": 0.002,
+    "P": 0.001,
+    "R": 0.002,
+    "C": 0.004,
+    "T": 0.001,
+    "V": 0.002,
+    "F": 0.002,
+    "X": 0.002,
+    "Y": 0.002,
+    "W": 0.002,
+    "@": 0.002,
+    "$": 0.002,
+    "Q": 0.007,
+    "H": 0.002,
+    "G": 0.002,
+    "S": 0.002,
+    "%": -0.050,
+
+    # Lowercase Avva legacy glyphs
+    "a": 0.254,
+    "b": 0.104,
+    "j": 0.259,
+    "d": 0.106,
+    "e": 0.260,
+    "z": 0.261,
+    "3": 0.258,  # lowercase eta
+    "0": 0.258,
+    "i": 0.256,
+    "k": 0.260,
+    "l": 0.109,
+    "m": 0.256,
+    "n": 0.259,
+    "7": 0.262,
+    "o": 0.256,
+    "p": 0.260,
+    "r": 0.258,
+    "c": 0.257,
+    "t": 0.258,
+    "v": 0.260,
+    "f": 0.117,
+    "x": 0.251,
+    "y": 0.118,
+    "w": 0.250,
+    "2": 0.255,
+    "4": 0.258,
+    "q": 0.116,
+    "h": 0.261,
+    "g": 0.258,
+    "s": -0.015,
+    "5": 0.002,
+    "6": 0.123,
+    "U": -0.050,
+    "u": -0.018,
+    "+": -0.050,
+}
 
 
 def contains_unicode_coptic(text: str) -> bool:
@@ -88,12 +176,16 @@ def _append_run(
     value: str,
 ) -> None:
     """
-    Append a run and merge adjacent runs of the same kind.
+    Add a rendering run.
 
-    Adjacent overlined Coptic characters therefore become one span and receive
-    one continuous overline rather than several disconnected tiny bars.
+    Overlined glyphs are intentionally NOT merged. Each glyph needs its own
+    Avva-metric-based vertical position.
     """
     if not value:
+        return
+
+    if kind == "avva-overline":
+        runs.append((kind, value))
         return
 
     if runs and runs[-1][0] == kind:
@@ -106,12 +198,14 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
     """
     Convert Unicode Coptic into rendering runs.
 
-    Run kinds:
-      avva           = normal Avva Shenouda glyphs
-      avva-overline  = Avva glyphs that receive a CSS overline
-      plain          = literal punctuation / English / spaces / etc.
+    - Actual Coptic characters -> Avva legacy glyphs.
+    - Normal punctuation -> normal website font.
+    - Grave marks -> Avva's legacy backtick.
+    - Overline/macron marks -> CSS overline metadata, NOT Unicode marks.
 
-    Crucially, U+0304/U+0305/U+033F are never emitted beside Avva legacy ASCII.
+    The browser never receives U+0304/U+0305/U+033F beside a legacy Avva ASCII
+    glyph, so it cannot expose a literal "3", "m", "n", etc. through font
+    fallback.
     """
     text = unicodedata.normalize("NFD", str(text or ""))
     runs: list[tuple[str, str]] = []
@@ -119,7 +213,7 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
 
     while i < len(text):
 
-        # Dedicated combinations from the original converter take precedence.
+        # Keep exact dedicated combinations from the original converter.
         if i + 1 < len(text):
             pair = text[i:i + 2]
 
@@ -136,7 +230,6 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
 
         if ch in UNICODE_TO_AVVA:
             mapped = UNICODE_TO_AVVA[ch]
-
             j = i + 1
             combining_marks: list[str] = []
 
@@ -154,46 +247,33 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
             for mark in combining_marks:
 
                 if mark == "\u0300":
-                    # Avva Shenouda's grave glyph is the ASCII backtick and is
-                    # placed BEFORE the legacy base character.
                     prefix += "`"
 
                 elif mark in OVERLINE_MARKS:
-                    # Draw it with CSS instead of inserting the combining mark.
                     has_overline = True
 
                 else:
-                    # Preserve unrelated combining marks.
                     suffix += mark
-
-            kind = (
-                "avva-overline"
-                if has_overline
-                else "avva"
-            )
 
             _append_run(
                 runs,
-                kind,
+                "avva-overline" if has_overline else "avva",
                 prefix + mapped + suffix,
             )
 
             i = j
             continue
 
-        # A stray overline/macron that is not attached to a Coptic base glyph
-        # should NOT be printed as a floating dash.
+        # Never display a detached formatting mark as a random floating dash.
         if ch in OVERLINE_MARKS:
             i += 1
             continue
 
-        # Normal punctuation/text remains normal.
         _append_run(
             runs,
             "plain",
             ch,
         )
-
         i += 1
 
     return runs
@@ -203,9 +283,9 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
     """
     Backward compatibility for older legacy-Avva rows.
 
-    - Matched (), [], and {} regions remain normal/plain.
-    - Legacy glyph + overline mark becomes avva-overline.
-    - Stray overline marks are suppressed instead of appearing as random dashes.
+    - (...) / [...] / {...} remain literal normal text.
+    - Legacy glyph + overline becomes avva-overline.
+    - Detached overline/macron marks are removed.
     """
     text = unicodedata.normalize("NFD", str(text or ""))
     runs: list[tuple[str, str]] = []
@@ -222,42 +302,27 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
     while i < len(text):
         ch = text[i]
 
-        # Literal bracketed content must stay normal.
         if expected_closers:
 
             if ch in opening_to_closing:
                 expected_closers.append(
                     opening_to_closing[ch]
                 )
-                _append_run(
-                    runs,
-                    "plain",
-                    ch,
-                )
+                _append_run(runs, "plain", ch)
                 i += 1
                 continue
 
             if ch == expected_closers[-1]:
                 expected_closers.pop()
-                _append_run(
-                    runs,
-                    "plain",
-                    ch,
-                )
+                _append_run(runs, "plain", ch)
                 i += 1
                 continue
 
-            # Suppress accidental standalone combining overlines even inside
-            # literal content. They are formatting marks, not visible dashes.
             if ch in OVERLINE_MARKS:
                 i += 1
                 continue
 
-            _append_run(
-                runs,
-                "plain",
-                ch,
-            )
+            _append_run(runs, "plain", ch)
             i += 1
             continue
 
@@ -265,15 +330,10 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
             expected_closers.append(
                 opening_to_closing[ch]
             )
-            _append_run(
-                runs,
-                "plain",
-                ch,
-            )
+            _append_run(runs, "plain", ch)
             i += 1
             continue
 
-        # Grave-prefix + Avva glyph, optionally overlined.
         if (
             ch == "`"
             and i + 1 < len(text)
@@ -301,7 +361,6 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
 
             continue
 
-        # Plain legacy Avva glyph, optionally followed by an overline mark.
         if ch in AVVA_GLYPHS:
 
             if (
@@ -324,7 +383,6 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
 
             continue
 
-        # Never print an unattached macron/overline as a floating dash.
         if ch in OVERLINE_MARKS:
             i += 1
             continue
@@ -348,14 +406,37 @@ def _escape_with_breaks(value: str) -> str:
     )
 
 
+def _legacy_base_character(chunk: str) -> str:
+    """
+    Return the actual Avva base glyph from a legacy chunk.
+
+    Grave-accented text is stored as backtick + base, e.g. `e.
+    """
+    for ch in reversed(chunk):
+        if ch in LEGACY_OVERLINE_TOP_EM:
+            return ch
+
+    return ""
+
+
+def _overline_top_for_chunk(chunk: str) -> float:
+    base = _legacy_base_character(chunk)
+
+    if not base:
+        return 0.240
+
+    return LEGACY_OVERLINE_TOP_EM.get(
+        base,
+        0.240,
+    )
+
+
 def render_coptic(value: str) -> Markup:
     """
-    Render Coptic safely.
+    Render Coptic safely using the ACTUAL Avva glyph height for each overline.
 
-    Actual Coptic glyphs use Avva Shenouda.
-    Literal punctuation uses the normal website font.
-    Overlines are drawn by CSS and are NEVER Unicode combining marks beside
-    Avva legacy ASCII characters.
+    This fixes the previous fixed-position CSS line that floated far above
+    short glyphs or crossed tall glyphs.
     """
     text = str(value or "")
 
@@ -376,10 +457,15 @@ def render_coptic(value: str) -> Markup:
         )
 
         if kind == "avva-overline":
+            top = _overline_top_for_chunk(
+                chunk
+            )
+
             html.append(
                 '<span '
                 'class="coptic-avva coptic-overline" '
-                'style="font-family:'
+                f'style="--coptic-overline-top:{top:.3f}em;'
+                'font-family:'
                 '\'Avva Shenouda\','
                 '\'Noto Sans Coptic\','
                 'sans-serif !important;'
