@@ -17,7 +17,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.5"
+APP_VERSION = "3.6"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"

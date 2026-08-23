@@ -1288,11 +1288,51 @@ audio {
  * continues to render as Coptic eta rather than a literal digit 3.
  */
 .coptic-overline {
-  text-decoration-line: overline;
-  text-decoration-style: solid;
-  text-decoration-thickness: 0.075em;
-  text-decoration-color: currentColor;
-  text-decoration-skip-ink: none;
+  /*
+   * Use our own positioned line instead of CSS text-decoration: overline.
+   *
+   * Avva Shenouda has unusual vertical font metrics, so the browser's native
+   * overline sits much too high above the letters. This wrapper keeps the
+   * glyph on the normal baseline while giving us exact control of the line.
+   */
+  position: relative;
+  display: inline-block;
+
+  text-decoration: none !important;
+
+  /*
+   * Do not change the inherited line-height or baseline of the Coptic sentence.
+   */
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
+.coptic-overline::after {
+  content: "";
+
+  position: absolute;
+
+  /*
+   * Small inset keeps the line from sticking past the first/last glyph.
+   */
+  left: 0.04em;
+  right: 0.04em;
+
+  /*
+   * LOWER than a browser-native overline so it sits close to the Avva glyphs.
+   *
+   * If you ever want it microscopically lower/higher, this is the one value
+   * to adjust. A larger value moves the line DOWN.
+   */
+  top: 0.20em;
+
+  height: 0.055em;
+  min-height: 1px;
+
+  background: currentColor;
+  border-radius: 999px;
+
+  pointer-events: none;
 }
 
 .coptic-plain {
