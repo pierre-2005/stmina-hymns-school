@@ -1289,15 +1289,16 @@ audio {
  */
 .coptic-overline {
   /*
-   * Every overlined Coptic glyph gets its own wrapper.
-   *
-   * line-height MUST be 1 here. The previous version inherited the lyric
-   * line-height (about 1.6), which made the wrapper much taller than the
-   * actual glyph and caused the overline to float far above the letters.
+   * ONE wrapper for a continuous marked sequence.
+   * This prevents one little dash per letter.
    */
   position: relative;
   display: inline-block;
 
+  /*
+   * Keep Avva's normal baseline. Do not use per-letter line heights or
+   * per-letter vertical calculations.
+   */
   line-height: 1;
   vertical-align: baseline;
 
@@ -1309,17 +1310,23 @@ audio {
 
   position: absolute;
 
-  left: 0.02em;
-  right: 0.02em;
+  /*
+   * A single continuous line across the entire marked sequence.
+   */
+  left: 0.03em;
+  right: 0.03em;
 
   /*
-   * This value is calculated per glyph by coptic_render.py from the real
-   * Avva_Shenouda.ttf glyph height.
+   * Fixed placement for ALL letters, deliberately a little above the glyphs.
+   * This is much closer to the Content Manager preview than the previous
+   * per-glyph positioning.
    */
-  top: var(--coptic-overline-top, 0.240em);
+  top: 0.075em;
 
-  height: 0.050em;
-  min-height: 1px;
+  /*
+   * Exactly the same thickness everywhere.
+   */
+  height: 1px;
 
   background: currentColor;
 

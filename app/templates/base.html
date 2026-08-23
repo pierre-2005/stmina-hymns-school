@@ -7,7 +7,7 @@
   <title>{{ title }} · {{ site.site_title }}</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', path='images/stmina-logo.png') }}?v=1">
   <link rel="apple-touch-icon" href="{{ url_for('static', path='images/stmina-logo.png') }}?v=1">
-  <link rel="stylesheet" href="{{ url_for('static', path='site.css') }}?v=90">
+  <link rel="stylesheet" href="{{ url_for('static', path='site.css') }}?v=100">
   {% block extra_head %}{% endblock %}
 </head>
 <body data-page-path="{{ request.url.path }}">
@@ -75,6 +75,6 @@
   </footer>
 
   {% block extra_scripts %}{% endblock %}
-  <script src="{{ url_for('static', path='site.js') }}?v=90" defer></script>
+  <script src="{{ url_for('static', path='site.js') }}?v=100" defer></script>
 </body>
 </html>
