@@ -1241,13 +1241,8 @@ audio {
 .lang-cop {
   /*
    * IMPORTANT:
-   * The Coptic cell itself must NOT use Avva Shenouda.
-   *
-   * Avva is a legacy-encoded font that reuses ASCII characters such as
-   * ), @, #, %, digits, and Latin letters as Coptic glyph positions.
-   *
-   * The renderer applies Avva only to .coptic-avva spans. Literal brackets,
-   * punctuation, numbers, English, spaces, etc. remain .coptic-plain.
+   * The entire Coptic cell must stay in the normal UI font.
+   * ONLY .coptic-avva spans receive Avva Shenouda.
    */
   font-family:
     Inter,
@@ -1256,26 +1251,34 @@ audio {
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
-    sans-serif;
+    Arial,
+    sans-serif !important;
 
   font-size: var(--lyric-font-size);
+  line-height: 1.6;
 }
 
 /* =========================================================
    MIXED COPTIC / NORMAL TEXT
    ========================================================= */
 
+/* ONLY actual converted Coptic glyphs use Avva Shenouda. */
 .coptic-avva {
   font-family:
     "Avva Shenouda",
     "Noto Sans Coptic",
-    sans-serif;
+    sans-serif !important;
 
   font-size: 1.06em;
   font-weight: 400;
   letter-spacing: 0;
+  line-height: inherit;
 }
 
+/*
+ * Literal punctuation/text stays normal:
+ * (...)  [...]  {...}  punctuation  English  ordinary digits
+ */
 .coptic-plain {
   font-family:
     Inter,
@@ -1284,14 +1287,15 @@ audio {
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
-    sans-serif;
+    Arial,
+    sans-serif !important;
 
   font-size: 1em;
   font-weight: 400;
   letter-spacing: 0;
+  line-height: inherit;
   vertical-align: baseline;
 }
-
 
 .empty-cell {
   padding: 30px;
@@ -2781,8 +2785,7 @@ audio {
 
   /*
     Keep the Coptic CELL in the normal UI font.
-    The server-generated .coptic-avva spans choose Avva only for actual
-    Coptic glyphs, while .coptic-plain keeps literal punctuation normal.
+    The generated .coptic-avva spans choose Avva only for actual Coptic.
   */
   .lyric-cell.lang-cop,
   .lyrics-table .cell.lang-cop {
@@ -2793,9 +2796,11 @@ audio {
       -apple-system,
       BlinkMacSystemFont,
       "Segoe UI",
-      sans-serif;
+      Arial,
+      sans-serif !important;
 
     font-size: var(--lyric-font-size);
+    line-height: 1.7;
   }
 
   .lyric-cell.lang-cop .coptic-avva,
@@ -2803,7 +2808,7 @@ audio {
     font-family:
       "Avva Shenouda",
       "Noto Sans Coptic",
-      sans-serif;
+      sans-serif !important;
 
     font-size: 1.06em;
   }
@@ -2817,7 +2822,8 @@ audio {
       -apple-system,
       BlinkMacSystemFont,
       "Segoe UI",
-      sans-serif;
+      Arial,
+      sans-serif !important;
 
     font-size: 1em;
   }

@@ -5,7 +5,6 @@ import unicodedata
 from markupsafe import Markup, escape
 
 
-# Unicode Coptic -> Avva Shenouda legacy mapping.
 UNICODE_TO_AVVA = {
     "Ⲁ": "A", "ⲁ": "a",
     "Ⲃ": "B", "ⲃ": "b",
@@ -79,12 +78,15 @@ def _append_run(
 
 def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
     """
-    Convert actual Unicode Coptic into Avva-rendered runs.
+    Convert actual Unicode Coptic into mixed rendering runs.
 
-    Only Coptic characters are sent through the Avva font.
-    Literal punctuation, brackets, numbers, spaces, English, and line breaks
-    remain plain text. This is essential because Avva Shenouda reuses many
-    ASCII positions for Coptic glyphs.
+    Only real Unicode Coptic characters are converted to Avva legacy glyph
+    codes. Literal punctuation, brackets, English, ordinary numbers, spaces,
+    and line breaks remain plain.
+
+    Example:
+        Unicode Ⲑ -> ")" in an Avva span
+        literal  ) -> ")" in a normal-font span
     """
     text = unicodedata.normalize("NFD", str(text or ""))
     runs: list[tuple[str, str]] = []
@@ -114,12 +116,9 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
 
             for mark in combining_marks:
                 if mark == "\u0300":
-                    # Avva Shenouda's legacy grave glyph is the ASCII backtick
-                    # and must appear before the base glyph.
+                    # Avva Shenouda expects its grave mark BEFORE the base glyph.
                     prefix += "`"
                 else:
-                    # Keep other marks with the Avva run. Dedicated legacy
-                    # combinations above are handled before this branch.
                     suffix += mark
 
             _append_run(runs, "avva", prefix + mapped + suffix)
@@ -134,33 +133,47 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
 
 def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
     """
-    Render older already-published Avva-encoded text safely.
+    Backward compatibility for older rows that were saved as legacy Avva text.
 
-    The legacy format is ambiguous because ')' is both a normal closing
-    parenthesis and the Avva code for Coptic Theta. We preserve matched
-    (), [], and {} delimiters as normal punctuation. Outside a matched
-    delimiter, legacy Avva glyph codes continue to render with Avva.
+    Legacy Avva is ambiguous because ASCII positions are reused as Coptic
+    glyphs. Matched (), [], and {} regions are therefore treated as literal
+    normal text, including everything inside them.
 
-    This gives old content backward compatibility while new Content Manager
-    edits are stored as Unicode Coptic and are therefore unambiguous.
+    New Content Manager saves use Unicode and do not have this ambiguity.
     """
     text = str(text or "")
     runs: list[tuple[str, str]] = []
+
+    opening_to_closing = {
+        "(": ")",
+        "[": "]",
+        "{": "}",
+    }
     expected_closers: list[str] = []
-    opening_to_closing = {"(": ")", "[": "]", "{": "}"}
     i = 0
 
     while i < len(text):
         ch = text[i]
 
-        if ch in opening_to_closing:
-            expected_closers.append(opening_to_closing[ch])
+        if expected_closers:
+            if ch in opening_to_closing:
+                expected_closers.append(opening_to_closing[ch])
+                _append_run(runs, "plain", ch)
+                i += 1
+                continue
+
+            if ch == expected_closers[-1]:
+                expected_closers.pop()
+                _append_run(runs, "plain", ch)
+                i += 1
+                continue
+
             _append_run(runs, "plain", ch)
             i += 1
             continue
 
-        if expected_closers and ch == expected_closers[-1]:
-            expected_closers.pop()
+        if ch in opening_to_closing:
+            expected_closers.append(opening_to_closing[ch])
             _append_run(runs, "plain", ch)
             i += 1
             continue
@@ -186,10 +199,11 @@ def _escape_with_breaks(value: str) -> str:
 
 def render_coptic(value: str) -> Markup:
     """
-    Safely render mixed Coptic + ordinary punctuation.
+    Safely render Coptic + ordinary punctuation using explicit mixed fonts.
 
-    New rows are expected to contain Unicode Coptic.
-    Old legacy Avva rows are still supported.
+    Inline font declarations are intentional: even if a browser still has an
+    older cached stylesheet that puts Avva Shenouda on the whole Coptic cell,
+    literal (...) remains in the normal UI font.
     """
     text = str(value or "")
     if not text:
@@ -204,9 +218,24 @@ def render_coptic(value: str) -> Markup:
     html: list[str] = []
 
     for kind, chunk in runs:
-        css_class = "coptic-avva" if kind == "avva" else "coptic-plain"
-        html.append(
-            f'<span class="{css_class}">{_escape_with_breaks(chunk)}</span>'
-        )
+        safe_chunk = _escape_with_breaks(chunk)
+
+        if kind == "avva":
+            html.append(
+                '<span class="coptic-avva" '
+                'style="font-family:\'Avva Shenouda\',\'Noto Sans Coptic\',sans-serif !important;'
+                'font-weight:400;letter-spacing:0;">'
+                f"{safe_chunk}"
+                "</span>"
+            )
+        else:
+            html.append(
+                '<span class="coptic-plain" '
+                'style="font-family:Inter,ui-sans-serif,system-ui,-apple-system,'
+                'BlinkMacSystemFont,\'Segoe UI\',Arial,sans-serif !important;'
+                'font-weight:400;letter-spacing:0;">'
+                f"{safe_chunk}"
+                "</span>"
+            )
 
     return Markup("".join(html))
