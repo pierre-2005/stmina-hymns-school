@@ -100,23 +100,53 @@ def contains_unicode_coptic(text: str) -> bool:
     return False
 
 
-def unicode_coptic_to_avva(text: str) -> str:
+def unicode_coptic_to_avva_runs(
+    text: str,
+) -> list[tuple[str, str]]:
     """
-    Convert Unicode Coptic to the legacy Avva Shenouda encoding.
+    Convert Unicode Coptic to Avva preview runs.
 
-    In addition to the original converter mapping, this handles Unicode
-    combining grave accents in the form expected by Avva Shenouda.
-    Example: ⲉ + U+0300 -> `e
+    "avva" runs should use Avva Shenouda.
+    "plain" runs should use the normal interface font.
     """
-    text = unicodedata.normalize("NFD", str(text or ""))
-    output: list[str] = []
+
+    text = unicodedata.normalize(
+        "NFD",
+        str(text or ""),
+    )
+
+    runs: list[tuple[str, str]] = []
+
+    def append_run(
+        kind: str,
+        value: str,
+    ) -> None:
+        if not value:
+            return
+
+        if runs and runs[-1][0] == kind:
+            runs[-1] = (
+                kind,
+                runs[-1][1] + value,
+            )
+        else:
+            runs.append(
+                (kind, value)
+            )
+
     i = 0
 
     while i < len(text):
+
         if i + 1 < len(text):
             pair = text[i:i + 2]
+
             if pair in SPECIAL_SEQUENCES:
-                output.append(SPECIAL_SEQUENCES[pair])
+                append_run(
+                    "avva",
+                    SPECIAL_SEQUENCES[pair],
+                )
+
                 i += 2
                 continue
 
@@ -126,59 +156,130 @@ def unicode_coptic_to_avva(text: str) -> str:
             mapped = UNICODE_TO_AVVA[ch]
 
             j = i + 1
+
             combining_marks: list[str] = []
-            while j < len(text) and unicodedata.combining(text[j]):
-                combining_marks.append(text[j])
+
+            while (
+                j < len(text)
+                and unicodedata.combining(text[j])
+            ):
+                combining_marks.append(
+                    text[j]
+                )
+
                 j += 1
 
             prefix = ""
             suffix = ""
+
             for mark in combining_marks:
+
                 if mark == "\u0300":
                     prefix += "`"
+
                 else:
                     suffix += mark
 
-            output.append(prefix + mapped + suffix)
+            append_run(
+                "avva",
+                prefix + mapped + suffix,
+            )
+
             i = j
             continue
 
-        output.append(ch)
+        # Literal parentheses and every other
+        # non-Coptic character stay plain.
+        append_run(
+            "plain",
+            ch,
+        )
+
         i += 1
 
-    return "".join(output)
+    return runs
 
+
+def unicode_coptic_to_avva(
+    text: str,
+) -> str:
+    return "".join(
+        value
+        for _kind, value
+        in unicode_coptic_to_avva_runs(text)
+    )
 
 def avva_to_unicode_coptic(text: str) -> str:
-    """Best-effort reverse conversion for editing existing legacy lyrics."""
+    """
+    Best-effort reverse conversion of existing legacy Avva text.
+
+    Balanced literal parentheses are preserved as parentheses
+    instead of treating every ')' as Coptic Theta.
+    """
+
     text = str(text or "")
+
     output: list[str] = []
+
     i = 0
+    parenthesis_depth = 0
 
     while i < len(text):
         ch = text[i]
 
         if ch in AVVA_SPECIAL_TO_UNICODE:
-            output.append(AVVA_SPECIAL_TO_UNICODE[ch])
+            output.append(
+                AVVA_SPECIAL_TO_UNICODE[ch]
+            )
+
             i += 1
             continue
 
-        if ch == "`" and i + 1 < len(text):
+        # Preserve obvious literal parenthetical text.
+        if ch == "(":
+            parenthesis_depth += 1
+            output.append("(")
+            i += 1
+            continue
+
+        if (
+            ch == ")"
+            and parenthesis_depth > 0
+        ):
+            parenthesis_depth -= 1
+            output.append(")")
+            i += 1
+            continue
+
+        # Avva grave accent.
+        if (
+            ch == "`"
+            and i + 1 < len(text)
+        ):
             next_ch = text[i + 1]
+
             if next_ch in AVVA_TO_UNICODE:
-                output.append(AVVA_TO_UNICODE[next_ch] + "\u0300")
+                output.append(
+                    AVVA_TO_UNICODE[next_ch]
+                    + "\u0300"
+                )
+
                 i += 2
                 continue
 
         if ch in AVVA_TO_UNICODE:
-            output.append(AVVA_TO_UNICODE[ch])
+            output.append(
+                AVVA_TO_UNICODE[ch]
+            )
         else:
             output.append(ch)
 
         i += 1
 
-    return unicodedata.normalize("NFC", "".join(output))
-
+    return unicodedata.normalize(
+        "NFC",
+        "".join(output),
+    )
 
 def find_logo_path() -> Path | None:
     """Find the St. Mina logo in source mode or inside a PyInstaller bundle."""
@@ -831,7 +932,7 @@ class LyricDialog(tk.Toplevel):
 
                 tk.Label(
                     convert_row,
-                    text="The Avva version below is what will be saved to the website.",
+                    text="Preview only — the original Unicode Coptic will be saved.",
                     bg=section["bg"],
                     fg=MUTED,
                     font=("Segoe UI", 9),
@@ -854,7 +955,7 @@ class LyricDialog(tk.Toplevel):
 
                 tk.Label(
                     section,
-                    text="Avva Shenouda output / saved value",
+                    text="Avva Shenouda preview",
                     bg=section["bg"],
                     fg=MUTED,
                     font=("Segoe UI", 9),
@@ -874,7 +975,23 @@ class LyricDialog(tk.Toplevel):
                 avva_box.pack(fill="x")
                 avva_box.insert("1.0", existing)
                 self.coptic_avva_widget = avva_box
-                self.text_widgets[code] = avva_box
+                self.text_widgets[code] = unicode_box
+
+                avva_box.tag_configure(
+                    "avva",
+                    font=(
+                        avva_family or "Courier New",
+                        16,
+                    ),
+                )
+
+                avva_box.tag_configure(
+                    "plain",
+                    font=(
+                        "Segoe UI",
+                        16,
+                    ),
+                )
 
             else:
                 text = tk.Text(
@@ -915,12 +1032,17 @@ class LyricDialog(tk.Toplevel):
         self.wait_window()
 
     def _convert_coptic_inline(self) -> None:
-        if not self.coptic_unicode_widget or not self.coptic_avva_widget:
+        if not self.coptic_unicode_widget:
             return
-        source = self.coptic_unicode_widget.get("1.0", "end-1c")
-        converted = unicode_coptic_to_avva(source)
-        self.coptic_avva_widget.delete("1.0", "end")
-        self.coptic_avva_widget.insert("1.0", converted)
+
+        source = self.coptic_unicode_widget.get(
+            "1.0",
+            "end-1c",
+        )
+
+        self._render_coptic_preview(
+            source
+        )
 
     def _open_converter(self) -> None:
         unicode_text = (
@@ -960,15 +1082,6 @@ class LyricDialog(tk.Toplevel):
             )
             return
 
-        # If the Unicode Coptic box contains Unicode Coptic, automatically
-        # refresh the Avva value before saving. This removes the need to run
-        # a separate converter program.
-        if self.coptic_unicode_widget and self.coptic_avva_widget:
-            source = self.coptic_unicode_widget.get("1.0", "end-1c").strip()
-            if source and contains_unicode_coptic(source):
-                converted = unicode_coptic_to_avva(source)
-                self.coptic_avva_widget.delete("1.0", "end")
-                self.coptic_avva_widget.insert("1.0", converted)
 
         texts = {
             code: widget.get("1.0", "end-1c").strip()
@@ -982,6 +1095,29 @@ class LyricDialog(tk.Toplevel):
             "published": bool(self.published_var.get()),
         }
         self.destroy()
+
+    def _render_coptic_preview(
+        self,
+        source: str,
+    ) -> None:
+        if not self.coptic_avva_widget:
+            return
+
+        box = self.coptic_avva_widget
+
+        box.delete(
+            "1.0",
+            "end",
+        )
+
+        for kind, value in unicode_coptic_to_avva_runs(
+            source
+        ):
+            box.insert(
+                "end",
+                value,
+                kind,
+            )
 
 
 class CopyHymnDialog(tk.Toplevel):
