@@ -1279,6 +1279,22 @@ audio {
  * Literal punctuation/text stays normal:
  * (...)  [...]  {...}  punctuation  English  ordinary digits
  */
+
+/*
+ * Coptic abbreviation overline.
+ *
+ * The renderer removes Unicode U+0305/U+033F from legacy Avva graphemes.
+ * This CSS line is drawn over the Avva glyph instead, so a legacy "3"
+ * continues to render as Coptic eta rather than a literal digit 3.
+ */
+.coptic-overline {
+  text-decoration-line: overline;
+  text-decoration-style: solid;
+  text-decoration-thickness: 0.075em;
+  text-decoration-color: currentColor;
+  text-decoration-skip-ink: none;
+}
+
 .coptic-plain {
   font-family:
     Inter,

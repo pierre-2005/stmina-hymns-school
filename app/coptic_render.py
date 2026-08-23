@@ -50,11 +50,15 @@ SPECIAL_SEQUENCES = {
     "ⲩ\u0305": "ö",
 }
 
+OVERLINE_MARKS = {
+    "\u0305",  # COMBINING OVERLINE
+    "\u033F",  # COMBINING DOUBLE OVERLINE
+}
+
 AVVA_GLYPHS = set(UNICODE_TO_AVVA.values()) | set(SPECIAL_SEQUENCES.values())
 
 
 def contains_unicode_coptic(text: str) -> bool:
-    """Return True when text contains actual Unicode Coptic characters."""
     for ch in str(text or ""):
         cp = ord(ch)
         if 0x2C80 <= cp <= 0x2CFF or 0x03E2 <= cp <= 0x03EF:
@@ -78,21 +82,24 @@ def _append_run(
 
 def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
     """
-    Convert actual Unicode Coptic into mixed rendering runs.
+    Convert Unicode Coptic into mixed rendering runs.
 
-    Only real Unicode Coptic characters are converted to Avva legacy glyph
-    codes. Literal punctuation, brackets, English, ordinary numbers, spaces,
-    and line breaks remain plain.
+    IMPORTANT:
+    Avva Shenouda maps Coptic eta ⲏ to the legacy ASCII character "3".
 
-    Example:
-        Unicode Ⲑ -> ")" in an Avva span
-        literal  ) -> ")" in a normal-font span
+    If the browser receives "3" + U+0305 COMBINING OVERLINE in one grapheme,
+    it can fall back to another font for the WHOLE grapheme because Avva does
+    not contain U+0305. That produces a literal digit 3 with a line above it.
+
+    We therefore remove the Unicode overline from the Avva text and return an
+    "avva-overline" run. CSS draws the line, while Avva renders the base glyph.
     """
     text = unicodedata.normalize("NFD", str(text or ""))
     runs: list[tuple[str, str]] = []
     i = 0
 
     while i < len(text):
+        # Keep the two dedicated mappings from the original converter.
         if i + 1 < len(text):
             pair = text[i:i + 2]
             if pair in SPECIAL_SEQUENCES:
@@ -113,18 +120,24 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
 
             prefix = ""
             suffix = ""
+            has_overline = False
 
             for mark in combining_marks:
                 if mark == "\u0300":
-                    # Avva Shenouda expects its grave mark BEFORE the base glyph.
+                    # Avva grave mark: legacy backtick BEFORE the base glyph.
                     prefix += "`"
+                elif mark in OVERLINE_MARKS:
+                    # CSS will draw this. Do not put it in the Avva grapheme.
+                    has_overline = True
                 else:
                     suffix += mark
 
-            _append_run(runs, "avva", prefix + mapped + suffix)
+            kind = "avva-overline" if has_overline else "avva"
+            _append_run(runs, kind, prefix + mapped + suffix)
             i = j
             continue
 
+        # Literal punctuation, brackets, English, spaces, etc.
         _append_run(runs, "plain", ch)
         i += 1
 
@@ -133,15 +146,13 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
 
 def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
     """
-    Backward compatibility for older rows that were saved as legacy Avva text.
+    Backward compatibility for older legacy-Avva rows.
 
-    Legacy Avva is ambiguous because ASCII positions are reused as Coptic
-    glyphs. Matched (), [], and {} regions are therefore treated as literal
-    normal text, including everything inside them.
-
-    New Content Manager saves use Unicode and do not have this ambiguity.
+    - Matched (), [], and {} regions stay normal/plain.
+    - Legacy Avva glyph + U+0305/U+033F is repaired into avva-overline so the
+      browser does not fall back and expose literal ASCII glyph codes.
     """
-    text = str(text or "")
+    text = unicodedata.normalize("NFD", str(text or ""))
     runs: list[tuple[str, str]] = []
 
     opening_to_closing = {
@@ -178,16 +189,30 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
             i += 1
             continue
 
+        # Grave + glyph, optionally with an overline after the glyph.
         if ch == "`" and i + 1 < len(text) and text[i + 1] in AVVA_GLYPHS:
-            _append_run(runs, "avva", ch + text[i + 1])
-            i += 2
+            value = ch + text[i + 1]
+
+            if i + 2 < len(text) and text[i + 2] in OVERLINE_MARKS:
+                _append_run(runs, "avva-overline", value)
+                i += 3
+            else:
+                _append_run(runs, "avva", value)
+                i += 2
+
             continue
 
         if ch in AVVA_GLYPHS:
-            _append_run(runs, "avva", ch)
-        else:
-            _append_run(runs, "plain", ch)
+            if i + 1 < len(text) and text[i + 1] in OVERLINE_MARKS:
+                _append_run(runs, "avva-overline", ch)
+                i += 2
+            else:
+                _append_run(runs, "avva", ch)
+                i += 1
 
+            continue
+
+        _append_run(runs, "plain", ch)
         i += 1
 
     return runs
@@ -198,14 +223,8 @@ def _escape_with_breaks(value: str) -> str:
 
 
 def render_coptic(value: str) -> Markup:
-    """
-    Safely render Coptic + ordinary punctuation using explicit mixed fonts.
-
-    Inline font declarations are intentional: even if a browser still has an
-    older cached stylesheet that puts Avva Shenouda on the whole Coptic cell,
-    literal (...) remains in the normal UI font.
-    """
     text = str(value or "")
+
     if not text:
         return Markup("")
 
@@ -220,7 +239,15 @@ def render_coptic(value: str) -> Markup:
     for kind, chunk in runs:
         safe_chunk = _escape_with_breaks(chunk)
 
-        if kind == "avva":
+        if kind == "avva-overline":
+            html.append(
+                '<span class="coptic-avva coptic-overline" '
+                'style="font-family:\'Avva Shenouda\',\'Noto Sans Coptic\',sans-serif !important;'
+                'font-weight:400;letter-spacing:0;">'
+                f"{safe_chunk}"
+                "</span>"
+            )
+        elif kind == "avva":
             html.append(
                 '<span class="coptic-avva" '
                 'style="font-family:\'Avva Shenouda\',\'Noto Sans Coptic\',sans-serif !important;'
