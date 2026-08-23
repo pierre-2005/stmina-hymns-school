@@ -36,7 +36,10 @@
         </iframe>
       </article>
     {% else %}
-      <div class="empty-state compact"><h3>No SoundCloud track added</h3><p>Add a public SoundCloud track in the Content Manager.</p></div>
+      <div class="empty-state compact">
+        <h3>No SoundCloud track added</h3>
+        <p>Add a public SoundCloud track in the Content Manager.</p>
+      </div>
     {% endfor %}
   </div>
 </section>
@@ -54,7 +57,11 @@
   <div class="language-controls" aria-label="Language visibility">
     {% for lang in languages %}
       {% set enabled = lang.default_on %}
-      <label class="language-toggle {{ '' if enabled else 'off' }}" data-lang-code="{{ lang.code }}" data-default="{{ '1' if enabled else '0' }}">
+      <label
+        class="language-toggle {{ '' if enabled else 'off' }}"
+        data-lang-code="{{ lang.code }}"
+        data-default="{{ '1' if enabled else '0' }}"
+      >
         <input type="checkbox" class="lang-check" {% if enabled %}checked{% endif %}>
         <span class="toggle-name">{{ lang.name }}</span>
         <span class="toggle-state">{{ 'ON' if enabled else 'OFF' }}</span>
@@ -62,7 +69,11 @@
     {% endfor %}
   </div>
 
-  <div class="lyrics-wrap" id="lyricsWrap" data-language-version="{{ site.language_preferences_version }}">
+  <div
+    class="lyrics-wrap"
+    id="lyricsWrap"
+    data-language-version="{{ site.language_preferences_version }}"
+  >
     <table class="lyrics-table" id="lyricsTable">
       <tbody>
         {% for seg in segments %}
@@ -90,8 +101,15 @@
       </tbody>
     </table>
   </div>
+
+  {% if segments %}
+    <p class="helper-text">
+      Tap a lyric row to seek the active SoundCloud player to that timestamp.
+    </p>
+  {% endif %}
 </section>
 {% endblock %}
+
 {% block extra_scripts %}
   <script src="https://w.soundcloud.com/player/api.js" defer></script>
 {% endblock %}

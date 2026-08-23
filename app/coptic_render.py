@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import unicodedata
+
 from markupsafe import Markup, escape
 
 
+# Unicode Coptic -> Avva Shenouda legacy mapping.
 UNICODE_TO_AVVA = {
     "Ⲁ": "A", "ⲁ": "a",
     "Ⲃ": "B", "ⲃ": "b",
@@ -39,29 +41,25 @@ UNICODE_TO_AVVA = {
     "Ϯ": "%", "ϯ": "5",
 
     "ⲋ": "6",
-
     "⳥": "U",
     "⳪": "u",
     "ⳮ": "+",
 }
-
 
 SPECIAL_SEQUENCES = {
     "ⲇ\u0305": "ä",
     "ⲩ\u0305": "ö",
 }
 
+AVVA_GLYPHS = set(UNICODE_TO_AVVA.values()) | set(SPECIAL_SEQUENCES.values())
+
 
 def contains_unicode_coptic(text: str) -> bool:
+    """Return True when text contains actual Unicode Coptic characters."""
     for ch in str(text or ""):
         cp = ord(ch)
-
-        if (
-            0x2C80 <= cp <= 0x2CFF
-            or 0x03E2 <= cp <= 0x03EF
-        ):
+        if 0x2C80 <= cp <= 0x2CFF or 0x03E2 <= cp <= 0x03EF:
             return True
-
     return False
 
 
@@ -74,70 +72,40 @@ def _append_run(
         return
 
     if runs and runs[-1][0] == kind:
-        previous_kind, previous_value = runs[-1]
-        runs[-1] = (
-            previous_kind,
-            previous_value + value,
-        )
+        runs[-1] = (kind, runs[-1][1] + value)
     else:
         runs.append((kind, value))
 
 
-def unicode_coptic_to_runs(
-    value: str,
-) -> list[tuple[str, str]]:
+def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
     """
-    Convert Unicode Coptic into Avva legacy characters while
-    preserving ordinary punctuation/text as separate plain runs.
+    Convert actual Unicode Coptic into Avva-rendered runs.
 
-    Example:
-
-        Unicode Ⲑ -> ")" using Avva font
-        literal  ) -> ")" using normal website font
-
-    This removes the ambiguity that exists when everything is
-    stored as one legacy Avva string.
+    Only Coptic characters are sent through the Avva font.
+    Literal punctuation, brackets, numbers, spaces, English, and line breaks
+    remain plain text. This is essential because Avva Shenouda reuses many
+    ASCII positions for Coptic glyphs.
     """
-
-    text = unicodedata.normalize(
-        "NFD",
-        str(value or ""),
-    )
-
+    text = unicodedata.normalize("NFD", str(text or ""))
     runs: list[tuple[str, str]] = []
-
     i = 0
 
     while i < len(text):
-
-        # Dedicated Avva combinations.
         if i + 1 < len(text):
             pair = text[i:i + 2]
-
             if pair in SPECIAL_SEQUENCES:
-                _append_run(
-                    runs,
-                    "avva",
-                    SPECIAL_SEQUENCES[pair],
-                )
-
+                _append_run(runs, "avva", SPECIAL_SEQUENCES[pair])
                 i += 2
                 continue
 
         ch = text[i]
 
-        # Actual Unicode Coptic character.
         if ch in UNICODE_TO_AVVA:
             mapped = UNICODE_TO_AVVA[ch]
-
             j = i + 1
-
             combining_marks: list[str] = []
 
-            while (
-                j < len(text)
-                and unicodedata.combining(text[j])
-            ):
+            while j < len(text) and unicodedata.combining(text[j]):
                 combining_marks.append(text[j])
                 j += 1
 
@@ -145,92 +113,100 @@ def unicode_coptic_to_runs(
             suffix = ""
 
             for mark in combining_marks:
-
-                # Avva Shenouda grave mark.
                 if mark == "\u0300":
+                    # Avva Shenouda's legacy grave glyph is the ASCII backtick
+                    # and must appear before the base glyph.
                     prefix += "`"
-
                 else:
+                    # Keep other marks with the Avva run. Dedicated legacy
+                    # combinations above are handled before this branch.
                     suffix += mark
 
-            _append_run(
-                runs,
-                "avva",
-                prefix + mapped + suffix,
-            )
-
+            _append_run(runs, "avva", prefix + mapped + suffix)
             i = j
             continue
 
-        # Anything that is NOT Coptic stays normal:
-        #
-        # ( )
-        # [ ]
-        # { }
-        # ...
-        # punctuation
-        # numbers
-        # English
-        # spaces
-        # line breaks
-        _append_run(
-            runs,
-            "plain",
-            ch,
-        )
+        _append_run(runs, "plain", ch)
+        i += 1
+
+    return runs
+
+
+def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
+    """
+    Render older already-published Avva-encoded text safely.
+
+    The legacy format is ambiguous because ')' is both a normal closing
+    parenthesis and the Avva code for Coptic Theta. We preserve matched
+    (), [], and {} delimiters as normal punctuation. Outside a matched
+    delimiter, legacy Avva glyph codes continue to render with Avva.
+
+    This gives old content backward compatibility while new Content Manager
+    edits are stored as Unicode Coptic and are therefore unambiguous.
+    """
+    text = str(text or "")
+    runs: list[tuple[str, str]] = []
+    expected_closers: list[str] = []
+    opening_to_closing = {"(": ")", "[": "]", "{": "}"}
+    i = 0
+
+    while i < len(text):
+        ch = text[i]
+
+        if ch in opening_to_closing:
+            expected_closers.append(opening_to_closing[ch])
+            _append_run(runs, "plain", ch)
+            i += 1
+            continue
+
+        if expected_closers and ch == expected_closers[-1]:
+            expected_closers.pop()
+            _append_run(runs, "plain", ch)
+            i += 1
+            continue
+
+        if ch == "`" and i + 1 < len(text) and text[i + 1] in AVVA_GLYPHS:
+            _append_run(runs, "avva", ch + text[i + 1])
+            i += 2
+            continue
+
+        if ch in AVVA_GLYPHS:
+            _append_run(runs, "avva", ch)
+        else:
+            _append_run(runs, "plain", ch)
 
         i += 1
 
     return runs
 
 
-def _html_text(text: str) -> str:
-    return str(
-        escape(text)
-    ).replace(
-        "\n",
-        "<br>",
-    )
+def _escape_with_breaks(value: str) -> str:
+    return str(escape(value)).replace("\n", "<br>")
 
 
 def render_coptic(value: str) -> Markup:
     """
-    Render Coptic safely.
+    Safely render mixed Coptic + ordinary punctuation.
 
-    New content:
-        Unicode Coptic is converted into mixed Avva/plain spans.
-
-    Old content:
-        Existing legacy Avva text still renders normally so the
-        upgrade does not immediately break older hymns.
+    New rows are expected to contain Unicode Coptic.
+    Old legacy Avva rows are still supported.
     """
-
     text = str(value or "")
-
     if not text:
         return Markup("")
 
-    # Backward compatibility for existing Avva-encoded content.
-    if not contains_unicode_coptic(text):
-        return Markup(
-            '<span class="coptic-avva">'
-            + _html_text(text)
-            + "</span>"
+    runs = (
+        unicode_coptic_to_runs(text)
+        if contains_unicode_coptic(text)
+        else legacy_avva_to_runs(text)
+    )
+
+    html: list[str] = []
+
+    for kind, chunk in runs:
+        css_class = "coptic-avva" if kind == "avva" else "coptic-plain"
+        html.append(
+            f'<span class="{css_class}">{_escape_with_breaks(chunk)}</span>'
         )
 
-    parts: list[str] = []
-
-    for kind, chunk in unicode_coptic_to_runs(text):
-
-        if kind == "avva":
-            css_class = "coptic-avva"
-        else:
-            css_class = "coptic-plain"
-
-        parts.append(
-            f'<span class="{css_class}">'
-            f'{_html_text(chunk)}'
-            f'</span>'
-        )
-
-    return Markup("".join(parts))
+    return Markup("".join(html))

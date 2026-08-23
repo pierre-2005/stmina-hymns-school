@@ -17,7 +17,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.2"
+APP_VERSION = "3.3"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -211,75 +211,61 @@ def unicode_coptic_to_avva(
 
 def avva_to_unicode_coptic(text: str) -> str:
     """
-    Best-effort reverse conversion of existing legacy Avva text.
+    Best-effort conversion of OLD legacy Avva text back to Unicode Coptic.
 
-    Balanced literal parentheses are preserved as parentheses
-    instead of treating every ')' as Coptic Theta.
+    New Content Manager rows are stored as Unicode, so if Unicode Coptic is
+    already present we return it unchanged. Matched (), [], and {} delimiters
+    are preserved as literal punctuation when converting older legacy rows.
     """
-
     text = str(text or "")
 
-    output: list[str] = []
+    # Never reinterpret a new Unicode row as legacy ASCII. Doing so would turn
+    # ordinary Latin/punctuation inside a Unicode row into Coptic letters.
+    if contains_unicode_coptic(text):
+        return unicodedata.normalize("NFC", text)
 
+    output: list[str] = []
+    expected_closers: list[str] = []
+    opening_to_closing = {"(": ")", "[": "]", "{": "}"}
     i = 0
-    parenthesis_depth = 0
 
     while i < len(text):
         ch = text[i]
 
+        if ch in opening_to_closing:
+            expected_closers.append(opening_to_closing[ch])
+            output.append(ch)
+            i += 1
+            continue
+
+        if expected_closers and ch == expected_closers[-1]:
+            expected_closers.pop()
+            output.append(ch)
+            i += 1
+            continue
+
         if ch in AVVA_SPECIAL_TO_UNICODE:
-            output.append(
-                AVVA_SPECIAL_TO_UNICODE[ch]
-            )
-
+            output.append(AVVA_SPECIAL_TO_UNICODE[ch])
             i += 1
             continue
 
-        # Preserve obvious literal parenthetical text.
-        if ch == "(":
-            parenthesis_depth += 1
-            output.append("(")
-            i += 1
-            continue
-
-        if (
-            ch == ")"
-            and parenthesis_depth > 0
-        ):
-            parenthesis_depth -= 1
-            output.append(")")
-            i += 1
-            continue
-
-        # Avva grave accent.
-        if (
-            ch == "`"
-            and i + 1 < len(text)
-        ):
+        # Avva grave accent: the legacy backtick comes BEFORE the glyph.
+        if ch == "`" and i + 1 < len(text):
             next_ch = text[i + 1]
-
             if next_ch in AVVA_TO_UNICODE:
-                output.append(
-                    AVVA_TO_UNICODE[next_ch]
-                    + "\u0300"
-                )
-
+                output.append(AVVA_TO_UNICODE[next_ch] + "\u0300")
                 i += 2
                 continue
 
         if ch in AVVA_TO_UNICODE:
-            output.append(
-                AVVA_TO_UNICODE[ch]
-            )
+            output.append(AVVA_TO_UNICODE[ch])
         else:
             output.append(ch)
 
         i += 1
 
-    return unicodedata.normalize(
-        "NFC",
-        "".join(output),
-    )
+    return unicodedata.normalize("NFC", "".join(output))
+
 
 def find_logo_path() -> Path | None:
     """Find the St. Mina logo in source mode or inside a PyInstaller bundle."""
@@ -553,13 +539,18 @@ class RecordDialog(tk.Toplevel):
 
 
 class CopticConverterDialog(tk.Toplevel):
-    """Standalone Unicode Coptic -> Avva converter built into the manager."""
+    """
+    Unicode Coptic -> Avva Shenouda PREVIEW.
+
+    Important: Unicode is the source of truth. The legacy Avva string is never
+    sent back to the lyric editor for storage. This preserves literal brackets,
+    punctuation, numbers, and English text unambiguously.
+    """
 
     def __init__(
         self,
         parent: tk.Misc,
         initial_unicode: str = "",
-        initial_avva: str = "",
         on_use: Callable[[str], None] | None = None,
     ):
         super().__init__(parent)
@@ -602,7 +593,7 @@ class CopticConverterDialog(tk.Toplevel):
 
         tk.Label(
             header,
-            text="Unicode / Noto Sans Coptic  →  Legacy Avva Shenouda",
+            text="Unicode Coptic → Avva Shenouda preview",
             bg=BURGUNDY_900,
             fg="#f3cfd7",
             font=("Segoe UI", 10),
@@ -623,7 +614,7 @@ class CopticConverterDialog(tk.Toplevel):
 
         tk.Label(
             card,
-            text="Unicode Coptic",
+            text="Unicode Coptic — this is what is saved",
             bg=PAPER,
             fg=BURGUNDY_950,
             font=("Segoe UI", 11, "bold"),
@@ -631,7 +622,7 @@ class CopticConverterDialog(tk.Toplevel):
 
         tk.Label(
             card,
-            text="Avva Shenouda output",
+            text="Avva Shenouda preview — display only",
             bg=PAPER,
             fg=BURGUNDY_950,
             font=("Segoe UI", 11, "bold"),
@@ -656,7 +647,7 @@ class CopticConverterDialog(tk.Toplevel):
 
         ttk.Button(
             controls,
-            text="Convert →",
+            text="Refresh preview →",
             style="Primary.TButton",
             command=self.convert,
         ).pack(pady=(65, 8), fill="x")
@@ -668,12 +659,11 @@ class CopticConverterDialog(tk.Toplevel):
             command=self.clear,
         ).pack(pady=8, fill="x")
 
-        output_font = (self.avva_family or "Courier New", 18)
         self.output_text = tk.Text(
             card,
             wrap="word",
-            undo=True,
-            font=output_font,
+            undo=False,
+            font=("Segoe UI", 16),
             padx=12,
             pady=12,
             relief="flat",
@@ -681,7 +671,15 @@ class CopticConverterDialog(tk.Toplevel):
             highlightthickness=1,
         )
         self.output_text.grid(row=1, column=2, sticky="nsew")
-        self.output_text.insert("1.0", initial_avva)
+
+        self.output_text.tag_configure(
+            "avva",
+            font=(self.avva_family or "Courier New", 18),
+        )
+        self.output_text.tag_configure(
+            "plain",
+            font=("Segoe UI", 16),
+        )
 
         bottom = tk.Frame(card, bg=PAPER)
         bottom.grid(row=2, column=0, columnspan=3, sticky="ew", pady=(12, 0))
@@ -690,8 +688,8 @@ class CopticConverterDialog(tk.Toplevel):
             status_text = f"Avva preview font detected: {self.avva_family}"
         else:
             status_text = (
-                "Avva font is not installed on this computer. Conversion still works; "
-                "the output preview may look like Latin characters."
+                "Avva font is not installed on this computer. Conversion still "
+                "works, but the Avva preview will look like legacy Latin codes."
             )
 
         self.status = tk.Label(
@@ -706,9 +704,9 @@ class CopticConverterDialog(tk.Toplevel):
         if self.on_use:
             ttk.Button(
                 bottom,
-                text="Use converted text",
+                text="Use Unicode text in lyric",
                 style="Primary.TButton",
-                command=self.use_output,
+                command=self.use_unicode,
             ).pack(side="right")
 
         ttk.Button(
@@ -720,35 +718,61 @@ class CopticConverterDialog(tk.Toplevel):
 
         self.bind("<Control-Return>", lambda _e: self.convert())
         self.bind("<Escape>", lambda _e: self.destroy())
+        self.input_text.bind("<KeyRelease>", lambda _e: self._schedule_preview())
+
+        self._preview_after_id: str | None = None
+        self.after(50, self.convert)
         self.input_text.focus_set()
 
+    def _schedule_preview(self) -> None:
+        if self._preview_after_id:
+            try:
+                self.after_cancel(self._preview_after_id)
+            except tk.TclError:
+                pass
+        self._preview_after_id = self.after(180, self.convert)
+
+    def _render_preview(self, source: str) -> None:
+        self.output_text.configure(state="normal")
+        self.output_text.delete("1.0", "end")
+
+        for kind, value in unicode_coptic_to_avva_runs(source):
+            self.output_text.insert("end", value, kind)
+
+        self.output_text.configure(state="disabled")
+
     def convert(self) -> None:
+        self._preview_after_id = None
         source = self.input_text.get("1.0", "end-1c")
+        self._render_preview(source)
+        self.status.configure(
+            text=(
+                f"Preview updated from {len(source)} Unicode characters."
+                if source
+                else "Paste Unicode Coptic on the left."
+            )
+        )
+
+    def clear(self) -> None:
+        self.input_text.delete("1.0", "end")
+        self._render_preview("")
+        self.input_text.focus_set()
+
+    def use_unicode(self) -> None:
+        source = unicodedata.normalize(
+            "NFC",
+            self.input_text.get("1.0", "end-1c"),
+        )
         if not source.strip():
             messagebox.showinfo(
-                "Nothing to convert",
-                "Paste Unicode Coptic into the left box first.",
+                "Nothing to use",
+                "Paste Unicode Coptic first.",
                 parent=self,
             )
             return
 
-        converted = unicode_coptic_to_avva(source)
-        self.output_text.delete("1.0", "end")
-        self.output_text.insert("1.0", converted)
-        self.status.configure(text=f"Converted {len(source)} characters.")
-
-    def clear(self) -> None:
-        self.input_text.delete("1.0", "end")
-        self.output_text.delete("1.0", "end")
-        self.input_text.focus_set()
-
-    def use_output(self) -> None:
-        text = self.output_text.get("1.0", "end-1c")
-        if not text.strip():
-            self.convert()
-            text = self.output_text.get("1.0", "end-1c")
-        if text.strip() and self.on_use:
-            self.on_use(text)
+        if self.on_use:
+            self.on_use(source)
             self.destroy()
 
 
@@ -756,9 +780,9 @@ class LyricDialog(tk.Toplevel):
     """
     Timestamped lyric editor.
 
-    For the language code 'cop', Unicode Coptic can be pasted directly.
-    The manager converts it to Avva Shenouda legacy text before saving.
-    Existing Avva text can also be edited directly.
+    Coptic is STORED AS UNICODE. Avva Shenouda is preview/rendering only.
+    This keeps literal (), [], {}, punctuation, numbers, and English text from
+    being confused with Avva's legacy ASCII glyph positions.
     """
 
     def __init__(
@@ -782,6 +806,7 @@ class LyricDialog(tk.Toplevel):
         self.text_widgets: dict[str, tk.Text] = {}
         self.coptic_unicode_widget: tk.Text | None = None
         self.coptic_avva_widget: tk.Text | None = None
+        self._preview_after_id: str | None = None
 
         outer = tk.Frame(self, bg=CREAM, padx=18, pady=18)
         outer.pack(fill="both", expand=True)
@@ -898,7 +923,7 @@ class LyricDialog(tk.Toplevel):
 
                 tk.Label(
                     section,
-                    text="Paste Unicode Coptic here",
+                    text="Unicode Coptic — this is the value saved to the website",
                     bg=section["bg"],
                     fg=MUTED,
                     font=("Segoe UI", 9),
@@ -916,23 +941,31 @@ class LyricDialog(tk.Toplevel):
                     highlightthickness=1,
                 )
                 unicode_box.pack(fill="x")
-                if existing:
-                    unicode_box.insert("1.0", avva_to_unicode_coptic(existing))
+
+                # Old rows may still be legacy Avva text. Convert those once for
+                # editing. New Unicode rows are left exactly as Unicode.
+                editable_unicode = avva_to_unicode_coptic(existing) if existing else ""
+                unicode_box.insert("1.0", editable_unicode)
+
                 self.coptic_unicode_widget = unicode_box
+                self.text_widgets[code] = unicode_box
 
                 convert_row = tk.Frame(section, bg=section["bg"])
                 convert_row.pack(fill="x", pady=7)
 
                 ttk.Button(
                     convert_row,
-                    text="Convert Unicode → Avva",
+                    text="Refresh Avva preview",
                     style="Primary.TButton",
                     command=self._convert_coptic_inline,
                 ).pack(side="left")
 
                 tk.Label(
                     convert_row,
-                    text="Preview only — the original Unicode Coptic will be saved.",
+                    text=(
+                        "Preview only. Unicode is saved, so normal brackets and "
+                        "punctuation stay normal."
+                    ),
                     bg=section["bg"],
                     fg=MUTED,
                     font=("Segoe UI", 9),
@@ -965,7 +998,7 @@ class LyricDialog(tk.Toplevel):
                     section,
                     height=5,
                     wrap="word",
-                    font=(avva_family or "Courier New", 16),
+                    font=("Segoe UI", 16),
                     padx=10,
                     pady=9,
                     relief="flat",
@@ -973,25 +1006,21 @@ class LyricDialog(tk.Toplevel):
                     highlightthickness=1,
                 )
                 avva_box.pack(fill="x")
-                avva_box.insert("1.0", existing)
-                self.coptic_avva_widget = avva_box
-                self.text_widgets[code] = unicode_box
-
                 avva_box.tag_configure(
                     "avva",
-                    font=(
-                        avva_family or "Courier New",
-                        16,
-                    ),
+                    font=(avva_family or "Courier New", 16),
                 )
-
                 avva_box.tag_configure(
                     "plain",
-                    font=(
-                        "Segoe UI",
-                        16,
-                    ),
+                    font=("Segoe UI", 16),
                 )
+                self.coptic_avva_widget = avva_box
+
+                unicode_box.bind(
+                    "<KeyRelease>",
+                    lambda _e: self._schedule_coptic_preview(),
+                )
+                self.after(50, self._convert_coptic_inline)
 
             else:
                 text = tk.Text(
@@ -1031,18 +1060,34 @@ class LyricDialog(tk.Toplevel):
         self.focus_force()
         self.wait_window()
 
+    def _schedule_coptic_preview(self) -> None:
+        if self._preview_after_id:
+            try:
+                self.after_cancel(self._preview_after_id)
+            except tk.TclError:
+                pass
+        self._preview_after_id = self.after(180, self._convert_coptic_inline)
+
     def _convert_coptic_inline(self) -> None:
+        self._preview_after_id = None
         if not self.coptic_unicode_widget:
             return
 
-        source = self.coptic_unicode_widget.get(
-            "1.0",
-            "end-1c",
-        )
+        source = self.coptic_unicode_widget.get("1.0", "end-1c")
+        self._render_coptic_preview(source)
 
-        self._render_coptic_preview(
-            source
-        )
+    def _render_coptic_preview(self, source: str) -> None:
+        if not self.coptic_avva_widget:
+            return
+
+        box = self.coptic_avva_widget
+        box.configure(state="normal")
+        box.delete("1.0", "end")
+
+        for kind, value in unicode_coptic_to_avva_runs(source):
+            box.insert("end", value, kind)
+
+        box.configure(state="disabled")
 
     def _open_converter(self) -> None:
         unicode_text = (
@@ -1050,26 +1095,18 @@ class LyricDialog(tk.Toplevel):
             if self.coptic_unicode_widget
             else ""
         )
-        avva_text = (
-            self.coptic_avva_widget.get("1.0", "end-1c")
-            if self.coptic_avva_widget
-            else ""
-        )
 
-        def use(text: str) -> None:
-            if not self.coptic_avva_widget:
+        def use_unicode(text: str) -> None:
+            if not self.coptic_unicode_widget:
                 return
-            self.coptic_avva_widget.delete("1.0", "end")
-            self.coptic_avva_widget.insert("1.0", text)
-            if self.coptic_unicode_widget:
-                self.coptic_unicode_widget.delete("1.0", "end")
-                self.coptic_unicode_widget.insert("1.0", avva_to_unicode_coptic(text))
+            self.coptic_unicode_widget.delete("1.0", "end")
+            self.coptic_unicode_widget.insert("1.0", text)
+            self._render_coptic_preview(text)
 
         CopticConverterDialog(
             self,
             initial_unicode=unicode_text,
-            initial_avva=avva_text,
-            on_use=use,
+            on_use=use_unicode,
         )
 
     def _save(self) -> None:
@@ -1082,12 +1119,17 @@ class LyricDialog(tk.Toplevel):
             )
             return
 
+        texts: dict[str, str] = {}
 
-        texts = {
-            code: widget.get("1.0", "end-1c").strip()
-            for code, widget in self.text_widgets.items()
-        }
-        texts = {code: text for code, text in texts.items() if text}
+        for code, widget in self.text_widgets.items():
+            value = widget.get("1.0", "end-1c").strip()
+
+            if code == "cop":
+                # Unicode Coptic is the source of truth from v3.3 onward.
+                value = unicodedata.normalize("NFC", value)
+
+            if value:
+                texts[code] = value
 
         self.result = {
             "t": timestamp,
@@ -1095,29 +1137,6 @@ class LyricDialog(tk.Toplevel):
             "published": bool(self.published_var.get()),
         }
         self.destroy()
-
-    def _render_coptic_preview(
-        self,
-        source: str,
-    ) -> None:
-        if not self.coptic_avva_widget:
-            return
-
-        box = self.coptic_avva_widget
-
-        box.delete(
-            "1.0",
-            "end",
-        )
-
-        for kind, value in unicode_coptic_to_avva_runs(
-            source
-        ):
-            box.insert(
-                "end",
-                value,
-                kind,
-            )
 
 
 class CopyHymnDialog(tk.Toplevel):
