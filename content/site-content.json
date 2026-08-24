@@ -1618,7 +1618,7 @@
       "name": "Level 2",
       "description": "",
       "sort": 20,
-      "published": true,
+      "published": false,
       "years": [
         {
           "slug": "year-1",
@@ -1643,7 +1643,7 @@
       "name": "Level 3",
       "description": "",
       "sort": 30,
-      "published": true,
+      "published": false,
       "years": [
         {
           "slug": "year-1",
@@ -1668,7 +1668,7 @@
       "name": "Level 4",
       "description": "",
       "sort": 40,
-      "published": true,
+      "published": false,
       "years": [
         {
           "slug": "year-1",
