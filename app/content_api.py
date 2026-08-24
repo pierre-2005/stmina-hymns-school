@@ -19,6 +19,7 @@ from .content_store import (
     validate_site,
 )
 from .db import db_conn
+from .lyric_ai import ai_alignment_configured, align_lyrics_with_openai, lyric_model
 
 router = APIRouter(prefix="/api/content", tags=["content-manager"])
 
@@ -147,6 +148,38 @@ async def content_validate(request: Request):
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
+@router.post("/lyrics/align")
+async def content_align_lyrics(request: Request):
+    require_content_admin(request)
+    if not ai_alignment_configured():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=(
+                "AI lyric alignment is not configured. Add OPENAI_API_KEY to the website container environment."
+            ),
+        )
+    try:
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise ContentError("Expected a JSON request object.")
+
+        hymn_title = str(body.get("hymn_title", "")).strip()
+        languages = body.get("languages")
+
+        # urllib is synchronous, so run the external API request outside the
+        # FastAPI event loop. The result contains stanza indexes only; the
+        # original hymn text never comes back from the model and is rebuilt in
+        # the desktop manager from the user's source text.
+        result = await asyncio.to_thread(
+            align_lyrics_with_openai,
+            hymn_title,
+            languages,
+        )
+        return {"ok": True, **result}
+    except ContentError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.post("/publish")
 async def content_publish(request: Request):
     user = require_content_admin(request)
@@ -212,5 +245,9 @@ async def content_api_status(request: Request):
     return {
         "ok": True,
         "status": content_status(),
+        "ai_lyrics": {
+            "configured": ai_alignment_configured(),
+            "model": lyric_model(),
+        },
         "user": {"username": user["username"], "display_name": user["display_name"]},
     }

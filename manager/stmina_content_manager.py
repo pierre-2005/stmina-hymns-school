@@ -17,7 +17,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.6"
+APP_VERSION = "3.7"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -392,6 +392,18 @@ class ContentApiClient:
     def validate(self, content: dict[str, Any]) -> dict[str, Any]:
         return self._request("POST", "/api/content/validate", {"content": content})
 
+    def align_lyrics(
+        self,
+        hymn_title: str,
+        languages: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        return self._request(
+            "POST",
+            "/api/content/lyrics/align",
+            {"hymn_title": hymn_title, "languages": languages},
+            timeout=100,
+        )
+
     def publish(self, content: dict[str, Any], github_backup: bool, base_revision: str = "") -> dict[str, Any]:
         return self._request(
             "POST",
@@ -421,6 +433,31 @@ def next_sort(items: list[dict[str, Any]]) -> int:
 def resequence(items: list[dict[str, Any]]) -> None:
     for index, item in enumerate(items, start=1):
         item["sort"] = index * 10
+
+
+def split_bulk_lyric_stanzas(text: str) -> list[str]:
+    """
+    Split pasted hymn text into stanzas.
+
+    A blank line starts a new stanza. Single line breaks inside one stanza are
+    treated as source-document wrapping and become a normal space. Characters
+    themselves are not translated, corrected, or Unicode-normalized here.
+    """
+    value = str(text or "").replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not value:
+        return []
+
+    blocks = re.split(r"\n[ \t]*\n+", value)
+    result: list[str] = []
+
+    for block in blocks:
+        lines = [line.strip() for line in block.split("\n")]
+        stanza = " ".join(line for line in lines if line)
+        stanza = re.sub(r"[ \t]{2,}", " ", stanza).strip()
+        if stanza:
+            result.append(stanza)
+
+    return result
 
 
 def default_content() -> dict[str, Any]:
@@ -1135,6 +1172,488 @@ class LyricDialog(tk.Toplevel):
             "t": timestamp,
             "texts": texts,
             "published": bool(self.published_var.get()),
+        }
+        self.destroy()
+
+
+class BulkLyricImportDialog(tk.Toplevel):
+    """
+    Paste full hymn text in multiple languages and turn it into lyric rows.
+
+    Equal stanza counts are matched deterministically by position. If counts
+    differ, the website's authenticated AI endpoint is used only to return
+    stanza-number relationships. The original pasted text is always used to
+    build the final segments.
+    """
+
+    def __init__(
+        self,
+        parent: "ContentManagerApp",
+        client: ContentApiClient,
+        hymn_title: str,
+        languages: list[dict[str, Any]],
+    ):
+        super().__init__(parent)
+        self.title("Bulk lyric importer")
+        self.transient(parent)
+        self.grab_set()
+        self.geometry("1180x790")
+        self.minsize(920, 650)
+        self.configure(bg=CREAM)
+
+        self.parent_app = parent
+        self.client = client
+        self.hymn_title = hymn_title
+        self.languages = [
+            {
+                "code": str(item.get("code", "")).strip(),
+                "name": str(item.get("name", item.get("code", ""))).strip(),
+            }
+            for item in languages
+            if str(item.get("code", "")).strip()
+        ]
+        self.input_widgets: dict[str, tk.Text] = {}
+        self.parsed_stanzas: dict[str, list[str]] = {}
+        self.preview_rows: list[dict[str, Any]] = []
+        self.result: dict[str, Any] | None = None
+        self.mode_var = tk.StringVar(value="replace")
+        self.status_var = tk.StringVar(
+            value="Paste lyrics into the language tabs, then choose Parse & Align Lyrics."
+        )
+
+        outer = tk.Frame(self, bg=CREAM, padx=18, pady=18)
+        outer.pack(fill="both", expand=True)
+
+        header = tk.Frame(outer, bg=BURGUNDY_900, padx=18, pady=14)
+        header.pack(fill="x")
+
+        tk.Label(
+            header,
+            text="Bulk Lyric Importer",
+            bg=BURGUNDY_900,
+            fg="white",
+            font=("Segoe UI", 16, "bold"),
+        ).pack(anchor="w")
+
+        tk.Label(
+            header,
+            text=f"{hymn_title or 'Selected hymn'}  •  original text is preserved",
+            bg=BURGUNDY_900,
+            fg="#f3cfd7",
+            font=("Segoe UI", 9),
+        ).pack(anchor="w", pady=(2, 0))
+
+        body = tk.PanedWindow(
+            outer,
+            orient="horizontal",
+            sashwidth=6,
+            bg=CREAM,
+            bd=0,
+            relief="flat",
+        )
+        body.pack(fill="both", expand=True, pady=(12, 0))
+
+        input_card = tk.Frame(
+            body,
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=14,
+            pady=12,
+        )
+        preview_card = tk.Frame(
+            body,
+            bg=PAPER,
+            highlightbackground=LINE,
+            highlightthickness=1,
+            padx=14,
+            pady=12,
+        )
+        body.add(input_card, minsize=410, stretch="always")
+        body.add(preview_card, minsize=430, stretch="always")
+
+        tk.Label(
+            input_card,
+            text="1. Paste the full hymn",
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 11, "bold"),
+        ).pack(anchor="w")
+
+        tk.Label(
+            input_card,
+            text=(
+                "Blank line = next stanza. A single line break inside a stanza is treated as "
+                "word wrapping and becomes a space."
+            ),
+            bg=PAPER,
+            fg=MUTED,
+            font=("Segoe UI", 9),
+            wraplength=500,
+            justify="left",
+        ).pack(anchor="w", pady=(3, 8))
+
+        input_notebook = ttk.Notebook(input_card)
+        input_notebook.pack(fill="both", expand=True)
+
+        for language in self.languages:
+            code = language["code"]
+            name = language["name"] or code
+            tab = ttk.Frame(input_notebook, padding=8)
+            input_notebook.add(tab, text=name)
+
+            text = tk.Text(
+                tab,
+                wrap="word",
+                undo=True,
+                font=("Segoe UI", 12 if code != "cop" else 14),
+                padx=10,
+                pady=10,
+                relief="flat",
+                highlightbackground=LINE,
+                highlightthickness=1,
+            )
+            scroll = ttk.Scrollbar(tab, orient="vertical", command=text.yview)
+            text.configure(yscrollcommand=scroll.set)
+            text.grid(row=0, column=0, sticky="nsew")
+            scroll.grid(row=0, column=1, sticky="ns")
+            tab.rowconfigure(0, weight=1)
+            tab.columnconfigure(0, weight=1)
+            self.input_widgets[code] = text
+
+        parse_row = tk.Frame(input_card, bg=PAPER)
+        parse_row.pack(fill="x", pady=(10, 0))
+
+        self.parse_button = ttk.Button(
+            parse_row,
+            text="Parse & Align Lyrics",
+            style="Primary.TButton",
+            command=self.parse_and_align,
+        )
+        self.parse_button.pack(side="left")
+
+        ttk.Button(
+            parse_row,
+            text="Clear all",
+            style="Quiet.TButton",
+            command=self.clear_inputs,
+        ).pack(side="left", padx=(8, 0))
+
+        tk.Label(
+            preview_card,
+            text="2. Review the generated rows",
+            bg=PAPER,
+            fg=BURGUNDY_950,
+            font=("Segoe UI", 11, "bold"),
+        ).pack(anchor="w")
+
+        self.count_label = tk.Label(
+            preview_card,
+            text="No lyrics parsed yet.",
+            bg=PAPER,
+            fg=MUTED,
+            font=("Segoe UI", 9),
+            justify="left",
+        )
+        self.count_label.pack(anchor="w", pady=(3, 8))
+
+        table_frame = tk.Frame(preview_card, bg=PAPER)
+        table_frame.pack(fill="both", expand=True)
+        columns = ["row"] + [item["code"] for item in self.languages] + ["confidence"]
+        self.preview_tree = ttk.Treeview(table_frame, columns=columns, show="headings")
+        self.preview_tree.heading("row", text="#")
+        self.preview_tree.column("row", width=45, stretch=False, anchor="center")
+        for language in self.languages:
+            code = language["code"]
+            self.preview_tree.heading(code, text=language["name"] or code)
+            self.preview_tree.column(code, width=210, stretch=True)
+        self.preview_tree.heading("confidence", text="Match")
+        self.preview_tree.column("confidence", width=95, stretch=False, anchor="center")
+
+        preview_scroll_y = ttk.Scrollbar(table_frame, orient="vertical", command=self.preview_tree.yview)
+        preview_scroll_x = ttk.Scrollbar(table_frame, orient="horizontal", command=self.preview_tree.xview)
+        self.preview_tree.configure(
+            yscrollcommand=preview_scroll_y.set,
+            xscrollcommand=preview_scroll_x.set,
+        )
+        self.preview_tree.grid(row=0, column=0, sticky="nsew")
+        preview_scroll_y.grid(row=0, column=1, sticky="ns")
+        preview_scroll_x.grid(row=1, column=0, sticky="ew")
+        table_frame.rowconfigure(0, weight=1)
+        table_frame.columnconfigure(0, weight=1)
+
+        self.note_box = tk.Text(
+            preview_card,
+            height=5,
+            wrap="word",
+            state="disabled",
+            font=("Segoe UI", 9),
+            padx=9,
+            pady=8,
+            relief="flat",
+            highlightbackground=LINE,
+            highlightthickness=1,
+        )
+        self.note_box.pack(fill="x", pady=(8, 0))
+        self.preview_tree.bind("<<TreeviewSelect>>", lambda _e: self.show_selected_note())
+
+        footer = tk.Frame(outer, bg=CREAM)
+        footer.pack(fill="x", pady=(12, 0))
+
+        mode_box = tk.Frame(footer, bg=CREAM)
+        mode_box.pack(side="left")
+        tk.Label(
+            mode_box,
+            text="Import mode:",
+            bg=CREAM,
+            fg=INK,
+            font=("Segoe UI", 9, "bold"),
+        ).pack(side="left")
+        ttk.Radiobutton(
+            mode_box,
+            text="Replace existing lyrics",
+            variable=self.mode_var,
+            value="replace",
+        ).pack(side="left", padx=(8, 0))
+        ttk.Radiobutton(
+            mode_box,
+            text="Append",
+            variable=self.mode_var,
+            value="append",
+        ).pack(side="left", padx=(8, 0))
+
+        actions = tk.Frame(footer, bg=CREAM)
+        actions.pack(side="right")
+        ttk.Button(
+            actions,
+            text="Cancel",
+            style="Quiet.TButton",
+            command=self.destroy,
+        ).pack(side="right")
+
+        self.import_button = ttk.Button(
+            actions,
+            text="Import lyric rows",
+            style="Primary.TButton",
+            command=self.finish_import,
+            state="disabled",
+        )
+        self.import_button.pack(side="right", padx=(0, 8))
+
+        tk.Label(
+            outer,
+            textvariable=self.status_var,
+            bg=CREAM,
+            fg=MUTED,
+            font=("Segoe UI", 9),
+            wraplength=1080,
+            justify="left",
+        ).pack(fill="x", pady=(8, 0))
+
+        self.bind("<Escape>", lambda _e: self.destroy())
+        self.wait_visibility()
+        self.focus_force()
+        self.wait_window()
+
+    def clear_inputs(self) -> None:
+        for widget in self.input_widgets.values():
+            widget.delete("1.0", "end")
+        self.parsed_stanzas = {}
+        self.preview_rows = []
+        self.refresh_preview()
+        self.status_var.set("Paste lyrics into the language tabs, then choose Parse & Align Lyrics.")
+
+    def collect_stanzas(self) -> dict[str, list[str]]:
+        parsed: dict[str, list[str]] = {}
+        for language in self.languages:
+            code = language["code"]
+            widget = self.input_widgets[code]
+            parsed[code] = split_bulk_lyric_stanzas(widget.get("1.0", "end-1c"))
+        return parsed
+
+    def parse_and_align(self) -> None:
+        self.parsed_stanzas = self.collect_stanzas()
+        nonzero_counts = [len(items) for items in self.parsed_stanzas.values() if items]
+        self.update_count_label()
+
+        if not nonzero_counts:
+            messagebox.showinfo(
+                "No lyrics",
+                "Paste lyrics into at least one language tab first.",
+                parent=self,
+            )
+            return
+
+        if len(nonzero_counts) == 1:
+            row_count = nonzero_counts[0]
+            self.preview_rows = self.build_position_rows(row_count)
+            self.status_var.set(
+                "Only one language contains text, so rows were created directly without AI."
+            )
+            self.refresh_preview()
+            return
+
+        if len(set(nonzero_counts)) == 1:
+            row_count = nonzero_counts[0]
+            self.preview_rows = self.build_position_rows(row_count)
+            self.status_var.set(
+                f"All provided languages contain {row_count} stanzas. Matched by position; no AI request was needed."
+            )
+            self.refresh_preview()
+            return
+
+        payload_languages = []
+        for language in self.languages:
+            code = language["code"]
+            payload_languages.append(
+                {
+                    "code": code,
+                    "name": language["name"] or code,
+                    "stanzas": self.parsed_stanzas.get(code, []),
+                }
+            )
+
+        self.status_var.set(
+            "Stanza counts differ, so the secure server-side AI aligner is matching stanza numbers. "
+            "The model is not allowed to rewrite your lyrics."
+        )
+
+        def work() -> dict[str, Any]:
+            return self.client.align_lyrics(self.hymn_title, payload_languages)
+
+        def done(result: dict[str, Any]) -> None:
+            if not self.winfo_exists():
+                return
+            try:
+                self.grab_set()
+            except tk.TclError:
+                pass
+            self.apply_ai_rows(result)
+
+        self.parent_app.run_async("Aligning lyric stanzas with AI…", work, done)
+
+    def build_position_rows(self, row_count: int) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any]] = []
+        for index in range(row_count):
+            mapping: dict[str, list[int]] = {}
+            for language in self.languages:
+                code = language["code"]
+                mapping[code] = [index + 1] if index < len(self.parsed_stanzas.get(code, [])) else []
+            rows.append(
+                {
+                    "mapping": mapping,
+                    "confidence": 1.0,
+                    "note": "Matched by stanza position.",
+                    "source": "position",
+                }
+            )
+        return rows
+
+    def apply_ai_rows(self, result: dict[str, Any]) -> None:
+        raw_rows = result.get("rows") or []
+        converted: list[dict[str, Any]] = []
+        known_codes = {item["code"] for item in self.languages}
+
+        for raw_row in raw_rows:
+            mapping = {code: [] for code in known_codes}
+            for part in raw_row.get("parts") or []:
+                code = str(part.get("code", ""))
+                if code in mapping:
+                    mapping[code] = [int(value) for value in (part.get("indexes") or [])]
+            converted.append(
+                {
+                    "mapping": mapping,
+                    "confidence": float(raw_row.get("confidence", 0.0) or 0.0),
+                    "note": str(raw_row.get("note", "")).strip(),
+                    "source": "ai",
+                }
+            )
+
+        self.preview_rows = converted
+        model = str(result.get("model", "AI"))
+        low_confidence = sum(1 for row in converted if row["confidence"] < 0.75)
+        message = f"AI alignment returned {len(converted)} lyric rows using {model}."
+        if low_confidence:
+            message += f" Review the {low_confidence} row(s) marked below 75% confidence before importing."
+        self.status_var.set(message)
+        self.refresh_preview()
+
+    def update_count_label(self) -> None:
+        parts: list[str] = []
+        for language in self.languages:
+            code = language["code"]
+            parts.append(f"{language['name'] or code}: {len(self.parsed_stanzas.get(code, []))}")
+        self.count_label.configure(text="  •  ".join(parts) if parts else "No languages configured.")
+
+    def text_for_indexes(self, code: str, indexes: list[int]) -> str:
+        source = self.parsed_stanzas.get(code, [])
+        values = [source[index - 1] for index in indexes if 1 <= index <= len(source)]
+        return "\n".join(values)
+
+    def refresh_preview(self) -> None:
+        self.preview_tree.delete(*self.preview_tree.get_children())
+        self.update_count_label()
+
+        for row_number, row in enumerate(self.preview_rows, start=1):
+            values: list[str] = [str(row_number)]
+            mapping = row.get("mapping") or {}
+            for language in self.languages:
+                code = language["code"]
+                text = self.text_for_indexes(code, mapping.get(code, []))
+                snippet = text.replace("\n", " / ")
+                values.append(snippet[:150])
+            confidence = float(row.get("confidence", 0.0) or 0.0)
+            values.append(f"{round(confidence * 100)}%")
+            self.preview_tree.insert("", "end", iid=str(row_number - 1), values=values)
+
+        self.import_button.configure(state="normal" if self.preview_rows else "disabled")
+        self.show_selected_note()
+
+    def show_selected_note(self) -> None:
+        selected = self.preview_tree.selection()
+        text = ""
+        if selected:
+            try:
+                row = self.preview_rows[int(selected[0])]
+                note = str(row.get("note", "")).strip()
+                source = "AI alignment" if row.get("source") == "ai" else "Position match"
+                text = f"{source}. {note}".strip()
+            except (ValueError, IndexError):
+                text = ""
+        elif self.preview_rows:
+            text = "Select a row to see its alignment note."
+
+        self.note_box.configure(state="normal")
+        self.note_box.delete("1.0", "end")
+        self.note_box.insert("1.0", text)
+        self.note_box.configure(state="disabled")
+
+    def finish_import(self) -> None:
+        if not self.preview_rows:
+            return
+
+        segments: list[dict[str, Any]] = []
+        for row_number, row in enumerate(self.preview_rows, start=1):
+            texts: dict[str, str] = {}
+            mapping = row.get("mapping") or {}
+            for language in self.languages:
+                code = language["code"]
+                value = self.text_for_indexes(code, mapping.get(code, [])).strip()
+                if value:
+                    texts[code] = value
+
+            segments.append(
+                {
+                    "t": "0:00",
+                    "texts": texts,
+                    "sort": row_number * 10,
+                    "published": True,
+                }
+            )
+
+        self.result = {
+            "mode": self.mode_var.get(),
+            "segments": segments,
         }
         self.destroy()
 
@@ -2395,6 +2914,12 @@ class ContentManagerApp(tk.Tk):
         controls = ttk.Frame(self.lyrics_tab)
         controls.pack(fill="x", pady=(8, 0))
         ttk.Button(controls, text="Add lyric row", command=self.add_lyric).pack(side="left")
+        ttk.Button(
+            controls,
+            text="Bulk import lyrics",
+            style="Primary.TButton",
+            command=self.bulk_import_lyrics,
+        ).pack(side="left", padx=(5, 0))
         ttk.Button(controls, text="Edit", command=self.edit_lyric).pack(side="left", padx=(5, 0))
         ttk.Button(controls, text="Delete", command=self.delete_lyric).pack(side="left", padx=(5, 0))
         ttk.Button(controls, text="↑", width=3, command=lambda: self.move_lyric(-1)).pack(side="right")
@@ -2445,6 +2970,59 @@ class ContentManagerApp(tk.Tk):
         items.append(dialog.result)
         self.mark_dirty()
         self.refresh_lyrics()
+
+    def bulk_import_lyrics(self) -> None:
+        hymn = self.selected_hymn()
+        if not hymn:
+            messagebox.showinfo("Select a hymn", "Select a hymn first.", parent=self)
+            return
+        if not self.client:
+            messagebox.showerror(
+                "Not connected",
+                "Sign in to the website before using the bulk lyric importer.",
+                parent=self,
+            )
+            return
+
+        dialog = BulkLyricImportDialog(
+            self,
+            self.client,
+            str(hymn.get("title", "Selected hymn")),
+            self.content.get("languages", []),
+        )
+        if not dialog.result:
+            return
+
+        new_segments = deepcopy(dialog.result.get("segments") or [])
+        if not new_segments:
+            return
+
+        mode = str(dialog.result.get("mode", "replace"))
+        existing = hymn.setdefault("segments", [])
+
+        if mode == "replace" and existing:
+            if not messagebox.askyesno(
+                "Replace existing lyrics",
+                (
+                    f"This hymn currently contains {len(existing)} lyric row(s).\n\n"
+                    f"Replace them with the {len(new_segments)} imported row(s)?"
+                ),
+                parent=self,
+            ):
+                return
+
+        if mode == "append":
+            existing.extend(new_segments)
+            resequence(existing)
+        else:
+            hymn["segments"] = new_segments
+            resequence(hymn["segments"])
+
+        self.mark_dirty()
+        self.refresh_lyrics()
+        self.status_label.configure(
+            text=f"Imported {len(new_segments)} lyric rows into {hymn.get('title', 'the hymn')}."
+        )
 
     def edit_lyric(self) -> None:
         hymn = self.selected_hymn()
