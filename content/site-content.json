@@ -437,7 +437,28 @@
               "sort": 110,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O give thanks to the Lord for He is good and virtuous, Alleluia His mercy endures forever.",
+                    "cop": "Ⲟⲩⲱⲛϩ ⲉ̀ⲃⲟⲗ ⲙ̀Ⲡ̀ϭⲟⲓⲥ ϫⲉ ⲟⲩⲭ̀ⲣⲏⲥⲧⲟⲥ ⲟⲩⲁ̀ⲅⲁⲑⲟⲥ ⲡⲉ: ⲁⲗⲗⲏⲗⲟⲩⲓⲁ ϫⲉ ⲡⲉϥⲛⲁⲓ ϣⲟⲡ ϣⲁ ⲉ̀ⲛⲉϩ.",
+                    "cop_en": "Ou-ownh evol Emip-shois je ou-ekhristos ou-aghathos pe Alleluia. Je pefnai shop sha eneh."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O give thanks to the God of gods, Alleluia His mercy endures forever.",
+                    "cop": "Ⲟⲩⲱⲛϩ ⲉ̀ⲃⲟⲗ ⲙ̀Ⲫ̀ⲛⲟⲩϯ ⲛ̀ⲧⲉ ⲛⲓⲛⲟⲩϯ: ⲁⲗⲗⲏⲗⲟⲩⲓⲁ ϫⲉ ⲡⲉϥⲛⲁⲓ ϣⲟⲡ ϣⲁ ⲉ̀ⲛⲉϩ.",
+                    "cop_en": "Ou-ownh evol Emif-nouti ente ni-nouti, Alleluia. Je pefnai shop sha eneh."
+                  },
+                  "sort": 20,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "conclusion-of-the-doxologies-english",
