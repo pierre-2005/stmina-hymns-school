@@ -1211,9 +1211,11 @@ class BulkLyricImportDialog(tk.Toplevel):
 
         outer = tk.Frame(self, bg=CREAM, padx=18, pady=18)
         outer.pack(fill="both", expand=True)
+        outer.columnconfigure(0, weight=1)
+        outer.rowconfigure(1, weight=1)
 
         header = tk.Frame(outer, bg=BURGUNDY_900, padx=18, pady=14)
-        header.pack(fill="x")
+        header.grid(row=0, column=0, sticky="ew")
 
         tk.Label(
             header,
@@ -1239,7 +1241,7 @@ class BulkLyricImportDialog(tk.Toplevel):
             bd=0,
             relief="flat",
         )
-        body.pack(fill="both", expand=True, pady=(12, 0))
+        body.grid(row=1, column=0, sticky="nsew", pady=(12, 0))
 
         input_card = tk.Frame(
             body,
@@ -1310,7 +1312,9 @@ class BulkLyricImportDialog(tk.Toplevel):
             self.input_widgets[code] = text
 
         parse_row = tk.Frame(input_card, bg=PAPER)
-        parse_row.pack(fill="x", pady=(10, 0))
+        # Pack this before the expanding notebook so the action buttons can
+        # never be pushed out of view on smaller displays or high DPI scaling.
+        parse_row.pack(fill="x", pady=(0, 10), before=input_notebook)
 
         self.parse_button = ttk.Button(
             parse_row,
@@ -1382,11 +1386,14 @@ class BulkLyricImportDialog(tk.Toplevel):
             highlightbackground=LINE,
             highlightthickness=1,
         )
-        self.note_box.pack(fill="x", pady=(8, 0))
+        # Keep the alignment note visible above the expanding preview table.
+        self.note_box.pack(fill="x", pady=(0, 8), before=table_frame)
         self.preview_tree.bind("<<TreeviewSelect>>", lambda _e: self.show_selected_note())
 
         footer = tk.Frame(outer, bg=CREAM)
-        footer.pack(fill="x", pady=(12, 0))
+        # Fixed grid row: this footer contains "Import lyric rows" and must
+        # remain visible regardless of how much space the panes request.
+        footer.grid(row=2, column=0, sticky="ew", pady=(12, 0))
 
         mode_box = tk.Frame(footer, bg=CREAM)
         mode_box.pack(side="left")
@@ -1436,7 +1443,7 @@ class BulkLyricImportDialog(tk.Toplevel):
             font=("Segoe UI", 9),
             wraplength=1080,
             justify="left",
-        ).pack(fill="x", pady=(8, 0))
+        ).grid(row=3, column=0, sticky="ew", pady=(8, 0))
 
         self.bind("<Escape>", lambda _e: self.destroy())
         self.wait_visibility()
