@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 import os
 import re
 import socket
@@ -8,6 +9,7 @@ import sys
 import threading
 import tkinter as tk
 import unicodedata
+import uuid
 from copy import deepcopy
 from pathlib import Path
 from tkinter import filedialog, messagebox, simpledialog, ttk, font as tkfont
@@ -17,7 +19,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.7"
+APP_VERSION = "3.8"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -365,6 +367,80 @@ class ContentApiClient:
             raise ApiError(f"Could not connect to {self.base_url}: {exc.reason}") from exc
         except json.JSONDecodeError as exc:
             raise ApiError("The website returned an invalid response.") from exc
+
+    def _request_file(
+        self,
+        path: str,
+        field_name: str,
+        file_path: str | Path,
+        timeout: int = 60,
+    ) -> dict[str, Any]:
+        if not self.token:
+            raise ApiError("Sign in before using this action.", 401)
+
+        source = Path(file_path)
+        try:
+            file_bytes = source.read_bytes()
+        except OSError as exc:
+            raise ApiError(f"Could not read {source.name}: {exc}") from exc
+
+        boundary = f"----StMinaContentManager{uuid.uuid4().hex}"
+        content_type = mimetypes.guess_type(source.name)[0] or "application/octet-stream"
+        safe_name = source.name.replace('"', "_")
+
+        body = bytearray()
+        body.extend(f"--{boundary}\r\n".encode("ascii"))
+        body.extend(
+            (
+                f'Content-Disposition: form-data; name="{field_name}"; filename="{safe_name}"\r\n'
+                f"Content-Type: {content_type}\r\n\r\n"
+            ).encode("utf-8")
+        )
+        body.extend(file_bytes)
+        body.extend(f"\r\n--{boundary}--\r\n".encode("ascii"))
+
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": f"multipart/form-data; boundary={boundary}",
+            "Authorization": f"Bearer {self.token}",
+            "User-Agent": f"stmina-content-manager/{APP_VERSION}",
+        }
+        request = Request(
+            self.base_url + path,
+            data=bytes(body),
+            headers=headers,
+            method="POST",
+        )
+
+        try:
+            with urlopen(request, timeout=timeout) as response:
+                raw = response.read().decode("utf-8")
+                return json.loads(raw) if raw else {"ok": True}
+        except HTTPError as exc:
+            raw = exc.read().decode("utf-8", errors="replace")
+            detail = raw
+            try:
+                parsed = json.loads(raw)
+                detail = parsed.get("detail") or parsed.get("message") or raw
+            except Exception:
+                pass
+            raise ApiError(str(detail) or f"HTTP {exc.code}", exc.code) from exc
+        except (TimeoutError, socket.timeout) as exc:
+            raise ApiError(
+                f"The website took too long to process {source.name}. Try a smaller image."
+            ) from exc
+        except URLError as exc:
+            raise ApiError(f"Could not connect to {self.base_url}: {exc.reason}") from exc
+        except json.JSONDecodeError as exc:
+            raise ApiError("The website returned an invalid OCR response.") from exc
+
+    def ocr_english_image(self, file_path: str | Path) -> dict[str, Any]:
+        return self._request_file(
+            "/api/content/ocr/english",
+            "image",
+            file_path,
+            timeout=60,
+        )
 
     def health(self) -> dict[str, Any]:
         return self._request("GET", "/health", auth=False, timeout=5)
@@ -1169,9 +1245,9 @@ class BulkLyricImportDialog(tk.Toplevel):
     Paste full hymn text in multiple languages and turn it into lyric rows.
 
     Equal stanza counts are matched deterministically by position. If counts
-    differ, the website's authenticated AI endpoint is used only to return
-    stanza-number relationships. The original pasted text is always used to
-    build the final segments.
+    differ, the user is asked to correct the stanza breaks before importing.
+    English screenshots can be sent to the authenticated website for free,
+    local Tesseract OCR. The original extracted/pasted text remains editable.
     """
 
     def __init__(
@@ -1201,6 +1277,7 @@ class BulkLyricImportDialog(tk.Toplevel):
             if str(item.get("code", "")).strip()
         ]
         self.input_widgets: dict[str, tk.Text] = {}
+        self.input_tabs: dict[str, tk.Misc] = {}
         self.parsed_stanzas: dict[str, list[str]] = {}
         self.preview_rows: list[dict[str, Any]] = []
         self.result: dict[str, Any] | None = None
@@ -1274,7 +1351,7 @@ class BulkLyricImportDialog(tk.Toplevel):
             input_card,
             text=(
                 "Blank line = next stanza. A single line break inside a stanza is treated as "
-                "word wrapping and becomes a space."
+                "word wrapping and becomes a space. For English screenshots, use OCR English image(s)."
             ),
             bg=PAPER,
             fg=MUTED,
@@ -1285,12 +1362,14 @@ class BulkLyricImportDialog(tk.Toplevel):
 
         input_notebook = ttk.Notebook(input_card)
         input_notebook.pack(fill="both", expand=True)
+        self.input_notebook = input_notebook
 
         for language in self.languages:
             code = language["code"]
             name = language["name"] or code
             tab = ttk.Frame(input_notebook, padding=8)
             input_notebook.add(tab, text=name)
+            self.input_tabs[code] = tab
 
             text = tk.Text(
                 tab,
@@ -1330,6 +1409,14 @@ class BulkLyricImportDialog(tk.Toplevel):
             style="Quiet.TButton",
             command=self.clear_inputs,
         ).pack(side="left", padx=(8, 0))
+
+        if "en" in self.input_widgets:
+            ttk.Button(
+                parse_row,
+                text="OCR English image(s)…",
+                style="Quiet.TButton",
+                command=self.extract_english_from_images,
+            ).pack(side="left", padx=(8, 0))
 
         tk.Label(
             preview_card,
@@ -1449,6 +1536,90 @@ class BulkLyricImportDialog(tk.Toplevel):
         self.wait_visibility()
         self.focus_force()
         self.wait_window()
+
+    def extract_english_from_images(self) -> None:
+        english_widget = self.input_widgets.get("en")
+        if english_widget is None:
+            messagebox.showinfo(
+                "English OCR",
+                "This curriculum does not currently have an English language field.",
+                parent=self,
+            )
+            return
+
+        paths = filedialog.askopenfilenames(
+            parent=self,
+            title="Choose English hymn screenshot(s)",
+            filetypes=[
+                ("Image files", "*.png *.jpg *.jpeg *.webp *.bmp *.tif *.tiff"),
+                ("PNG images", "*.png"),
+                ("JPEG images", "*.jpg *.jpeg"),
+                ("All files", "*.*"),
+            ],
+        )
+        if not paths:
+            return
+
+        current_text = english_widget.get("1.0", "end-1c").strip()
+        append_to_existing = False
+        if current_text:
+            choice = messagebox.askyesnocancel(
+                "English OCR",
+                (
+                    "The English box already contains text.\n\n"
+                    "Yes = append the OCR text after the existing text.\n"
+                    "No = replace the existing English text.\n"
+                    "Cancel = do nothing."
+                ),
+                parent=self,
+            )
+            if choice is None:
+                return
+            append_to_existing = bool(choice)
+
+        selected_paths = [str(value) for value in paths]
+
+        def work() -> list[dict[str, Any]]:
+            return [self.client.ocr_english_image(path) for path in selected_paths]
+
+        def done(results: list[dict[str, Any]]) -> None:
+            extracted_parts = [str(item.get("text", "")).strip() for item in results]
+            extracted_parts = [value for value in extracted_parts if value]
+            if not extracted_parts:
+                messagebox.showwarning(
+                    "English OCR",
+                    "No readable English text was found in the selected images.",
+                    parent=self,
+                )
+                return
+
+            extracted = "\n\n".join(extracted_parts)
+            if append_to_existing and current_text:
+                final_text = current_text.rstrip() + "\n\n" + extracted
+            else:
+                final_text = extracted
+
+            english_widget.delete("1.0", "end")
+            english_widget.insert("1.0", final_text)
+            self.input_notebook.select(self.input_tabs["en"])
+
+            # Any old preview no longer represents the edited source text.
+            self.parsed_stanzas = {}
+            self.preview_rows = []
+            self.refresh_preview()
+
+            stanza_count = sum(int(item.get("stanzas", 0) or 0) for item in results)
+            self.status_var.set(
+                f"OCR extracted about {stanza_count} English stanza(s) from "
+                f"{len(results)} image(s). Review the English text, then choose Parse & Align Lyrics."
+            )
+            english_widget.focus_set()
+
+        self.parent_app.run_async(
+            f"Extracting English text from {len(selected_paths)} image(s)…",
+            work,
+            done,
+        )
 
     def clear_inputs(self) -> None:
         for widget in self.input_widgets.values():

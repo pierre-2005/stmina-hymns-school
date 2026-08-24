@@ -4,7 +4,7 @@ import asyncio
 import os
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from .auth import verify_password
@@ -19,6 +19,7 @@ from .content_store import (
     validate_site,
 )
 from .db import db_conn
+from .ocr import OcrError, extract_english_hymn_text, ocr_available
 
 router = APIRouter(prefix="/api/content", tags=["content-manager"])
 
@@ -148,6 +149,36 @@ async def content_validate(request: Request):
 
 
 
+@router.post("/ocr/english")
+async def content_ocr_english(
+    request: Request,
+    image: UploadFile = File(...),
+):
+    """Run free local English OCR for the Content Manager bulk importer."""
+    require_content_admin(request)
+
+    content_type = str(image.content_type or "").lower()
+    if content_type and not content_type.startswith("image/"):
+        await image.close()
+        raise HTTPException(status_code=400, detail="Choose an image file for OCR.")
+
+    max_bytes = 15 * 1024 * 1024
+    data = await image.read(max_bytes + 1)
+    filename = str(image.filename or "image.png")
+    await image.close()
+
+    if not data:
+        raise HTTPException(status_code=400, detail="The selected image was empty.")
+    if len(data) > max_bytes:
+        raise HTTPException(status_code=413, detail="OCR images must be 15 MB or smaller.")
+
+    try:
+        result = await asyncio.to_thread(extract_english_hymn_text, data, filename)
+        return {"ok": True, **result}
+    except OcrError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @router.post("/publish")
 async def content_publish(request: Request):
     user = require_content_admin(request)
@@ -213,6 +244,10 @@ async def content_api_status(request: Request):
     return {
         "ok": True,
         "status": content_status(),
+        "ocr": {
+            "available": ocr_available(),
+            "engine": "tesseract",
+        },
         "user": {
             "username": user["username"],
             "display_name": user["display_name"],
