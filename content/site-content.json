@@ -77,7 +77,18 @@
               "sort": 30,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Saved. Amen. And with your spirit.",
+                    "cop": "Ⲥⲱⲑⲓⲥ ⲁ̀ⲙⲏⲛ: ⲕⲉ ⲧⲱ ⲡ̀ⲛⲉⲩⲙⲁⲧⲓ ⲥⲟⲩ",
+                    "cop_en": "Sotees Amen. Ke to epnevmati so."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "amen-3-your-death-o-lord",
@@ -86,7 +97,28 @@
               "sort": 40,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen. Amen. Amen. Your Death, O Lord, we proclaim; Your holy Resurrection and Ascension into the heavens, we confess.",
+                    "cop": "Ⲁ̀ⲙⲏⲛ ⲁ̀ⲙⲏⲛ ⲁ̀ⲙⲏⲛ: ⲧⲟⲛ ⲑⲁⲛⲁⲧⲟⲛ ⲥⲟⲩ Ⲕⲩⲣⲓⲉ ⲕⲁⲧⲁⲅⲅⲉⲗⲗⲟⲙⲉⲛ: ⲕⲉ ⲧⲏⲛ ⲁ̀ⲅⲓⲁⲛ ⲥⲟⲩ ⲁ̀ⲛⲁⲥⲧⲁⲥⲓⲛ ⲕⲉ ⲧⲏⲛ ⲁ̀ⲛⲁⲗⲏⲯⲓⲛ ⲥⲟⲩ ⲛ̀ⲧⲏⲥ ⲟⲩⲣⲁⲛⲓⲥ ⲥⲉ ⲟ̀ⲙⲟⲗⲟⲅⲟⲩⲙⲉⲛ.",
+                    "cop_en": "Amin, Amin, Amin, Ton thana ton sou kirie katangelomen. Ke tin agian sou anastaseen Ke tin analin epseen sou entees ouranees se omologhomen."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We praise You, we bless You, we thank You, O Lord, and we entreat You, O our God.",
+                    "cop": "Ⲥⲉ ⲉ̀ⲛⲟⲩⲙⲉⲛ ⲥⲉ ⲉⲩⲗⲟⲅⲟⲩⲙⲉⲛ ⲥⲓ ⲉⲩⲭⲁⲣⲓⲥⲧⲟⲩⲙⲉⲛ Ⲕⲩⲣⲓⲉ: ⲕⲉ ⲇⲉⲟ̀ⲙⲉⲑⲁ ⲥⲟⲩ ⲟ̀ Ⲑⲉⲟⲥ ⲏ̀ⲙⲱⲛ.",
+                    "cop_en": "Se enoumen se evloghoumen si evharistoumen kirie, ke zeometa sou o Theos emon."
+                  },
+                  "sort": 20,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "we-praise-you",
@@ -95,7 +127,18 @@
               "sort": 50,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We praise You, we bless You, we serve You, we worship You.",
+                    "cop": "Ⲧⲉⲛϩⲱⲥ ⲉ̀ⲣⲟⲕ ⲧⲉⲛⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟⲕ ⲧⲉⲛϣⲉⲙϣⲓ ⲙ̀ⲙⲟⲕ ⲧⲉⲛⲟⲩⲱϣⲧ ⲙ̀ⲙⲟⲕ.",
+                    "cop_en": "Tenhos erok tenesmo erok tenshemshi emmok teno-oosht emmok."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "have-mercy-upon-us-gregorian",
@@ -104,7 +147,28 @@
               "sort": 60,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Have mercy upon us, O God, the Father, the Pantocrator. (x3)",
+                    "cop": "Ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ ⲏ̀ⲙⲁⲥ ⲟ̀ Ⲑⲉⲟⲥ ⲟ̀ Ⲡⲁⲧⲏⲣ ⲟ̀ Ⲡⲁⲛⲧⲟⲕⲣⲁⲧⲱⲣ. (x3)",
+                    "cop_en": "Eleyson eemas O theos O pateer O pantokrator (x3)"
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Have mercy upon us, O God, the Father, the Pantocrator. (x3)",
+                    "cop": "ϫⲉ ⲛⲁⲓ ⲛⲁⲛ ̀ⲫⲛⲟⲩⲧⲓ ̀ⲫⲓⲱⲧ ⲡⲓⲡⲁⲛⲧⲟⲕⲣⲁⲧⲟⲣ. (x3)",
+                    "cop_en": "Je nai nan, efnouti efiout pi-pantokrator (x3)"
+                  },
+                  "sort": 20,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "amen-we-belive-we-confess",
@@ -113,7 +177,28 @@
               "sort": 70,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen. We believe, we confess, and we glorify.",
+                    "cop": "Ⲁ̀ⲙⲏⲛ. Ⲡⲓⲥⲧⲉⲩⲟ̀ⲙⲉⲛ ⲕⲉ ⲟ̀ⲙⲟⲗⲟⲅⲟⲩⲙⲉⲛ ⲕⲉ ⲇⲟⲝⲁⲍⲟⲙⲉⲛ.",
+                    "cop_en": "Amen. Pistevomen ke omologhomen ke zoxazomen."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen. Again, we believe, we confess, and we glorify.",
+                    "cop": "Ⲁ̀ⲙⲏⲛ. Ⲕⲉ ⲡⲁⲗⲓⲛ ⲡⲓⲥⲧⲉⲩⲟ̀ⲙⲉⲛ ⲕⲉ ⲟ̀ⲙⲟⲗⲟⲅⲟⲩⲙⲉⲛ ⲕⲉ ⲇⲟⲝⲁⲍⲟⲙⲉⲛ.",
+                    "cop_en": "Amen. Ke palin Pistevomen ke omologhomen ke zoxazomen."
+                  },
+                  "sort": 20,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "may-their-holy-blessings",
@@ -122,7 +207,28 @@
               "sort": 80,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "May their holy blessing be with us. Amen.",
+                    "cop": "Ⲉ̀ⲣⲉ ⲡⲟⲩⲥ̀ⲙⲟⲩ ⲉⲑⲟⲩⲁⲃ ϣⲱⲡⲓ ⲛⲉⲙⲁⲛ. Ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Ere poo esmoo ethowab Shopi neman Amin."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Glory to You, O Lord. Lord have mercy. Lord have mercy. Lord, bless us. Lord, repose them. Amen.",
+                    "cop": "Ⲇⲟⲝⲁ ⲥⲓ Ⲕⲩⲣⲓⲉ: Ⲕⲩⲣⲓⲉ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ Ⲕⲩⲣⲓⲉ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ: Ⲕⲩⲣⲓⲉ ⲉⲩⲗⲟⲅⲏⲥⲟⲛ: Ⲕⲩⲣⲓⲉ ⲁ̀ⲛⲁⲡⲁⲩⲥⲟⲛ: ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "zoxa si Kirie zoxa si Kirie Kirie Eleyson Kirie Eleyson Kirie evlogison Kirie anapavson Amin."
+                  },
+                  "sort": 20,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "concluding-hymn",
