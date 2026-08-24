@@ -81,7 +81,7 @@
                 {
                   "t": "0:00",
                   "texts": {
-                    "en": "The grace of our Lord Jesus Christ, be with your saintly spirit, my lord the honored father the high priest Papa Abba (...).",
+                    "en": "The grace of our Lord Jesus Christ, be with your saintly spirit, my lord the honored father the archpriest Pope Abba (...).",
                     "cop": "Ⲡⲓϩ̀ⲙⲟⲧ ⲅⲁⲣ ⲙ̀ⲡⲉⲛⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅: ⲉϥⲉ̀ϣⲱⲡⲓ ⲛⲉⲙ ⲡⲉⲕⲁ̀ⲅⲓⲟⲛ ⲡ̀ⲛⲉⲩⲙⲁ: ⲡⲁⲟ̅ⲥ̅ ⲛ̀ⲓⲱⲧ ⲉⲧⲧⲁⲓⲏⲟⲩⲧ ⲛ̀ⲁ̀ⲣⲭⲏⲉ̀ⲣⲉⲩⲥ ⲡⲁⲡⲁ ⲁⲃⲃⲁ (...)",
                     "cop_en": "Pi ehmot ghar em-pen-choice Isos pi khristos: ef-e-shoapi nem pek-agion ep-nevma: pa-choice en-yot et-ta-yoat en-arshi-erevs papa avva (...)"
                   },
@@ -91,9 +91,9 @@
                 {
                   "t": "0:00",
                   "texts": {
-                    "en": "And our father the Bishop Abba (...)",
-                    "cop": "Ⲛⲉⲙ ⲡⲉⲛⲓⲱⲧ ⲛ̀ⲉ̀ⲡⲓⲥⲕⲟⲡⲟⲥ ⲁⲃⲃⲁ (...).",
-                    "cop_en": "nem pen yoat en-e-piskopos avva (...)"
+                    "en": "And our father the Metropolitan Abba (...)",
+                    "cop": "Ⲛⲉⲙ ⲡⲉⲛⲓⲱⲧ ⲙ̀ⲙⲏⲧⲣⲟⲡⲟⲗⲓⲧⲏⲥ ⲁⲃⲃⲁ (...)",
+                    "cop_en": "Nem penioat emmetropolitees abba (...)"
                   },
                   "sort": 20,
                   "published": true
@@ -101,11 +101,21 @@
                 {
                   "t": "0:00",
                   "texts": {
-                    "en": "May the clergy and all the people be safe in the Lord. Amen. So it shall be.",
+                    "en": "And our father the Bishop Abba (...)",
+                    "cop": "Ⲛⲉⲙ ⲡⲉⲛⲓⲱⲧ ⲛ̀ⲉ̀ⲡⲓⲥⲕⲟⲡⲟⲥ ⲁⲃⲃⲁ (...).",
+                    "cop_en": "nem pen yoat en-e-piskopos avva (...)"
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "May the clergy and all the people be safe in the Lord. Amen. So be it.",
                     "cop": "Ⲙⲁⲣⲉ ⲡⲓⲕ̀ⲗⲏⲣⲟⲥ: ⲛⲉⲙ ⲡⲓⲗⲁⲟⲥ ⲧⲏⲣϥ: ⲟ̀ⲩϫⲁⲓ ϧⲉⲛ Ⲡⲟ̅ⲥ̅: ϫⲉ ⲁ̀ⲙⲏⲛ ⲉⲥⲉ̀ϣⲱⲡⲓ.",
                     "cop_en": "mare pi-ek-leeros: nem pi-la-os teerf: oo-gai khen ep-choice je ameen es-e-shoapi."
                   },
-                  "sort": 30,
+                  "sort": 40,
                   "published": true
                 }
               ]
@@ -117,7 +127,48 @@
               "sort": 20,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed are they in truth, the saints of this day, each one according to his name, the beloved of Christ.",
+                    "cop": "Ⲱⲟⲩⲛⲓⲁⲧⲟⲩ ϧⲉⲛ ⲟⲩⲙⲉⲑⲏⲓ: ⲛⲏⲉ̅ⲑ̅ⲩ̅ ⲛ̀ⲧⲉ ⲡⲁⲓⲉ̀ϩⲟⲟⲩ: ⲡⲓⲟⲩⲁⲓ ⲡⲓⲟⲩⲁⲓ ⲕⲁⲧⲁ ⲡⲉϥⲣⲁⲛ: ⲛⲓⲙⲉⲛⲣⲁϯ ⲛ̀ⲧⲉ Ⲡⲭ̅ⲥ̅.",
+                    "cop_en": "Oniato khen O methmee, ne-ethowab nte paiehoo, piowai piowai kata pefran, nimenrati nte pikhristos"
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Intercede on our behalf, O lady of us all, the Mother of God, Mary, the Mother of our Savior, that He may forgive us our sins.",
+                    "cop": "Ⲁⲣⲓⲡⲣⲉⲥⲃⲉⲩⲓⲛ ⲉϩ̀ⲣⲏⲓ ⲉϫⲱⲛ: ⲱ̀ ⲧⲉⲛⲟ̅ⲥ̅ ⲛ̀ⲛⲏⲃ ⲧⲏⲣⲉⲛ ϯⲑⲉⲟⲧⲟⲕⲟⲥ: Ⲙⲁⲣⲓⲁ ⲑ̀ⲙⲁⲩ ⲙ̀ⲡⲉⲛⲤⲱⲧⲏⲣ: ⲛ̀ⲧⲉϥⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉⲃⲟⲗ.",
+                    "cop_en": "Aripresvevvien eehri egoon, O tenchoise enneb teeren ti-theotokos, Maria Thmav empensoteer, ntefka nen novi nan evol"
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Pray to the Lord on our behalf, O struggle mantled martyr, the saint abba Mina, that He may forgive us our sins.",
+                    "cop": "Ⲧⲱⲃϩ ⲙ̀Ⲡⲟ̅ⲥ̅ ⲉ̀ϩ̀ⲣⲏⲓ ⲉϫⲱⲛ: ⲱ̀ ⲡⲓⲁ̀ⲑⲗⲟⲫⲟⲣⲟⲥ ⲙ̀ⲙⲁⲣⲧⲩⲣⲟⲥ: ⲡⲓⲁⲅⲓⲟⲥ ⲁ̀ⲡⲁ Ⲙⲏⲛⲁ: ⲛ̀ⲧⲉϥ ⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉⲃⲟⲗ.",
+                    "cop_en": "Tobh emepchoise eehri egoon, O pi-athloforos emmartiros, Piagios Avva Mina, ntefka nen novi nan evol"
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed be the Father and the Son and the Holy Spirit, the perfect Trinity. We worship Him and glorify Him.",
+                    "cop": "Ϫⲉ ϥ̀ⲥ̀ⲙⲁⲣⲱⲟⲩⲧ ⲛ̀ϫⲉ Ⲫⲓⲱⲧ ⲛⲉⲙ ⲡ̀Ϣⲏⲣⲓ: ⲛⲉⲙ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: Ϯⲧ̀ⲣⲓⲁⲥ ⲉⲧϫⲏⲕ ⲉ̀ⲃⲟⲗ: ⲧⲉⲛⲟⲩⲱϣⲧ ⲙ̀ⲙⲟⲥ ⲧⲉⲛϯⲱ̀ⲟⲩ ⲛⲁⲥ.",
+                    "cop_en": "Je efesmaroot nje eFioout nem epsheeri, nem piepnevma ethowab, tetrias etjek evol, tenoouosht emmos tentoo nas"
+                  },
+                  "sort": 40,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "alleluia-the-thought-of-man",
@@ -126,7 +177,18 @@
               "sort": 30,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Alleluia. The thought of man shall confess You O Lord, and the remainder of thought shall keep a feast to You. The sacrifices and the offerings receive them to Yourself. Alleluia.",
+                    "cop": "Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ. Ϫⲉ ⲫ̀ⲙⲉⲩⲓ̀ ⲛ̀ⲟ̀ⲩⲣⲱⲙⲓ ⲉϥⲉ̀ⲟ̀ⲩⲱ̀ⲛϩ ⲛⲁⲕ ⲉ̀ⲃⲟⲗ Ⲡ̀ⲟ̅ⲥ̅: ⲟⲩⲟϩ ⲡ̀ⲥⲱϫⲡ ⲛ̀ⲧⲉ ⲟ̀ⲩⲙⲉⲩⲓ̀ ⲉϥⲉ̀ⲉⲣϣⲁⲓ ⲛⲁⲕ. Ⲛⲓⲑⲩⲥⲓⲁ ⲛⲓⲡ̀ⲣⲟⲥⲫⲟⲣⲁ ϣⲟⲡⲟⲩ ⲉ̀ⲣⲟⲕ. Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ.",
+                    "cop_en": "Alleluia je ef-mev-ee en-oo-romi ef-e-ooonh nak evol epchois: ow-oh epsogb ente oo mevee ef-e-er-shai nak. Ni-thi-siya ni-eprosfora shopo erok. Alleluia"
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "hymn-of-the-censer",
@@ -135,7 +197,18 @@
               "sort": 40,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "This censer of pure gold bearing the aroma, is in the hands of Aaron the priest, offering up incense upon the altar.",
+                    "cop": "Ⲧⲁⲓϣⲟⲩⲣⲏ ⲛ̀ⲛⲟⲩⲃ ⲛ̀ⲕⲁⲑⲁⲣⲟⲥ ⲉⲧϥⲁⲓ ϧⲁ ⲡⲓⲁ̀ⲣⲱⲙⲁⲧⲁ: ⲉⲧϧⲉⲛ ⲛⲉⲛϫⲓϫ ⲛ̀Ⲁ̀ⲁⲣⲱⲛ ⲡⲓⲟ̀ⲩⲏⲃ ⲉϥⲧⲁⲗⲉ ⲟⲩⲥ̀ⲑⲟⲓⲛⲟⲩϥⲓ ⲉ̀ⲡ̀ϣⲱⲓ ⲉ̀ϫⲉⲛ ⲡⲓⲙⲁ ⲛ̀ⲉ̀ⲣϣⲱⲟ̀ⲩϣⲓ.",
+                    "cop_en": "Tay-shory ennob enka-tharos etfai kha pi-aro-mata, etkhen nen-jeeg en-A-aron pi-oweeb eftale oo-estoi-nofi e-epshoi ejen pima en-ersho-oshi."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "conclusion-of-the-orthodox-creed",
@@ -164,7 +237,18 @@
               "sort": 60,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "... of our honored father, the archpriest, Pope Abba (...): and our father the metropolitan (bishop), Abba (...) the beloved of Christ.",
+                    "cop": "... ⲙ̀ⲡⲉⲛⲓⲱⲧ ⲉⲧⲧⲁⲓⲏⲟⲩⲧ ⲛ̀ⲁ̀ⲣⲭⲓⲉ̀ⲣⲉⲩⲥ ⲡⲁⲡⲁ ⲁⲃⲃⲁ (...): ⲛⲉⲙ ⲡⲉⲛⲓⲱⲧ ⲙ̀ⲙⲏⲧⲣⲟⲡⲟⲗⲓⲧⲏⲥ (ⲛ̀ⲉ̀ⲡⲓⲥⲕⲟⲡⲟⲥ) ⲁⲃⲃⲁ (...): ⲛⲓⲙⲉⲛⲣⲁϯ ⲛ̀ⲧⲉ Ⲡⲓⲭ̀ⲣⲓⲥⲧⲟⲥ.",
+                    "cop_en": "... Empeniot et-taiot en-arshi-erevs papa Avva (...), nem pen yoat en-e-piskopos avva (...), ni-menrati ente Pi-khrestos."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "according-to-your-mercy-o-lord",
@@ -173,7 +257,18 @@
               "sort": 70,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "According to Your mercy, O Lord, and not according to our sins.",
+                    "cop": "Ⲕⲁⲧⲁ ⲧⲟ ⲉ̀ⲗⲉⲟⲥ ⲥⲟⲩ Ⲕⲩⲣⲓⲉ: ⲕⲉ ⲙⲏ ⲕⲁⲧⲁ ⲧⲁⲥ ⲁ̀ⲙⲁⲣⲧⲓⲁⲥ ⲏ̀ⲙⲱⲛ.",
+                    "cop_en": "Kata to eleos so kerie: ke mee kata tas amerteyas emmon."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "praxis-response-english",
@@ -182,7 +277,28 @@
               "sort": 80,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Hail to you O Mary, the beautiful dove, who has borne to us, God the Logos.",
+                    "cop": "Ⲭⲉⲣⲉ ⲛⲉ Ⲙⲁⲣⲓⲁ: ϯϭⲣⲟⲙⲡⲓ ⲉⲑⲛⲉⲥⲱⲥ: ⲑⲏⲉ̀ⲧⲁⲥⲙⲓⲥⲓ ⲛⲁⲛ: ⲙ̀Ⲫϯ ⲡⲓⲖⲟⲅⲟⲥ.",
+                    "cop_en": "Shere ne Maria, tiche-rompi ethnesos, thee-etas-misi nan, emifnoti pi-Loghos."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed are You indeed, with Your good Father and the Holy Spirit, for You have come and saved us have mercy on us.",
+                    "cop": "Ⲕ̀ⲥ̀ⲙⲁⲣⲱⲟⲩⲧ ⲁ̀ⲗⲏⲑⲱⲥ: ⲛⲉⲙ Ⲡⲉⲕⲓⲱⲧ ⲛ̀ⲁ̀ⲅⲁⲑⲟⲥ: ⲛⲉⲙ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ϫⲉ ⲁⲕⲓ̀ ⲁⲕⲥⲱϯ ⲙ̀ⲙⲟⲛ ⲛⲁⲓ ⲛⲁⲛ.",
+                    "cop_en": "Eksmaro-ot alethos, nem Pekiot enagha-thos, nem pi-epnevma ethowab, je akee aksoti emmon nai nan."
+                  },
+                  "sort": 20,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "the-matins-doxology-for-the-virgin",
@@ -191,7 +307,108 @@
               "sort": 90,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed are you O Mary, the wise and the chaste, the Second tabernacle, the spiritual treasure.",
+                    "cop": "Ⲱⲟⲩⲛⲓⲁϯ ⲛ̀ⲑⲟ Ⲙⲁⲣⲓⲁ̀: ϯⲥⲁⲃⲉ ⲟⲩⲟϩ ⲛ̀ⲥⲉⲙⲛⲉ: ϯⲙⲁϩⲥ̀ⲛⲟⲩϯ ⲛ̀ⲥ̀ⲕⲏⲛⲏ: ⲡⲓⲁ̀ϩⲟ ⲙ̀Ⲡ̀ⲛⲉⲩⲙⲁⲧⲓⲕⲟⲛ.",
+                    "cop_en": "Ooniato entho maria: tee-cavee owoh ensemnee: tee-mahesnooti eneskeenee: piaho emepnevmatikon."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The pure turtle-dove, who declared in our land, and brought to us, the Fruit of the Spirit.",
+                    "cop": "Ϯϭⲣⲟⲙⲡϣⲁⲗ ⲛ̀ⲕⲁⲑⲁⲣⲟⲥ: ⲑⲏⲉⲧⲁⲥⲙⲟⲩϯ ϧⲉⲛ ⲡⲉⲛⲕⲁϩⲓ: ⲟⲩⲟϩ ⲁⲥⲫⲓⲣⲓ ⲛⲁⲛ ⲉ̀ⲃⲟⲗ: ⲛ̀ⲟⲩⲕⲁⲣⲡⲟⲥ ⲛ̀ⲧⲉ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ.",
+                    "cop_en": "Tchrom-epshal enkatharos: thetasmoo-tee khen penkahi: owoh asfiri nan evol: enokarpos ente pi-epnevma."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The Spirit of comfort, who came upon your Son, in the waters of the Jordan, according to the type of Noah.",
+                    "cop": "ⲠⲓⲠ̀ⲛⲉⲩⲙⲁ ⲙ̀ⲡⲁⲣⲁⲕⲗⲏⲧⲟⲛ: ⲫⲏⲉ̀ⲧⲁϥⲓ̀ ⲉϫⲉⲛ ⲡⲉϢⲏⲣⲓ: ϩⲓϫⲉⲛ ⲛⲓⲙⲱⲟⲩ ⲛ̀ⲧⲉ ⲡⲓⲒⲟⲣⲇⲁⲛⲏⲥ: ⲕⲁⲧⲁ ⲡ̀ⲧⲩⲡⲟⲥ ⲛ̀Ⲛⲱⲉ̀.",
+                    "cop_en": "Pi-epnevma emparakleeton: fee-etafi ejen peshiri: hijen nimoo-o ente pi-Yorzanees: kata eptee-pos en-Noe."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "That dove has, announced to us, the peace of God, for mankind.",
+                    "cop": "Ϯϭⲣⲟⲙⲡⲓ ⲅⲁⲣ ⲉⲧⲉ ⲙ̀ⲙⲁⲩ: ⲛ̀ⲑⲟⲥ ⲁⲥϩⲓϣⲉⲛⲛⲟⲩϥⲓ ⲛⲁⲛ: ⲛ̀ϯϩⲓⲣⲏⲛⲏ ⲛ̀ⲧⲉ Ⲫϯ: ⲑⲏⲉⲧⲁⲥϣⲱⲡⲓ ϣⲁ ⲛⲓⲣⲱⲙⲓ.",
+                    "cop_en": "Tchrompi ghar ete emmav: enthos ashi-shen-nofi nan: entee-hireenee ente efnouti: thetas-shopi sha niromi."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Likewise you O our hope, the spiritual turtle-dove, have brought mercy unto us, carrying Him in your womb.",
+                    "cop": "Ⲛ̀ⲑⲟ ϩⲱⲓ ⲱ̀ ⲧⲉⲛϩⲉⲗⲡⲓⲥ: ϯϭⲣⲟⲙⲡ̀ϣⲁⲗ ⲛ̀ⲛⲟⲏ̀ⲧⲉ: ⲁⲣⲉⲓ̀ⲛⲓ ⲙ̀ⲡⲓⲛⲁⲓ ⲛⲁⲛ: ⲁⲣⲉϥⲁⲓ ϧⲁⲣⲟϥ ϧⲉⲛ ⲧⲉⲛⲉϫⲓ.",
+                    "cop_en": "Entho hoy O tenhelpis: tchrom-epshal en-noeete: areini empi-nai nan: arefai kharof khen teneji."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "He is Jesus, the begotten of the Father, He was born of you for us, setting free our race.",
+                    "cop": "Ⲉⲧⲉ ⲫⲁⲓ ⲡⲉ Ⲓⲏ̅ⲥ̅: ⲡⲓⲙⲓⲥⲓ ⲉ̀ⲃⲟⲗϧⲉⲛ Ⲫ̀ⲓⲱⲧ: ⲁⲩⲙⲁⲥϥ ⲛⲁⲛ ⲉ̀ⲃⲟⲗ ⲛ̀ϧⲏϯ: ⲁϥⲉⲣ ⲡⲉⲛϫⲉⲛⲟⲥ ⲛ̀ⲣⲉⲙϩⲉ.",
+                    "cop_en": "Ete fai pe Esos: pimisi evolkhen efiot: avmasf nan evol enkheetee: afer pengenos enremhe."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Therefore let us declare, first with our hearts, then also with our tongues, proclaiming and saying.",
+                    "cop": "Ⲫⲁⲓ ⲅⲁⲣ ⲙⲁⲣⲉⲛⲧⲁⲟⲩⲟϥ: ⲉ̀ⲃⲟⲗϧⲉⲛ ⲡⲉⲛϩⲏⲧ ⲛ̀ϣⲟⲣⲡ: ⲙⲉⲛⲉⲛⲥⲱⲥ ⲟⲛ ϧⲉⲛ ⲡⲉⲛⲕⲉⲗⲁⲥ: ⲉⲛⲱϣ ⲉ̀ⲃⲟⲗ ⲉⲛϫⲱ ⲙ̀ⲙⲟⲥ.",
+                    "cop_en": "fai ghar marentao-oof: evolkhen penheet enshorp: menensoos on khen penkelas: enosh evol engo emmos."
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "\"O our Lord Jesus Christ, make for yourself within us, a temple of Your Holy Spirit, glorifying You.\"",
+                    "cop": "Ϫⲉ ⲡⲉⲛⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅: ⲙⲁⲑⲁⲙⲓⲟ̀ ⲛⲁⲕ ⲛ̀ϧ̀ⲣⲏⲓ ⲛ̀ϧⲏⲧⲉⲛ: ⲛ̀ⲟⲩⲉ̀ⲣⲫⲉⲓ ⲛ̀ⲧⲉ ⲠⲉⲕⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ⲉⲩϯⲇⲟⲝⲟⲗⲟⲅⲓⲁ̀ ⲛⲁⲕ.",
+                    "cop_en": "Je penchoise Esos Pi-ekhristos: mathamioo nak ene-khri enkhee-ten: enoerfei ente pek-epnevma ethowab: evtee-zoxologia nak."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Hail to you O Virgin, the right and true queen, hail to the pride of our race, who bore to us Emmanuel.",
+                    "cop": "Ⲭⲉⲣⲉ ⲛⲉ ⲱ̀ Ϯⲡⲁⲣⲑⲉⲛⲟⲥ: ϯⲟⲩⲣⲱ ⲙ̀ⲙⲏⲓ ⲛ̀ⲁ̀ⲗⲏⲑⲓⲛⲏ: ⲭⲉⲣⲉ ⲡ̀ϣⲟⲩϣⲟⲩ ⲛ̀ⲧⲉ ⲡⲉⲛⲅⲉⲛⲟⲥ: ⲁ̀ⲣⲉϫ̀ⲫⲟ ⲛⲁⲛ ⲛ̀Ⲉⲙⲙⲁⲛⲟⲩⲏⲗ.",
+                    "cop_en": "Shere ne O tee-parthenos: tee-oro emmeei enalee-thienee: shere epsho-sho ente pengenos: are-egfo nan emmanoeel."
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We ask you to remember us, O our faithful advocate, before our Lord Jesus Christ, that He may forgive us our sins.",
+                    "cop": "Ⲧⲉⲛϯϩⲟ ⲁⲣⲓⲡⲉⲛⲙⲉⲩⲓ: ⲱ̀ ϯⲡ̀ⲣⲟⲥⲁⲧⲁⲧⲏⲥ ⲉ̀ⲧⲉⲛϩⲟⲧ: ⲛⲁϩⲣⲉⲛ ⲡⲉⲛⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅: ⲛ̀ⲧⲉϥⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉ̀ⲃⲟⲗ.",
+                    "cop_en": "Ten-tee-ho are-penmevi: O tee-eprostatees etenhot: nahren penchoise Esos Pi-ekhristos: entefka nen-novi nan evol."
+                  },
+                  "sort": 100,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "conclusion-of-the-hymn-of-intercessions-english",
