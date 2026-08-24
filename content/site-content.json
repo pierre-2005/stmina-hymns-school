@@ -60,6 +60,195 @@
                   "published": true
                 }
               ]
+            },
+            {
+              "slug": "hymn-of-intercessions-annual-coptic",
+              "title": "Hymn of Intercessions (Annual - Coptic)",
+              "note": "",
+              "sort": 20,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "saved-amen",
+              "title": "Saved. Amen (Coptic)",
+              "note": "",
+              "sort": 30,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "amen-3-your-death-o-lord",
+              "title": "Amen (3). Your death O Lord (Coptic)",
+              "note": "",
+              "sort": 40,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "we-praise-you",
+              "title": "We Praise you (Coptic)",
+              "note": "",
+              "sort": 50,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "have-mercy-upon-us-gregorian",
+              "title": "Have mercy upon us (Gregorian - Coptic)",
+              "note": "",
+              "sort": 60,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "amen-we-belive-we-confess",
+              "title": "Amen. We belive, we confess... (Coptic)",
+              "note": "",
+              "sort": 70,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "may-their-holy-blessings",
+              "title": "May their holy blessings (Coptic)",
+              "note": "",
+              "sort": 80,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "concluding-hymn",
+              "title": "Concluding Hymn (Annual - Coptic)",
+              "note": "",
+              "sort": 90,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "verses-of-the-cymbals-watos-intro-english",
+              "title": "Verses of the Cymbals (Watos Intro - English)",
+              "note": "Teno-osht emefiout",
+              "sort": 100,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "psali-watos-for-the-three-saintly-children",
+              "title": "Psali Watos for the three Saintly Children (English)",
+              "note": "Aripsalin",
+              "sort": 110,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "the-vespers-doxology-for-the-virgin",
+              "title": "The Vespers Doxology for the Virgin (English)",
+              "note": "",
+              "sort": 120,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "doxology-for-st-mina",
+              "title": "Doxology for St. Mina (English)",
+              "note": "",
+              "sort": 130,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "praxis-response",
+              "title": "Praxis Response (English)",
+              "note": "St. Mina",
+              "sort": 140,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "psalm-150",
+              "title": "Psalm 150 (Annual - Short - English)",
+              "note": "",
+              "sort": 150,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "in-the-name",
+              "title": "In the Name (Veneration - Coptic)",
+              "note": "Khen efran",
+              "sort": 160,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "liturgy-gospel-response-kiahk-week-1-3-coptic",
+              "title": "Liturgy Gospel Response (Kiahk - Week 1&2 - Coptic)",
+              "note": "Tenti nempi",
+              "sort": 170,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "liturgy-gospel-response-kiahk-week-2-4-coptic",
+              "title": "Liturgy Gospel Response (Kiahk - Week 3&4 - Coptic)",
+              "note": "Tenechisi emmo",
+              "sort": 180,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "the-virginal-birth",
+              "title": "The Virginal Birth (Nativity - Coptic)",
+              "note": "Pi-Jen misi",
+              "sort": 190,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "liturgy-gospel-response",
+              "title": "Liturgy Gospel Response (Great Lent - Coptic - short)",
+              "note": "Je penioat",
+              "sort": 200,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "thine-is-the-power",
+              "title": "Thine is the Power (Pascha - Coptic)",
+              "note": "Thok te ti gom",
+              "sort": 210,
+              "published": true,
+              "recordings": [],
+              "segments": []
+            },
+            {
+              "slug": "hymn-of-intercessions",
+              "title": "Hymn of Intercessions (Resurrection - Coptic)",
+              "note": "",
+              "sort": 220,
+              "published": true,
+              "recordings": [],
+              "segments": []
             }
           ]
         },
