@@ -777,7 +777,118 @@
               "sort": 130,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "In Christ Jesus our Lord.",
+                    "cop": "Ϧⲉⲛ Ⲡⲓⲭ̀ⲣⲓⲥⲧⲟⲥ Ⲓⲏⲥⲟⲩⲥ Ⲡⲉⲛϭⲟⲓⲥ.",
+                    "cop_en": "Khen pi-ekhristos Esos Penchoise."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Bow your heads to the Lord.",
+                    "cop": "Ⲧⲁⲥ ⲕⲉⲫⲁⲗⲁⲥ ⲩ̀ⲙⲱⲛ ⲧⲱ Ⲕⲩⲣⲓⲱ ⲕ̀ⲗⲓⲛⲁⲧⲉ.",
+                    "cop_en": "Tas ke-falas Emmon To Kerio eklinate."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Before You, O Lord",
+                    "cop": "Ⲉ̀ⲛⲱⲡⲓⲟⲛ ⲥⲟⲩ Ⲕⲩⲣⲓⲉ.",
+                    "cop_en": "Enopion so Kerie."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Let us attend in the fear of God. Amen.",
+                    "cop": "Ⲡ̀ⲣⲟⲥⲭⲱⲙⲉⲛ Ⲑⲉⲟⲩ ⲙⲉⲧⲁ ⲫⲟⲃⲟⲩ. Ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Pros-khomen theo meta fovo. Amen."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "And with your spirit.",
+                    "cop": "Ⲕⲉ ⲧⲱ ⲡ̀ⲛⲉⲩⲙⲁⲧⲓ ⲥⲟⲩ.",
+                    "cop_en": "Ke to epnevmati so."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Saved. Amen. And with your spirit. In the fear of God, let us attend.",
+                    "cop": "Ⲥⲱⲑⲓⲥ ⲁ̀ⲙⲏⲛ: ⲕⲉ ⲧⲱ ⲡ̀ⲛⲉⲩⲙⲁⲧⲓ ⲥⲟⲩ: ⲙⲉⲧⲁ ⲫⲟⲃⲟⲩ Ⲑⲉⲟⲩ ⲡ̀ⲣⲟⲥⲭⲱⲙⲉⲛ.",
+                    "cop_en": "Sotees amen. Ke to epnevmati so. meta fovo theo Pros-khomen."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen. Lord have mercy, Lord have mercy, Lord have mercy.",
+                    "cop": "Ⲁ̀ⲙⲏⲛ. Ⲕⲩⲣⲓⲉ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ: Ⲕⲩⲣⲓⲉ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ: Ⲕⲩⲣⲓⲉ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ.",
+                    "cop_en": "Amen. Kerie eleyson, Kerie eleyson, Kerie eleyson."
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "One is the All-Holy Father, one is the All-Holy Son, one is the All-Holy Spirit. Amen.",
+                    "cop": "Ⲓⲥ ⲟ̀ ⲡⲁⲛⲁ̀ⲅⲓⲟⲥ Ⲡⲁⲧⲏⲣ: ⲓⲥ ⲟ̀ ⲡⲁⲛⲁ̀ⲅⲓⲟⲥ Ⲩⲓⲟⲥ: ⲉⲛ ⲧⲟ ⲡⲁⲛⲁ̀ⲅⲓⲟⲛ Ⲡ̀ⲛⲉⲩⲙⲁ: ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Ees O panagios Pateer, Ees O panagios Eyos, en to panagion epnevma. Amen."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen.",
+                    "cop": "Ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Amen."
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen.",
+                    "cop": "Ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Amen."
+                  },
+                  "sort": 100,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen, I believe.",
+                    "cop": "Ⲁ̀ⲙⲏⲛ. Ϯⲛⲁϩϯ.",
+                    "cop_en": "Amen. Tee-nah-tee."
+                  },
+                  "sort": 110,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "the-paralax-hymn-our-lord-coptic",
@@ -786,7 +897,38 @@
               "sort": 140,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Our Lord Jesus Christ, who was born of the Virgin, in Bethlehem of Judea, according to the prophetic voices.",
+                    "cop": "Ⲁⲡⲉⲛⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅: ⲫⲏⲉ̀ⲧⲁⲥ ⲙⲁⲥϥ ⲛ̀ϫⲉ ϯⲠⲁⲣⲑⲉⲛⲟⲥ: ϧⲉⲛ Ⲃⲏⲑⲗⲉⲉⲙ ⲛ̀ⲧⲉ ϯⲒⲟⲩⲇⲉⲁ̀: ⲕⲁⲧⲁ ⲛⲓⲥ̀ⲙⲏ ⲙ̀ⲡ̀ⲣⲟⲫⲏⲧⲓⲕⲟⲛ",
+                    "cop_en": "Apen-shois Esos Pi-ekhrestos fee-etas masf enje ti-parthe-nos, khen Veth-leem ente ti-Iouze-a, kata ni-esmee emip-ro-phi-tikon."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The Cherubim and the Seraphim, the angels and the archangels, the principalities and the authorities, the thrones, the dominions, and the powers.",
+                    "cop": "ⲚⲓⲬⲉⲣⲟⲩⲃⲓⲙ ⲛⲉⲙ ⲛⲓⲤⲉⲣⲁⲫⲓⲙ: ⲛⲓⲁ̀ⲅⲅⲉⲗⲟⲥ ⲛⲉⲙ ⲛⲓⲁ̀ⲣⲭⲏⲁ̀ⲅⲅⲉⲗⲟⲥ: ⲛⲓⲥ̀ⲧⲣⲁⲧⲓⲁ ⲛⲉⲙ ⲛⲓⲉ̀ⲝⲟⲩⲥⲓⲁ: ⲛⲓⲑ̀ⲣⲟⲛⲟⲥ ⲛⲓⲙⲉⲧⲟ̅ⲥ̅ ⲛⲓϫⲟⲙ.",
+                    "cop_en": "Ni-She-robim nem ni-Seraphim, ni-angelos nem ni-arshi-angelos, ni-sete-rateia nem ni-e-exso-seia, ni-eth-ronos ni-met chois ni-gom."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Proclaiming and saying, \"Glory to God in the highest, peace on earth, and good will toward men.\"",
+                    "cop": "Ⲉⲩⲱϣ ⲉ̀ⲃⲟⲗ ⲉⲩϫⲟ ⲙ̀ⲙⲟⲥ: ϫⲉ ⲟ̀ⲩⲱ̀ⲟ̀ⲩ ⲙ̀Ⲫϯ ϧⲉⲛ ⲛⲏⲉ̀ⲧϭⲟⲥⲓ: ⲛⲉⲙ ⲟⲩϩⲓⲣⲏⲛⲏ ϩⲓϫⲉⲛ ⲡⲓⲕⲁϩⲓ: ⲛⲉⲙ ⲟⲩϯⲙⲁϯ ϧⲉⲛ ⲛⲓⲣⲱⲙⲓ.",
+                    "cop_en": "Evhos evol evgo emmos je oo-o-oo Emif-nouti khenni-etit-shoisee, nem oo-heri-ni hejen pi-kahee, nem oo-ti-mati khenni-roumi."
+                  },
+                  "sort": 30,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "his-foundations-coptic",
