@@ -417,7 +417,18 @@
               "sort": 100,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We worship You O Christ, with Your good Father, and the Holy Spirit, for you have come and saved us. Have mercy on us.",
+                    "cop": "Ⲧⲉⲛⲟⲩⲱϣⲧ ⲙ̀ⲙⲟⲕ ⲱ̀ Ⲡⲭ̅ⲥ̅: ⲛⲉⲙ Ⲡⲉⲕⲓⲱⲧ ⲛ̀ⲁ̀ⲅⲁⲑⲟⲥ: ⲛⲉⲙ ⲡⲓⲠ̀ⲡⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ϫⲉ ⲁⲕⲓ̀ ⲁⲕⲥⲱϯ ⲙ̀ⲙⲟⲛ ⲛⲁⲓ ⲛⲁⲛ.",
+                    "cop_en": "Ten-o-oosht emmok O Pi-ekhristos: nem Pekioot enaghathos: nem pi-epnevma ethowab: je akee aksotee emmon nai nan."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "second-canticle-psalm-135-english",
