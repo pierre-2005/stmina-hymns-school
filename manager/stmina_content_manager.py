@@ -392,18 +392,6 @@ class ContentApiClient:
     def validate(self, content: dict[str, Any]) -> dict[str, Any]:
         return self._request("POST", "/api/content/validate", {"content": content})
 
-    def align_lyrics(
-        self,
-        hymn_title: str,
-        languages: list[dict[str, Any]],
-    ) -> dict[str, Any]:
-        return self._request(
-            "POST",
-            "/api/content/lyrics/align",
-            {"hymn_title": hymn_title, "languages": languages},
-            timeout=100,
-        )
-
     def publish(self, content: dict[str, Any], github_backup: bool, base_revision: str = "") -> dict[str, Any]:
         return self._request(
             "POST",
@@ -1502,35 +1490,21 @@ class BulkLyricImportDialog(tk.Toplevel):
             self.refresh_preview()
             return
 
-        payload_languages = []
-        for language in self.languages:
-            code = language["code"]
-            payload_languages.append(
-                {
-                    "code": code,
-                    "name": language["name"] or code,
-                    "stanzas": self.parsed_stanzas.get(code, []),
-                }
-            )
-
-        self.status_var.set(
-            "Stanza counts differ, so the secure server-side AI aligner is matching stanza numbers. "
-            "The model is not allowed to rewrite your lyrics."
+        messagebox.showwarning(
+            "Stanza counts do not match",
+            (
+                "The pasted languages contain different numbers of stanzas.\n\n"
+                "Automatic import is only available when the stanza counts match.\n\n"
+                "Review the blank-line separation in each language and make sure "
+                "corresponding hymn verses are separated consistently."
+            ),
+            parent=self,
         )
-
-        def work() -> dict[str, Any]:
-            return self.client.align_lyrics(self.hymn_title, payload_languages)
-
-        def done(result: dict[str, Any]) -> None:
-            if not self.winfo_exists():
-                return
-            try:
-                self.grab_set()
-            except tk.TclError:
-                pass
-            self.apply_ai_rows(result)
-
-        self.parent_app.run_async("Aligning lyric stanzas with AI…", work, done)
+        self.status_var.set(
+            "Stanza counts do not match. Adjust the stanza breaks and try again."
+        )
+        self.preview_rows = []
+        self.refresh_preview()
 
     def build_position_rows(self, row_count: int) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
@@ -1548,35 +1522,6 @@ class BulkLyricImportDialog(tk.Toplevel):
                 }
             )
         return rows
-
-    def apply_ai_rows(self, result: dict[str, Any]) -> None:
-        raw_rows = result.get("rows") or []
-        converted: list[dict[str, Any]] = []
-        known_codes = {item["code"] for item in self.languages}
-
-        for raw_row in raw_rows:
-            mapping = {code: [] for code in known_codes}
-            for part in raw_row.get("parts") or []:
-                code = str(part.get("code", ""))
-                if code in mapping:
-                    mapping[code] = [int(value) for value in (part.get("indexes") or [])]
-            converted.append(
-                {
-                    "mapping": mapping,
-                    "confidence": float(raw_row.get("confidence", 0.0) or 0.0),
-                    "note": str(raw_row.get("note", "")).strip(),
-                    "source": "ai",
-                }
-            )
-
-        self.preview_rows = converted
-        model = str(result.get("model", "AI"))
-        low_confidence = sum(1 for row in converted if row["confidence"] < 0.75)
-        message = f"AI alignment returned {len(converted)} lyric rows using {model}."
-        if low_confidence:
-            message += f" Review the {low_confidence} row(s) marked below 75% confidence before importing."
-        self.status_var.set(message)
-        self.refresh_preview()
 
     def update_count_label(self) -> None:
         parts: list[str] = []
@@ -1616,8 +1561,7 @@ class BulkLyricImportDialog(tk.Toplevel):
             try:
                 row = self.preview_rows[int(selected[0])]
                 note = str(row.get("note", "")).strip()
-                source = "AI alignment" if row.get("source") == "ai" else "Position match"
-                text = f"{source}. {note}".strip()
+                text = str(row.get("note", "")).strip()
             except (ValueError, IndexError):
                 text = ""
         elif self.preview_rows:

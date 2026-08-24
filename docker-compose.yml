@@ -28,11 +28,6 @@ services:
       CONTENT_API_SECRET: ${CONTENT_API_SECRET}
       CONTENT_API_TOKEN_TTL: ${CONTENT_API_TOKEN_TTL:-7200}
 
-      # Optional AI-assisted bulk lyric alignment. The API key stays on the
-      # server and is never sent to or embedded in the desktop Content Manager.
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_LYRIC_MODEL: ${OPENAI_LYRIC_MODEL:-gpt-5.6-luna}
-
       # Optional GitHub content backup. Keep the token in Portainer, never in the desktop app.
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       GITHUB_REPO: ${GITHUB_REPO:-pierre-2005/stmina-hymns-school}
