@@ -937,7 +937,38 @@
               "sort": 150,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Saved Amen, and with your spirit.",
+                    "cop": "Ⲥⲱⲑⲓⲥ ⲁ̀ⲙⲏⲛ: ⲕⲉ ⲧⲱ ⲡ̀ⲛⲉⲩⲙⲁⲧⲓ ⲥⲟⲩ.",
+                    "cop_en": "So-tees ameen, ke to epnev-ma-ti so."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "His foundation are in the holy mountains. The Lord loves the gates of Zion, more than all the tents of Jacob. Glorious things have been spoken of you, O city of God. Alleluia.",
+                    "cop": "Ⲛⲉϥⲥⲉⲛϯ ϧⲉⲛ ⲛⲓⲧⲱⲟⲩ ⲉⲑⲟⲩⲁⲃ. Ⲁ̀ Ⲡ̀ϭⲟⲓⲥ ⲙⲉⲓ ⲛ̀ⲛⲓⲡⲩⲗⲏ ⲛ̀ⲧⲉ Ⲥⲓⲱⲛ: ⲉ̀ϩⲟⲧⲉ ⲛⲓⲙⲁ ⲛ̀ϣⲱⲡⲓ ⲧⲏⲣⲟⲩ ⲛ̀ⲧⲉ Ⲓⲁⲕⲱⲃ. Ⲁϥⲥⲁϫⲓ ⲉⲑⲃⲏϯ ⲛ̀ϩⲁⲛⲛ̀ⲃⲏⲟⲩⲓ̀ ⲉⲩⲧⲁⲓⲏⲟⲩⲧ: ϯⲃⲁⲕⲓ ⲛ̀ⲧⲉ Ⲫ̀ⲛⲟⲩϯ. Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ.",
+                    "cop_en": "Nefsin-ti khenne-to-o ethowab, a-epshois mey eni-pilee ente Seion, eho-tene-ma enshopi tero ente Yakop, afsaje ethveti enhan ehve-owee ev-taiot, ti-vaki ente Efnouti. Alleloia."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Mother Zion will say, “A man and a man dwells in her,” and the Most High cast her foundation. Alleluia.",
+                    "cop": "Ⲥⲓⲱⲛ ϯⲙⲁⲩ ⲛⲁϫⲟⲥ: ϫⲉ ⲟⲩⲣⲱⲙⲓ ⲛⲉⲙ ⲟⲩⲣⲱⲙⲓ ⲁϥϣⲱⲡⲓ ⲛ̀ϧⲏⲧⲥ: ⲟⲩⲟϩ ⲛ̀ⲑⲟϥ Ⲡⲉⲧϭⲟⲥⲓ: ⲁϥϩⲓⲥⲉⲛϯ ⲙ̀ⲙⲟⲥ ϣⲁ ⲉ̀ⲛⲉϩ. Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ.",
+                    "cop_en": "Seion ti-mav nagos, je o-romi nem o-romi af-shobi enkhets, owoh enthof p-etit-shosee, afhe-senti emmos sha eneh, alleloia."
+                  },
+                  "sort": 30,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "o-king-of-peace-pascha-coptic",
@@ -946,7 +977,178 @@
               "sort": 160,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O King of peace, give us Your peace, grant us Your peace, and forgive us our sins.",
+                    "cop": "Ⲡ̀ⲟⲩⲣⲟ ⲛ̀ⲧⲉ ϯϩⲓⲣⲏⲛⲏ: ⲙⲟⲓ ⲛⲁⲛ ⲛ̀ⲧⲉⲕϩⲓⲣⲏⲛⲏ: ⲥⲉⲙⲛⲓ ⲛⲁⲛ ⲛ̀ⲧⲉⲕϩⲓⲣⲏⲛⲏ: ⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉ̀ⲃⲟⲗ.",
+                    "cop_en": "Epouro enteti hirini / moynan entek hirini / semni nan entek hirini / kanen novi nan evol."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Disperse the enemies, of the Church, and fortify her, that she may never weaken.",
+                    "cop": "Ϫⲱⲣ ⲉⲃⲟⲗ ⲛ̀ⲛⲓϫⲁϫⲓ: ⲛ̀ⲧⲉ ϯⲉⲕⲕⲗⲏⲥⲓⲁ̀: ⲁⲣⲓⲥⲟⲃⲧ ⲉⲣⲟⲥ: ⲛ̀ⲛⲉⲥⲕⲓⲙ ϣⲁ ⲉ̀ⲛⲉϩ.",
+                    "cop_en": "gorh evol enni gaji / enteti ekekleseya / ari soft eros / enneskem sha-eneh."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 100,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Emmanuel our God, is now in our midst, with the glory of His Father, and the Holy Spirit.",
+                    "cop": "Ⲉⲙⲙⲁⲛⲟⲩⲏⲗ ⲡⲉⲛⲛⲟⲩϯ : ϧⲉⲛ ⲧⲉⲛⲙⲏϯ ϯⲛⲟⲩ: ϧⲉⲛ ⲡ̀ⲱ̀ⲟⲩ ⲛ̀ⲧⲉ ⲡⲉϥⲓⲱⲧ: ⲛⲉⲙ ⲡⲓⲡ̅ⲛ̅ⲁ̅ ⲉⲑⲟⲩⲁⲃ.",
+                    "cop_en": "emmanoeel pennoti / khen tenmeeti tino / khen ep-oo ente peviot / nem pi epnevma ethowab."
+                  },
+                  "sort": 110,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 120,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 130,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "May He bless us all, and purify our hearts, and heal the sicknesses, of our souls and bodies.",
+                    "cop": "Ⲛ̀ⲧⲉϥⲥ̀ⲙⲟⲩ ⲉⲣⲟⲛ ⲧⲏⲣⲉⲛ: ⲛ̀ⲧⲉϥⲧⲟⲩⲃⲟ ⲛ̀ⲛⲉⲛϩⲏⲧ: ⲛ̀ⲧⲉϥⲧⲁⲗϭⲟ ⲛ̀ⲛⲓϣⲱⲛⲓ: ⲛ̀ⲧⲉ ⲛⲉⲛⲯⲩⲭⲏ ⲛⲉⲙ ⲛⲉⲛⲥⲱⲙⲁ.",
+                    "cop_en": "entefesmo eron tiren / entef tovo ennen heet / entev talet sho enni sho ni / ente nen epsishi nem nen soma."
+                  },
+                  "sort": 140,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 150,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy. [3 times]",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ. (3 times)",
+                    "cop_en": "Kerie Eleyson. (3 times)"
+                  },
+                  "sort": 160,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We worship You O Christ, with Your Good Father, and the Holy Spirit, for You were crucified and saved us.",
+                    "cop": "Ⲧⲉⲛⲟⲩⲱϣⲧ ⲙ̀ⲙⲟⲕ ⲱ̀ Ⲡⲭ̅ⲥ̅: ⲛⲉⲙ ⲡⲉⲕⲓⲱⲧ ⲛ̀ⲁ̀ⲅⲁⲑⲟⲥ: ⲛⲉⲙ ⲡⲓⲡ̅ⲛ̅ⲁ̅ ⲉⲑⲟⲩⲁⲃ: ϫⲉ ⲁⲩⲁϣⲕ ⲁⲕⲥⲱϯ ⲙ̀ⲙⲟⲛ.",
+                    "cop_en": "tenoo-osht emmok o pi ekhrestos / nem pekyot en aghathos / nem pi epnevma ethowab / je ak ashk aksoti Emmon."
+                  },
+                  "sort": 170,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "psalm-response-resurrection-coptic",
@@ -955,7 +1157,18 @@
               "sort": 170,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Alleluia, alleluia. Jesus Christ the King of glory, rose from the dead on the third day. Alleluia, alleluia.",
+                    "cop": "Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ ⲁ̅ⲗ̅. Ⲓⲏⲥⲟⲩⲥ Ⲡⲓⲭ̀ⲣⲓⲥⲧⲟⲥ Ⲡ̀ⲟⲩⲣⲟ ⲛ̀ⲧⲉ ⲡ̀ⲱ̀ⲟⲩ: ⲁϥⲧⲱⲛϥ ⲉ̀ⲃⲟⲗ ϧⲉⲛ ⲛⲏⲉⲑⲙⲱⲟⲩⲧ ϧⲉⲛ ⲡⲓⲉ̀ϩⲟⲟⲩ ⲙ̀ⲙⲁϩϣⲟⲙⲧ. Ⲁ̅ⲗ̅ ⲁ̅ⲗ̅.",
+                    "cop_en": "Alleloia alleloia, Esos Pikhrestos ep-oro ente ep-o-oo, aftonf evol khennieth-mo-oot khenpi-eho-oo emmah-shomt, alleloia alleloia."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "gospel-response-resurrection-coptic",
@@ -964,7 +1177,48 @@
               "sort": 180,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Then He was placed in the tomb, according to the prophetic voices, on the third day, Christ is risen from the dead.",
+                    "cop": "Ⲗⲟⲓⲡⲟⲛ ⲁⲩⲭⲁϥ ϧⲉⲛ ⲡⲓⲙ̀ϩⲁⲩ: ⲕⲁⲧⲁ ⲛⲓⲥ̀ⲙⲏ ⲙ̀ⲡ̀ⲣⲟⲫⲏⲧⲓⲕⲟⲛ: ϧⲉⲛ ⲡⲓⲙⲁϩϣⲟⲙⲧ ⲛ̀ⲉ̀ϩⲟⲟⲩ: Ⲡⲓⲭ̀ⲣⲓⲥⲧⲟⲥ ⲁ̀ⲛⲉⲥⲧⲏ ⲉⲕ ⲛⲉⲕⲣⲱⲛ.",
+                    "cop_en": "Lebon av-qav khen pi-emhav, kata ni-esmi emep-rofe-tikon, khen be-mah shomte-en-eho-oo, Pikh-restos anisti ek-nekron."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Alleluia (4), Jesus Christ the King of glory, rose from the dead.",
+                    "cop": "Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ (ⲇ̅): Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅ Ⲡ̀ⲟⲩⲣⲟ ⲛ̀ⲧⲉ ⲡ̀ⲱ̀ⲟⲩ: ⲁϥⲧⲱⲛϥ ⲉ̀ⲃⲟⲗ ϧⲉⲛ ⲛⲏⲉⲑⲙⲱⲟⲩⲧ.",
+                    "cop_en": "Alleluia Alleluia, Alleluia Alleluia, Esos Pekhrestos eporo ente epoo, aftonf evol khen ni-ethmo-ot."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "This is He to whom is due glory, with His good Father, and the Holy Spirit, both now and forever.",
+                    "cop": "Ⲫⲁⲓ ⲉ̀ⲣⲉ ⲡⲓⲱ̀ⲟ̀ⲩ ⲉⲣⲡ̀ⲣⲉⲡⲓⲛⲁϥ: ⲛⲉⲙ Ⲡⲉϥⲓⲱⲧ ⲛ̀ⲁ̀ⲅⲁⲑⲟⲥ: ⲛⲉⲙ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ⲓⲥϫⲉⲛ ϯⲛⲟⲩ ⲛⲉⲙ ϣⲁ ⲉ̀ⲛⲉϩ.",
+                    "cop_en": "Fay ere pi oo erep reby naf, nem pek yot enaghathos, nem pi epnevma ethowab, yes gen tee no nem sha eneh."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed be the Father and the Son and the Holy Spirit, the perfect Trinity. We worship Him and glorify Him.",
+                    "cop": "Ϫⲉ ϥ̀ⲥ̀ⲙⲁⲣⲱⲟⲩⲧ ⲛ̀ϫⲉ Ⲫⲓⲱⲧ ⲛⲉⲙ ⲡ̀Ϣⲏⲣⲓ: ⲛⲉⲙ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ϯⲦ̀ⲣⲓⲁⲥ ⲉⲧϫⲏⲕ ⲉ̀ⲃⲟⲗ: ⲧⲉⲛⲟⲩⲱϣⲧ ⲙ̀ⲙⲟⲥ ⲧⲉⲛϯⲱ̀ⲟⲩ ⲛⲁⲥ.",
+                    "cop_en": "Jefes maroout, En jefyot nem Epshiri, Nem pi Epnevma Ethowab, Tietrias etjeek evol, Ten Oosht Emmos Tentiou Nas"
+                  },
+                  "sort": 40,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "hymn-of-intercession-kiahk-english",
@@ -973,7 +1227,48 @@
               "sort": 190,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the intercessions, of the holy archangel, Gabriel the herald of glad tidings, O Lord grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲡ̀ⲣⲉⲥⲃⲓⲁ: ⲛ̀ⲧⲉ ⲡⲓⲁⲣⲭⲏⲁⲅⲅⲉⲗⲟⲥ ⲉⲑⲟⲩⲁⲃ: Ⲅⲁⲃⲣⲓⲏⲗ ⲡⲓϥⲁⲓϣⲉⲛⲛⲟⲩϥⲓ: Ⲡ̀ϭⲟⲓⲥ ⲁ̀ⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten niepresvia, ente pi-arshiangelos ethowab, Ghabrieel pi-fai-shen-nofi, epchoise ari-ehmot nan empiko evol ente nen-novi."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the intercessions, of the kinsman of Emmanuel, John the son of Zacharias, O Lord grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲡ̀ⲣⲉⲥⲃⲓⲁ: ⲛ̀ⲧⲉ ⲡⲓⲥⲩⲅⲅⲉⲛⲏⲥ ⲛ̀Ⲉⲙⲙⲁⲛⲟⲩⲏⲗ: Ⲓⲱⲁⲛⲛⲏⲥ ⲡ̀ϣⲏⲣⲓ ⲛ̀Ⲍⲁⲭⲁⲣⲓⲁⲥ: Ⲡ̀ϭⲟⲓⲥ ⲁ̀ⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten niepresvia, ente pi-sengenees en-emmanoeel, Yoannees epshiri en-zakharias, epchoise ari-ehmot nan empiko evol ente nen-novi."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers, of the priest Zacharias, and his wife Elizabeth, O Lord grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉⲩⲭⲏ: ⲛ̀ⲧⲉ ⲡⲓⲟⲩⲏⲃ Ⲍⲁⲭⲁⲣⲓⲁⲥ: ⲛⲉⲙ ⲧⲉϥⲥ̀ϩⲓⲙⲓ Ⲉ̀ⲗⲓⲥⲁⲃⲉⲧ: Ⲡ̀ϭⲟⲓⲥ ⲁ̀ⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni-evkee, ente pioweeb Zakharias, nem tefeshimi Elesabet, epchoise ari-ehmot nan empiko evol ente nen-novi."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers, of the blessed elders, Joachim and Anna, O Lord grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉⲩⲭⲏ: ⲛ̀ⲧⲉ ⲛⲓϧⲉⲗⲗⲟⲓ ⲧ̀ⲥ̀ⲙⲁⲣⲱⲟⲩⲧ: Ⲓⲱⲁ̀ⲕⲓⲙ ⲛⲉⲙ Ⲁⲛⲛⲁ: Ⲡ̀ϭⲟⲓⲥ ⲁ̀ⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni-evkee, ente ni-khelooi etesmaroot, Yowakim nem Anna, epchoise ari-ehmot nan empiko evol ente nen-novi."
+                  },
+                  "sort": 40,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "concluding-hymn-kiahk-english",
@@ -982,7 +1277,58 @@
               "sort": 200,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen. Alleluia: Glory to the Father and to the Son and to the Holy Spirit: now and ever and unto the ages of the ages: Amen.",
+                    "cop": "Ⲁⲙⲏⲛ: ⲁ̅ⲗ̅ ⲇⲟⲝⲁ Ⲡⲁⲧⲣⲓ ⲕⲉ Ⲩⲓⲱ ⲕⲉ ⲁⲅⲓⲱ Ⲡⲛⲉⲩⲙⲁⲧⲓ: ⲕⲉ ⲛⲩⲛ ⲕⲉ ⲁ̀ⲓ̀ ⲕⲉ ⲓⲥ ⲧⲟⲩⲥ ⲉ̀ⲱ̀ⲛⲁⲥ ⲧⲱⲛ ⲉ̀ⲱ̀ⲛⲱⲛ ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Amin Alleluia. Doxa patri ke Eio ke Agio Epnevmati, ke nin ke a-ee ke ees toos e onas ton e onon Amin."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We proclaim and say, \"O our Lord Jesus Christ,",
+                    "cop": "Ⲧⲉⲛⲱϣ ⲉ̀ⲃⲟⲗ ⲉⲛϫⲱ ⲙ̀ⲙⲟⲥ: ϫⲉ ⲱ̀ Ⲡⲉⲛⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅:",
+                    "cop_en": "Ten osh evol engo emmos: Je O pen Choic Isos Piekhristos."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "the Begotten of the Father before all the ages,",
+                    "cop": "Ⲡⲓⲙⲓⲥⲓ ⲉ̀ⲃⲟⲗ ϧⲉⲛ Ⲫ̀ⲓⲱⲧ ϧⲁϫⲱⲟⲩ ⲛ̀ⲛⲓⲉ̀ⲱⲛ ⲧⲏⲣⲟⲩ:",
+                    "cop_en": "Pimisi evol khen efiout khago-oo enieoon teero."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "save us and have mercy on us.\"",
+                    "cop": "ⲥⲱϯ ⲙ̀ⲙⲟⲛ ⲟⲩⲟϩ ⲛⲁⲓ ⲛⲁⲛ.",
+                    "cop_en": "Soti emmon owoh nai nan:"
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy: Lord have mercy: Lord bless us: Amen: Bless me: Bless me: Lo, the mentania: Forgive me: Say the blessing.",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ ⲕⲩⲣⲓⲉ ⲉⲩⲗⲟⲅⲏⲥⲟⲛ ⲁ̀ⲙⲏⲛ: ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟⲓ: ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟⲓ: ⲓⲥ ϯⲙⲉⲧⲁⲛⲟⲓⲁ̀: ⲭⲱ ⲛⲏⲓ ⲉ̀ⲃⲟⲗ ϫⲱ ⲙ̀ⲡⲓⲥ̀ⲙⲟⲩ.",
+                    "cop_en": "Kirie eleyson. Kirie eleyson. Kirie evlogison. Amin. Esmoo eroi: Ti metanoia Ko nee evol Go em pi esmoo."
+                  },
+                  "sort": 50,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "the-resurrection-doxology-english",
@@ -991,7 +1337,88 @@
               "sort": 210,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Then our mouths are filled with joy, and oun tongues with rejoicing, for our Lord Jesus Christ, is risen from the dead.",
+                    "cop": "Ⲧⲟⲧⲉ ⲣⲱⲛ ⲁϥⲙⲟϩ ⲛ̀ⲣⲁϣⲓ: ⲟⲩⲟϩ ⲡⲉⲛⲗⲁⲥ ϧⲉⲛ ⲟⲩⲑⲉⲗⲏⲗ: ϫⲉ Ⲡⲉⲛϭⲟⲓⲥ Ⲓⲏⲥⲟⲩⲥ Ⲡⲓⲭ̀ⲣⲓⲥⲧⲟⲥ: ⲁϥⲧⲱⲛϥ ⲉ̀ⲃⲟⲗ ϧⲉⲛ ⲛⲏⲉⲑⲙⲱⲟⲩⲧ.",
+                    "cop_en": "Tote ron afmoh enrashi: owoh penlas khen oo-theleel:m je Penchois IsosPi-ekhristos: aftonf evol khen nee-ethmo-oot."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "He has abolished death by His might, and made life shine upon us, He is the one who has descended, to the lower parts of the earth.",
+                    "cop": "Ⲁϥⲕⲱⲣϥ ⲙ̀ⲫ̀ⲙⲟⲩ ϧⲉⲛ ⲧⲉϥϫⲟⲙ: ⲁϥⲑ̀ⲣⲉⲡ̀ⲱⲛϧ ⲉⲣⲟⲩⲱⲓⲛⲓ ⲉ̀ⲣⲟⲛ: ⲛ̀ⲑⲟϥ ⲟⲛ ⲫⲏⲉ̀ⲧⲁϥϣⲉⲛⲁϥ: ⲉ̀ⲛⲓⲙⲁ ⲉⲧⲥⲁⲡⲉⲥⲏⲧ ⲙ̀ⲡ̀ⲕⲁϩⲓ.",
+                    "cop_en": "Afkorf em-efmo khen tefgom:af-ethre-eponkh er-oo-oini eron: enthof on fee-etaf-shenaf: eniima etsa-peseet em-epkahi."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The gatekeepers of Hades, saw Him and were afraid, He abolished the pangs of death, for He was not held by them.",
+                    "cop": "Ⲛⲓⲙ̀ⲛⲟⲩⲧ ⲛ̀ⲧⲉ Ⲁ̀ⲙⲉⲛϯ: ⲁⲩⲛⲁⲩ ⲉ̀ⲣⲟϥ ⲁⲩⲉⲣϩⲟϯ: ⲁϥⲧⲁⲕⲟ ⲛ̀ⲛⲓⲛⲁⲕϩⲓ ⲙ̀ⲫ̀ⲙⲟⲩ: ⲙ̀ⲡⲟⲩϣ̀ϫⲉⲙϫⲟⲙ ⲛ̀ⲁ̀ⲙⲟⲛⲓ ⲙ̀ⲙⲟϥ.",
+                    "cop_en": "Ni-emnot ente Amentee: avnav erof av-erhotee: aftako en-ninak-hi em-efmoo: empo-esh-gemgom en-amoni emmof."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "He has crushed the gates of brass, and broke the bars of iron, and brought out His chosen ones, with rejoicing and with joy.",
+                    "cop": "Ⲁϥϧⲟⲙϧⲉⲙ ⲛ̀ϩⲁⲛⲡⲩⲗⲏ ⲛ̀ϩⲟⲙⲧ: ⲁϥⲕⲱϣ ⲛ̀ϩⲁⲛⲙⲟⲭⲗⲟⲩⲥ ⲙ̀ⲃⲉⲛⲓⲡⲓ: ⲁϥⲓ̀ⲛⲓ ⲛ̀ⲛⲉϥⲥⲱⲧⲡ ⲉ̀ⲃⲟⲗ: ϧⲉⲛ ⲟⲩⲟⲩⲛⲟϥ ⲛⲉⲙ ⲟⲩⲑⲉⲗⲏⲗ.",
+                    "cop_en": "Af-khom-khem enhanpilee enhomt:afkosh en-hanmokhlos emvenipi: af-ini en-nefsotp evol:khen oo-oonof nem nn-theleel."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "He lifted them up with Him, into His place of rest, and saved them for the sake of His name, and revealed His power to them.",
+                    "cop": "Ⲁϥⲟ̀ⲗⲟⲩ ⲉ̀ⲡ̀ϭⲓⲥⲓ ⲛⲉⲙⲁϥ: ⲉ̀ϧⲟⲩⲛ ⲉ̀ⲛⲉϥⲙⲁ ⲛ̀ⲉⲙⲧⲟⲛ: ⲁϥⲛⲁϩⲙⲟⲩ ⲉⲑⲃⲉ ⲡⲉϥⲣⲁⲛ: ⲁϥⲟⲩⲱⲛϩ ⲛ̀ⲧⲉϥϫⲟⲙ ⲛⲱⲟⲩ ⲉ̀ⲃⲟⲗ.",
+                    "cop_en": "Af-oloo e-epchisi nemaf: ekhon en-efma-enemton: afnahmo ethve pefran: afoo-onh entefgom no-oo evol."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Therefore we are rich, with perfect good things, and in faith we sing, saying Alleluia.",
+                    "cop": "Ⲉⲑⲃⲉ ⲫⲁⲓ ⲧⲉⲛⲟⲓ ⲛ̀ⲣⲁⲙⲁⲟ̀: ϧⲉⲛ ⲛⲓⲁ̀ⲅⲁⲑⲟⲛ ⲉⲧϫⲏⲕ ⲉ̀ⲃⲟⲗ: ϧⲉⲛ ⲟⲩⲛⲁϩϯ ⲧⲉⲛⲉⲣⲯⲁⲗⲓⲛ: ⲉⲛϫⲱ ⲙ̀ⲙⲟⲥ ϫⲉ ⲁⲗⲗⲏⲗⲟⲩⲓⲁ.",
+                    "cop_en": "Ethve fai tenoi enrama-o: khen ni-aghathon etjeek evol: khen oonahtee ten-erpsalin: engo emmos je alleeloia."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Alleluia Alleluia, Alleluia Alleluia, Jesus Christ the King of glory, is risen from the dead.",
+                    "cop": "Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ (ⲇ̅): Ⲓⲏⲥⲟⲩⲥ Ⲡⲓⲭ̀ⲣⲓⲥⲧⲟⲥ Ⲡ̀ⲟⲩⲣⲟ ⲛ̀ⲧⲉ ⲡ̀ⲱ̀ⲟⲩ: ⲁϥⲧⲱⲛϥ ⲉ̀ⲃⲟⲗ ϧⲉⲛ ⲛⲏⲉⲑⲙⲱⲟⲩⲧ.",
+                    "cop_en": "Alleeloia (4): Isos pi-ekhristos eporo ente ep-o-oo: aftonf evol khen nee-ethmo-oot."
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "This is He to whom is due glory: with His good Father: and the Holy Spirit: both now and forever.",
+                    "cop": "Ⲫⲁⲓ ⲉ̀ⲣⲉ ⲡⲓⲱ̀ⲟⲩ ⲉⲣⲡ̀ⲣⲉⲡⲓ ⲛⲁϥ: ⲛⲉⲙ Ⲡⲉϥⲓⲱⲧ ⲛ̀ⲁ̀ⲅⲁⲑⲟⲥ: ⲛⲉⲙ Ⲡⲓⲡ̀ⲛⲉⲩⲙⲁ Ⲉⲑⲟⲩⲁⲃ: ⲓⲥϫⲉⲛ ϯⲛⲟⲩ ⲛⲉⲙ ϣⲁ ⲉ̀ⲛⲉϩ.",
+                    "cop_en": "Fai ere pi-o-oo er-eprepi naf: nem Pefiot en-aghathos nem Pi-epnevma ethowab: yesjen teeno nem sha eneh."
+                  },
+                  "sort": 80,
+                  "published": true
+                }
+              ]
             }
           ]
         }
