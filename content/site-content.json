@@ -68,7 +68,128 @@
               "sort": 20,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the intercessions, of the Theotokos Saint Mary, O Lord grant us, the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲡ̀ⲣⲉⲥⲃⲓⲁ: ⲛ̀ⲧⲉ ϯⲑⲉⲟ̀ⲧⲟⲕⲟⲥ ⲉ̅ⲑ̅ⲩ̅ Ⲙⲁⲣⲓⲁ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni presvia / Ente ti Theotokos Ethowab Maria / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the intercessions of the holy archangel Michael the head of the heavenly: O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲡ̀ⲣⲉⲥⲃⲓⲁ: ⲛ̀ⲧⲉ ⲡ̀ⲓⲁ̀ⲣⲭⲏⲁ̀ⲅⲅⲉⲗⲟⲥ ⲉ̅ⲑ̅ⲩ̅: Ⲙⲓⲭⲁⲏⲗ ⲡ̀ⲁ̀ⲣⲭⲱⲛ ⲛ̀ⲛⲁ ⲛⲓⲫⲏⲟⲩⲓ̀. Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni presvia / ente piarchee angelos ethowab / Mikhail eparkhon en-na-nifiowi / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the intercessions of the seven archangels, and the heavenly orders, O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲡ̀ⲣⲉⲥⲃⲓⲁ: ⲛ̀ⲧⲉ ⲡⲓϣⲁϣϥ ⲛ̀ⲁ̀ⲣⲭⲏⲁ̀ⲅⲅⲉⲗⲟⲥ: ⲛⲉⲙ ⲛⲓⲧⲁⲅⲙⲁ ⲛ̀ⲉ̀ⲡⲟⲩⲣⲁⲛⲓⲟⲛ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni presvia / ente pi shashf en archee angelos / nem ni tagma en eporanion / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers of my lords and fathers, the apostles, and the rest of the disciples, O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉ̀ⲩⲭⲏ: ⲛ̀ⲧⲉ ⲛⲁⲟ̅ⲥ̅ ⲛ̀ⲓⲟϯ ⲛ̀ⲁ̀ⲡⲟⲥⲧⲟⲗⲟⲥ: ⲛⲉⲙ ⲡ̀ⲥⲉⲡⲓ ⲛ̀ⲧⲉ ⲛⲓⲙⲁⲑⲏⲧⲏⲥ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni evki ente / Na choice enyoti / en apostolos nem ep sepi / ente ni Mathitis / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers: of the blessed Archdeacon: Stephen the first martyr: O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉ̀ⲩⲭⲏ: ⲛ̀ⲧⲉ ⲡⲓⲁ̀ⲣⲭⲏⲇⲓⲁⲕⲱⲛ ⲉ̀ⲧⲥ̀ⲙⲁⲣⲱⲟⲩⲧ: Ⲥ̀ⲧⲉⲫⲁⲛⲟⲥ ⲡⲓϣⲟⲣⲡ ⲙ̀ⲙⲁⲣⲧⲩⲣⲟⲥ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni evki ente / pi-archee-ziakon etesmaroot / e-Stefanos pishorp em-martiros / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers of the Beholder of God, the Evangelist Mark, the apostle, O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉ̀ⲩⲭⲏ: ⲛ̀ⲧⲉ ⲡⲓⲑⲉⲱ̀ⲣⲓⲙⲟⲥ ⲛ̀ⲉ̀ⲩⲁ̀ⲅⲅⲉⲗⲓⲥⲧⲏⲥ: Ⲙⲁⲣⲕⲟⲥ ⲡⲓⲁ̀ⲡⲟⲥⲧⲟⲗⲟⲥ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni evki ente / Pithorimos en evangilistees / Markos pi apostolos / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers of the struggle-mantled martyrs, my lord Prince George, Theodorus the general, Philopater Mercurius, Abba Mena of Vayat: O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉ̀ⲩⲭⲏ: ⲛ̀ⲧⲉ ⲛⲓⲁ̀ⲑⲗⲟⲫⲟⲣⲟⲥ: ⲡⲁⲟ̅ⲥ̅ ⲡ̀ⲟⲩⲣⲟ Ⲅⲉⲱ̀ⲣⲅⲓⲟⲥ, Ⲑⲉⲟ̀ⲇⲱⲣⲟⲥ ⲡⲓⲥ̀ⲧ̀ⲣⲁⲧⲓⲗⲁⲧⲏⲥ, Ⲫⲓⲗⲟⲡⲁⲧⲏⲣ Ⲙⲉⲣⲕⲟⲩⲣⲓⲟⲥ, ⲁⲃⲃⲁ Ⲙⲏⲛⲁ ⲛ̀ⲧⲉ ⲛⲓⲪⲁⲓⲁⲧ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni evki ente / niathloforos em Martiros / Pachoice ep ooro Gawargios / Theodoros pi-estratilatees / Philopateer Merkorios / Avva Mina enteny Vayat / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers of the brides of Christ Saints Barbara and Juliana and Demiana and Marina and Irene and Anasimon and Aripsima and Anastasia: O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉ̀ⲩⲭⲏ: ⲛ̀ⲧⲉ ⲛⲓϣⲉⲗⲉⲧ ⲛ̀ⲧⲉ Ⲡⲭ︦ⲥ︦ ϯⲁ̀ⲅⲓⲁ ⲙ̀ⲙⲏⲓ Ⲃⲁⲣⲃⲁⲣⲁ ⲛⲉⲙ Ⲓⲟⲗⲓⲁ̀ⲛⲏ ⲛⲉⲙ Ⲇⲩⲙⲓⲁⲛⲏ ⲛⲉⲙ Ⲙⲁⲣⲓⲛⲏ ⲛⲉⲙ Ⲓ̀ⲣⲏⲛⲏ ⲛⲉⲙ Ⲁⲛⲁⲥⲓⲙⲟⲛ ⲛⲉⲙ Ⲁⲣⲯ̀ⲓⲙⲁ ⲛⲉⲙ Ⲁⲛⲁⲥⲧⲁⲥⲓⲁ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni evki ente / nishelet ente pi-khristos tagia emm-eei / Barbara nem Yolianee, nem Dimianee, nem Marin-ee, nem Eree-nee, nem Anasimon, nem Aripsima, nem Anastasia / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers of the saints of this day, each one according to their names, O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉ̀ⲩⲭⲏ: ⲛ̀ⲧⲉ ⲛⲏⲉ̅ⲑ̅ⲩ̅ ⲛ̀ⲧⲉ ⲡⲁⲓⲉ̀ϩⲟⲟⲩ: ⲡⲓⲟⲩⲁⲓ ⲡⲓⲟⲩⲁⲓ ⲕⲁⲧⲁ ⲡⲉϥⲣⲁⲛ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni evki ente / Ni ethowab ente Pai eho-oo / Pi owai Pi owai Kata pefran / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through their prayers, keep the life of our honored father, the archpriest, Pope Abba (...). O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲟⲩⲉ̀ⲩⲭⲏ: ⲁ̀ⲣⲉϩ ⲉ̀ⲡ̀ⲱⲛϧ ⲙ̀ⲡⲉⲛⲱⲓⲧ ⲉⲧⲧⲁⲓⲏⲟⲩⲧ ⲛ̀ⲁ̀ⲣⲭⲏⲉ̀ⲣⲉⲩⲥ: ⲡⲁⲡⲁ ⲁⲃⲃⲁ (...): Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten no evki areh / Ep onkhen peniot / Etayot enarashee erevs / Baba Avva (...) / Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 100,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through their prayers, keep the life of our honored and righteous father, Abba (...) the bishop (metropolitan), O Lord, grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛ̀ⲟⲩⲉⲩⲭⲏ ⲁ̀ⲣⲉϩ ⲉ̀ⲡ̀ⲱⲛϧ ⲙ̀ⲡⲉⲛⲓⲱⲧ ⲉⲧⲧⲁⲓⲏⲟⲩⲧ ⲛ̀ⲇⲓⲕⲉⲟⲥ ⲁⲃⲃⲁ (...) ⲡⲓⲉ̀ⲡⲓⲥⲕⲟⲡⲟⲥ (ⲡⲓⲙⲏⲧⲣⲟⲡⲟⲗⲓⲧⲏⲥ): Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten no evki areh / Ep onkhen peniot / Etayot enzikeos / Avva (...) / Piepiskopos (pi-metropolitis), Epchoice ari ehmot nan empiko evol ente nen novi."
+                  },
+                  "sort": 110,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We worship You, O Christ, with Your good Father, and the Holy Spirit, for You have come and saved us. Have mercy on us.",
+                    "cop": "Ⲧⲉⲛⲟⲩⲱϣⲧ ⲙ̀ⲙⲟⲕ ⲱ̀ Ⲡⲭ̅ⲥ̅: ⲛⲉⲙ Ⲡⲉⲕⲓⲱⲧ ⲛ̀ⲁ̀ⲅⲁⲑⲟⲥ: ⲛⲉⲙ ⲡⲓⲠ̀ⲡⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ϫⲉ ⲁⲕⲓ̀ ⲁⲕⲥⲱϯ ⲙ̀ⲙⲟⲛ ⲛⲁⲓ ⲛⲁⲛ.",
+                    "cop_en": "Ten Oosht emmok o pi Ekhristos / Nem pek yout en Agathos / Nem pi epnevma ethowab / Je akee ak soti emmon nai nan"
+                  },
+                  "sort": 120,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "saved-amen",
@@ -160,12 +281,18 @@
                 },
                 {
                   "t": "0:00",
+                  "texts": {},
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
                   "texts": {
                     "en": "Have mercy upon us, O God, the Father, the Pantocrator. (x3)",
                     "cop": "ϫⲉ ⲛⲁⲓ ⲛⲁⲛ ̀ⲫⲛⲟⲩⲧⲓ ̀ⲫⲓⲱⲧ ⲡⲓⲡⲁⲛⲧⲟⲕⲣⲁⲧⲟⲣ. (x3)",
                     "cop_en": "Je nai nan, efnouti efiout pi-pantokrator (x3)"
                   },
-                  "sort": 20,
+                  "sort": 30,
                   "published": true
                 }
               ]
@@ -231,22 +358,44 @@
               ]
             },
             {
-              "slug": "concluding-hymn",
-              "title": "Concluding Hymn (Annual - Coptic)",
-              "note": "",
-              "sort": 90,
-              "published": true,
-              "recordings": [],
-              "segments": []
-            },
-            {
               "slug": "verses-of-the-cymbals-watos-intro-english",
               "title": "Verses of the Cymbals (Watos Intro - English)",
               "note": "Teno-osht emefiout",
               "sort": 100,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy.",
+                    "cop": "Ⲕⲩⲣⲓⲉ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ.",
+                    "cop_en": "Kerie eleyson."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We worship the Father and the Son, and the Holy Spirit, the holy and co-essential Trinity.",
+                    "cop": "Ⲧⲉⲛⲟⲩⲱϣⲧ ⲙ̀Ⲫ̀ⲓⲱⲧ ⲛⲉⲙ Ⲡ̀ϣⲏⲣⲓ: ⲛⲉⲙ Ⲡⲓⲡ̀ⲛⲉⲩⲙⲁ Ⲉⲑⲟⲩⲁⲃ: Ϯⲧ̀ⲣⲓⲁⲥ ⲉⲑⲟⲩⲁⲃ: ⲛ̀ⲟ̀ⲙⲟⲟⲩⲥⲓⲟⲥ.",
+                    "cop_en": "Ten oo osht em Efiot nem epshiri: Nem Pi epnevma Ethowab: Ti Etrias Ethowab: En omo oosios."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Hail to the Church, the house of the angels, hail to the Virgin, who gave birth to our Savior.",
+                    "cop": "Ⲭⲉⲣⲉ Ϯⲉⲕⲕⲗⲏⲥⲓⲁ: ⲡ̀ⲏⲓ ⲛ̀ⲧⲉ ⲛⲓⲁⲅⲅⲉⲗⲟⲥ: ⲭⲉⲣⲉ Ϯⲡⲁⲣⲑⲉⲛⲟⲥ: ⲉ̀ⲧⲁⲥⲙⲉⲥ Ⲡⲉⲛⲥⲱⲧⲏⲣ.",
+                    "cop_en": "Shere ti ekkliseia: Epee ente ni angelos: Shere ti parthenos: Etasmes Pensoteer."
+                  },
+                  "sort": 30,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "psali-watos-for-the-three-saintly-children",
@@ -255,7 +404,248 @@
               "sort": 110,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O sing unto Him who was crucified, buried and resurrected for us, and trampled and abolished death, Praise Him and exalt Him above all.",
+                    "cop": "Ⲁ̀ⲣⲓⲯⲁⲗⲓⲛ ⲉ̀ⲫⲏⲉ̀ⲧⲁⲩⲁϣϥ: ⲉ̀ϩ̀ⲣⲏⲓ ⲉ̀ϫⲱⲛ ⲟⲩⲟϩ ⲁⲩⲕⲟⲥϥ: ⲁϥⲧⲱⲛϥ ⲁϥⲕⲱⲣϥ ⲙ̀ⲫ̀ⲙⲟⲩ ⲁϥϯϣⲟϣϥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Aripsalin efe-etav ashf, e-ehri egon owoh avkosf, aftonf afkorf emef-mo afti shoshf, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Take off the old man, and put on the new and superior one, come closer to the greatness of mercy, Praise Him and exalt Him above all.",
+                    "cop": "Ⲃⲱϣ ⲙ̀ⲡⲓⲣⲱⲙⲓ ⲙ̀ⲡⲁⲗⲉⲟⲥ: ⲟⲩⲟϩ ϫⲱⲗϩ ⲙ̀ⲡⲓⲃⲉⲣⲓ ⲉⲩⲕ̀ⲗⲉⲟⲥ: ⲟⲩⲟϩ ⲉ̀ϧⲱⲛⲧ ⲉ̀ⲙⲉⲅⲁⲉ̀ⲗⲉⲟⲥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Vosh empi-romi empali-os, owoh golh empi-veri evek-leos, owoh ekhon emgha-elos, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "All you Christian people, the priests and the deacons, glorify the Lord for He is worthy, Praise Him and exalt Him above all.",
+                    "cop": "Ⲅⲉⲛⲟⲥ ⲛ̀Ⲛⲓⲭ̀ⲣⲓⲥⲧⲓⲁⲛⲟⲥ: ⲛⲓⲡ̀ⲣⲉⲥⲃⲩⲧⲉⲣⲟⲥ ⲕⲉ ⲇⲓⲁⲕⲟⲛⲟⲥ: ⲙⲁⲱ̀ⲟⲩ ⲙ̀Ⲡ̀ϭⲟⲓⲥ ϫⲉ ⲟⲩϩⲓⲕⲁⲛⲟⲥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Genos enikh-resteyanos, ni-epres-veteros ke zeia-konos, ma-o-oo emip-shois je ohi-kanos, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Come to us O three children, whom Christ our God has lifted, and from the devil has delivered, Praise Him and exalt Him above all.",
+                    "cop": "Ⲇⲉⲩⲧⲉ ϩⲁⲣⲟⲛ ⲱ̀ ⲡⲓϣⲟⲙⲧ ⲛ̀ⲁ̀ⲗⲟⲩ: ⲉ̀ⲧⲁ Ⲡⲓⲭ̀ⲣⲓⲥⲧⲟⲥ Ⲡⲉⲛⲛⲟⲩϯ ⲟ̀ⲗⲟⲩ: ⲁϥⲛⲁϩⲙⲟⲩ ⲉ̀ⲃⲟⲗ ϩⲁ Ⲡⲓⲇⲓⲁⲃⲟⲗⲟⲩ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Zevte haron o-pi-shomt en-alo, eta Pekhrestos pennouti olo, af-nahmo evol hapi-zeiav-lo, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "For the sake of your God the Messiah, the giver of all good things, come unto us O Hananiah, Praise Him and exalt Him above all.",
+                    "cop": "Ⲉⲑⲃⲉ Ⲡⲉⲕⲛⲟⲩϯ Ⲙⲁⲥⲓⲁⲥ: Ⲫ̀ⲣⲉϥϯ ⲛ̀ⲉⲩⲉⲣⲅⲉⲥⲓⲁⲥ: ⲁ̀ⲙⲟⲩ ϣⲁⲣⲟⲛ Ⲁ̀ⲛⲁⲛⲓⲁⲥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Ethve peknouti Maseias, ef-refti enev-erge-seias, a-mo sharon Ana-neias, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O Azariah the zealot, evening and morning and at noon, glorify the power of the Trinity, Praise Him and exalt Him above all.",
+                    "cop": "Ⲍⲏⲗⲱⲧⲉ Ⲁ̀ⲍⲁⲣⲓⲁⲥ: ⲉⲥⲡⲉⲣⲁⲥ ⲕⲉ ⲡ̀ⲣⲱⲓ̀ ⲕⲉ ⲙⲉⲥⲏⲙ ⲃ̀ⲣⲓⲁⲥ: ⲙⲁⲱ̀ⲟⲩ ⲛ̀ⲧ̀ϫⲟⲙ ⲛ̀Ϯⲧ̀ⲣⲓⲁⲥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Zelote Azareias, esperas ke epro-e ke miss-mev-reias, ma-o-oo enet-gom in-Tit-reias, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Behold Immanuel, is now in our midst O Mishael, proclaim with the voice of joy, Praise Him and exalt Him above all.",
+                    "cop": "Ⲏⲡⲡⲉ ⲅⲁⲣ ⲓⲥ Ⲉⲙⲙⲁⲛⲟⲩⲏⲗ: ϩⲓ ⲧⲉⲛⲙⲏϯ ⲱ̀ Ⲙⲓⲥⲁⲏⲗ: ⲗⲁⲗⲓ ϧⲉⲛ ⲟⲩⲥ̀ⲙⲏ ⲛ̀ⲑⲉⲗⲏⲗ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Eppe ghar yes Emmanoueel, he ten-me-ti o Mesaeel, lali khen o-esme en-theleel, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Gather now and persevere, and proclaim with the priests, bless the Lord all His works, Praise Him and exalt Him above all.",
+                    "cop": "Ⲑⲱⲟⲩϯ ϯⲛⲟⲩ ⲕⲁⲧⲁ ⲭⲓⲛ ⲧⲏⲣⲟⲩ: ⲥⲁϫⲓ ⲛⲉⲙ ⲛⲓⲡ̀ⲣⲉⲥⲃⲩⲧⲉⲣⲟⲩ: ⲥ̀ⲙⲟⲩ ⲉ̀Ⲡ̀ϭⲟⲓⲥ ⲛⲉϥϩ̀ⲃⲏⲟⲩⲓ̀ ⲧⲏⲣⲟⲩ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Tho-ooti tino kate shin teroo, saji nemni-epres-ve-tero, esmo Epshois nef-ehve-owee teroo, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The heavens declare the glory, of God until this day, O you angels whom He has made, Praise Him and exalt Him above all.",
+                    "cop": "Ⲓⲥ ⲛⲓⲫⲏⲟⲩⲓ̀ ⲥⲉⲥⲁϫⲓ ⲙ̀ⲡ̀ⲱ̀ⲟⲩ: ⲙ̀Ⲫ̀ⲛⲟⲩϯ ϣⲁ ⲉ̀ϧⲟⲩⲛ ⲙ̀ⲫⲟⲟⲩ: ⲱ̀ ⲛⲓⲁⲅⲅⲉⲗⲟⲥ ⲉ̀ⲧⲁϥϫ̀ⲫⲱⲟⲩ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Yes nefee-owe se-saji emip-o-oo, Emif-nouti sha ekhon em-fo-oo, o ni-angelos etaf-egfo-oo, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Now all you powers of the Lord, bless His honored name, O sun and moon and all the stars, Praise Him and exalt Him above all.",
+                    "cop": "Ⲕⲉ ⲛⲩⲛ ⲇⲩⲛⲁⲙⲓⲥ ⲧⲟⲩ Ⲕⲩⲣⲓⲟⲩ: ⲥ̀ⲙⲟⲩ ⲉ̀ⲡⲉϥⲣⲁⲛ ⲧⲟⲩ ⲧⲓⲙⲓⲟⲩ: ⲡⲓⲣⲏ ⲛⲉⲙ ⲡⲓⲓⲟϩ ⲛⲉⲙ ⲛⲓⲥⲓⲟⲩ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Ke nin zenamis too Kereie, esmo epif-ran to ti-meio, piree nem peyoh nem ni-seio, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 100,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "And also O you rain and dew, sing praises unto our Savior, for He is God of our fathers, Praise Him and exalt Him above all.",
+                    "cop": "Ⲗⲟⲓⲡⲟⲛ ⲛⲓⲙⲟⲩⲛ̀ϩⲱⲟⲩ ⲛⲉⲙ ⲛⲓⲓⲱϯ: ⲉⲩⲫⲏⲙⲓⲥⲁ ⲧⲉ Ⲡⲉⲛⲣⲉϥⲥⲱϯ: ϫⲉ ⲛ̀ⲑⲟϥ ⲡⲉ Ⲫ̀ⲛⲟⲩϯ ⲛ̀ⲧⲉ ⲛⲉⲛⲓⲟϯ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Leboon ni-monho-oo nem nei-yoti, ev-fi-misa te penref-souti, je enthof pe Efnouti ente nen-yoti, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 110,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Glorify the Lord O clouds and winds, together with the souls and the spirits, O you cold and fire and heat, Praise Him and exalt Him above all.",
+                    "cop": "Ⲙⲁⲱ̀ⲟⲩ ⲙ̀Ⲡ̀ϭⲟⲓⲥ ⲱ̀ ⲛⲓϭⲏⲡⲓ ⲉⲩⲙⲁ: ⲛⲓⲑⲏⲟⲩ ⲛⲉⲙ ⲛⲓⲛⲓϥⲓ ⲛⲉⲙ ⲛⲓⲡ̀ⲛⲉⲩⲙⲁ: ⲡⲓϫⲁϥ ⲛⲉⲙ ⲡⲓⲭ̀ⲣⲱⲙ ⲛⲉⲙ ⲡⲓⲕⲁⲩⲙⲁ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Ma-oo Emip-shois o ni-etshepi evma, ni-theio nem ni-nifi nem ni-epnev-ma, pi-gaf nem pek-rom nem pi-kavma, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 120,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Also nights and days: light, darkness and lightning say: \"Glory be to You O Lover of Mankind,\" Praise Him and exalt Him above all.",
+                    "cop": "Ⲛⲩⲕⲧⲉⲥ ⲕⲉ ⲏ̀ⲙⲉⲣⲉⲣⲱ ⲡⲉ: ⲫⲱⲥ ⲕⲉ ⲥ̀ⲕⲟⲧⲟⲥ ⲕⲉ ⲁⲥⲧ̀ⲣⲁⲡⲉ: ϫⲉ ⲇⲟⲝⲁ ⲥⲓ Ⲫⲓⲗⲁⲛⲑ̀ⲣⲱⲡⲉ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Nektes ke emre-rope, fos ke es-kotos ke asit-rape, je zoxa see filan-ethrope, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 130,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "You trees and all that springs on the earth, and all that moves in the waters, mountains and the forests, Praise Him and exalt Him above all.",
+                    "cop": "Ⲝⲩⲗⲁ ⲕⲉ ⲡⲁⲛⲧⲁ ⲧⲁ ⲫⲩⲟ̀ⲙⲉⲛⲁ: ⲉⲛ ⲧⲏ ⲅⲏ ⲕⲉ ⲡⲁⲛⲧⲁ ⲧⲁ ⲕⲓⲛⲟⲩⲙⲉⲛⲁ: ϩⲓ ⲛⲓⲙⲱⲟⲩ ⲛⲉⲙ ⲛⲓⲧⲱⲟⲩ ⲛⲉⲙ ⲇ̀ⲣⲩⲙⲟⲛⲁ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Exela ke panta ta fi-omina, en ti-ge ke panta ta ki-no-mina, he ni-mo-oo nem ni-to-oo nem ezri-mona, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 140,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise without ceasing, the Lord the King of the Kings, O you rivers and seas, Praise Him and exalt Him above all.",
+                    "cop": "Ⲟⲩⲟϩ ⲟⲛ ⲥ̀ⲙⲟⲩ ⲛ̀ⲁⲧⲭⲁⲣⲱⲟⲩ: ⲉ̀Ⲡ̀ϭⲟⲓⲥ Ⲡ̀ⲟⲩⲣⲟ ⲛ̀ⲧⲉ ⲛⲓⲟⲩⲣⲱⲟⲩ: ⲛⲓⲁ̀ⲙⲁⲓⲟⲩ ⲛⲉⲙ ⲛⲓⲓⲁⲣⲱⲟⲩ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Owoh on esmo an-atkaro-oo, Epshois ep-Oroo ente ni-ero-oo, ni-a-maio nem ni-aro-oo, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 150,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "And we also seeing them, let us say with all these things, bless the Lord all you birds, Praise Him and exalt Him above all.",
+                    "cop": "Ⲡⲁⲓⲣⲏϯ ⲁ̀ⲛⲟⲛ ⲧⲉⲛⲛⲁⲩ ⲉ̀ⲣⲱⲟⲩ: ⲙⲁⲣⲉⲛϫⲟⲥ ⲛⲉⲙ ⲛⲁⲓ ⲱⲛ ⲧⲏⲣⲟⲩ: ⲥ̀ⲙⲟⲩ ⲉ̀Ⲡ̀ϭⲟⲓⲥ ⲛⲓϩⲁⲗⲁϯ ⲧⲏⲣⲟⲩ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Pai-reti anon ten-nav ero-o, maren-gos nem nai on teroo, esmo Epshois ni-halati teroo, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 160,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O snow and ice, cattle and wild beasts, bless the Lord of lords, Praise Him and exalt Him above all.",
+                    "cop": "Ⲣⲱ ⲛ̀ⲛⲓⲡⲁⲭⲛⲏ ⲛⲉⲙ ⲛⲓⲭⲓⲱⲛ: ⲕⲉ ⲕ̀ⲧⲏⲛⲱⲛ ⲛⲉⲙ ⲛⲓⲑⲏⲣⲓⲟⲛ: ⲥ̀ⲙⲟⲩ ⲉ̀Ⲡ̀ϭⲟⲓⲥ ⲧⲱⲛ ⲕⲩⲣⲓⲱⲛ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Ro enni-pakhni nem ni-sheion, ke ekti-non nem ni-thereion, esmo Epshois ton ke-reion, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 170,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Bless the Lord as befits Him, and not like the disobedient, all you sons of men, Praise Him and exalt Him above all.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀Ⲡ̀ϭⲟⲓⲥ ⲕⲁⲧⲁ ⲫ̀ⲧⲱⲙⲓ: ⲉ̀ⲣⲟϥ ⲕⲉ ⲟⲩ ⲙⲏ ⲡⲁⲣⲁⲛⲟⲙⲓ: ⲱ̀ ⲛⲓϣⲏⲣⲓ ⲛ̀ⲧⲉ ⲛⲓⲣⲱⲙⲓ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Esmo Epshois kata ef-tomi, erof ke o-me para-nomee, o ni-shere ente ni-roumi, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 180,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O Israel offer before Him, honor and glory in a joyful voice, all you priests of Immanuel, Praise Him and exalt Him above all.",
+                    "cop": "Ⲧⲓⲙⲏ ⲕⲉ ⲇⲟⲝⲁ ⲱ̀ Ⲡⲓⲥⲣⲁⲏⲗ: ⲓ̀ⲛⲓ ⲛⲁϩⲣⲁϥ ϧⲉⲛ ⲟⲩⲥ̀ⲙⲏ ⲛ̀ⲑⲉⲗⲏⲗ: ⲛⲓⲟⲩⲏⲃ ⲛ̀ⲧⲉ Ⲉⲙⲙⲁⲛⲟⲩⲏⲗ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Ti-me ke zoxa o pis-rael, eni nah-raf khen o-esmi en-theleel, ni-oweb ente Emmanoueel, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 190,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "You servants of the true God, the souls of the righteous, and the humble and the charitable, Praise Him and exalt Him above all.",
+                    "cop": "Ⲩ̀ⲡⲏⲣⲉⲧⲱⲛ ⲙ̀Ⲫ̀ⲛⲟⲩϯ ⲙ̀ⲙⲏⲓ: ⲛⲉⲙ ⲛⲓⲯⲩⲭⲏ ⲛ̀ⲧⲉ ⲛⲓⲑ̀ⲙⲏⲓ: ⲛⲏⲉⲧⲑⲉⲃⲓⲏⲟⲩⲧ ⲛ̀ⲣⲉϥⲙⲉⲓ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Ee-per-ton Emif-nouti emme, nem ni-epsi-shi ente ni-ethme, ni-et-thevio enref-me, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 200,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "God my God is the one, who saved you from danger, O Shadrach Meshach and Abed-Nego, Praise Him and exalt Him above all.",
+                    "cop": "Ⲫ̀ⲛⲟⲩϯ Ⲡⲁⲛⲟⲩϯ ⲉ̀ⲅⲱ: Ⲡⲉⲧⲉⲛⲣⲉϥⲥⲱϯ ⲉⲕ ⲧⲟⲛ ⲁ̀ⲅⲱ: Ⲥⲉⲇⲣⲁⲕ Ⲙⲓⲥⲁⲕ Ⲁⲃⲇⲉⲛⲁⲅⲱ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Efnouti panouti ego, peten-ref-souti ekton ago, Cedrak Misak Abde-nagi, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 210,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Hurry with great watchfulness, O you righteous of the Lord, and all the creatures He has made, Praise Him and exalt Him above all.",
+                    "cop": "Ⲭⲱⲗⲉⲙ ϧⲉⲛ ⲟⲩⲛⲓϣϯ ⲛ̀ϣ̀ⲣⲱⲓⲥ: ⲱ̀ ⲛⲏⲉⲧⲉⲣⲥⲉⲃⲉⲥⲑⲉ ⲙ̀Ⲡ̀ϭⲟⲓⲥ: ⲛⲉⲙ ⲛⲓⲫⲩⲥⲓⲥ ⲧⲏⲣⲟⲩ ⲉ̀ⲧⲁϥⲁⲓⲥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Kolem khen oo-nishti e-nesh-rois, o ni-et-er-sebeste Emipshois, nem ni-fee-sis teroo etaf-ais, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 220,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Coolness and repose without ceasing, grant unto all of us, that we may joyfully proclaim, Praise Him and exalt Him above all.",
+                    "cop": "Ⲯⲩⲭⲟⲥ ⲕⲉ ⲁ̀ⲛⲁⲡⲁⲩⲥⲓⲥ: ⲙⲟⲓ ⲛⲁⲛ ⲧⲏⲣⲉⲛ ⲭⲱⲣⲓⲥ ⲑ̀ⲣⲁⲩⲥⲓⲥ: ⲉⲑⲣⲉⲛϫⲱ ϧⲉⲛ ⲟⲩⲁ̀ⲡⲟⲗⲁⲩⲥⲓⲥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "Epsi-khos ke ana pav-sees, moi nan ti-ren khores ethrav-sees, ethren-go khen oo-apolo-lav-sees, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 230,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "And also Your poor servant Sarkis, make him without condemnation, that he may join all those and say, Praise Him and exalt Him above all.",
+                    "cop": "Ⲱ̀ⲥⲁⲩⲧⲱⲥ ⲡⲉⲕⲃⲱⲕ ⲡⲓⲡ̀ⲧⲱⲭⲟⲥ: Ⲥⲁⲣⲕⲓⲥ ⲁ̀ⲣⲓⲧϥ ⲉϥⲟⲓ ⲛ̀ⲉⲛⲟⲭⲟⲥ: ⲉ̀ⲥⲁϫⲓ ⲛⲉⲙ ⲛⲁⲓ ϩⲱⲥ ⲙⲉⲧⲟⲭⲟⲥ: ϩⲱⲥ ⲉ̀ⲣⲟϥ ⲁ̀ⲣⲓϩⲟⲩⲟ̀ ϭⲁⲥϥ.",
+                    "cop_en": "O-savtos pek-vok pi-epto-khos, Sarkis aritf efoi ennen-khos, e-saji nem nai hos meto-khos, hos erof areh ho-oo chasf."
+                  },
+                  "sort": 240,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "the-vespers-doxology-for-the-virgin",
@@ -264,7 +654,68 @@
               "sort": 120,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The Adornment of Mary / in the highest heaven / at the right hand of her beloved / entreating Him on our behalf.",
+                    "cop": "Ⲉ̀ⲣⲉ ⲡ̀ⲥⲟⲗⲥⲉⲗ ⲙ̀Ⲙⲁⲣⲓⲁⲙ: ϧⲉⲛ ⲛⲓⲫⲏⲟⲩⲓ̀ ⲉⲧ̀ⲥⲁ̀ⲡ̀ϣⲱⲓ ⲥⲁⲟⲩⲓ̀ⲛⲁⲙ ⲙ̀ⲡⲉⲥⲙⲉⲛⲣⲓⲧ: ⲉ̀ⲥⲧⲱⲃϩ ⲙ̀ⲙⲟϥ ⲉ̀ϩ̀ⲣⲏⲓ ⲉ̀ϫⲱⲛ.",
+                    "cop_en": "Ere epsol sel em Mariam/ khen ni fi ouwi etsa epshoi/ sa ouwi nam em pes men rit/ estovh emmof eh ehri egon"
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "As David has said / in the Book of Psalms, / “The Queen stood at / Your right hand,” O King.",
+                    "cop": "Ⲕⲁⲧⲁ ⲫ̀ⲣⲏϯ ⲉ̀ⲧⲁϥϫⲟⲥ: ⲛ̀ϫⲉ Ⲇⲁⲩⲓⲇ ϧⲉⲛ ⲡⲓⲯ̀ⲁⲗⲟⲙⲥ: ϫⲉ ⲁⲥⲟ̀ϩⲓ ⲉ̀ⲣⲁⲧⲥ ⲛ̀ϫⲉ ϯⲟⲩⲣⲱ: ⲥⲁⲟⲩⲓ̀ⲛⲁⲙ ⲙ̀ⲙⲟⲕ ⲡ̀Ⲟⲩⲣⲟ.",
+                    "cop_en": "Kata efriti etaf gos/ enje Davide khen pi epsalmos/ je us ohowi erats inje ti ourow/ sa ouwi nam emmok eporo"
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Solomon has called her / in the Song of Songs, / “My sister and my spouse / my true city Jerusalem.”",
+                    "cop": "Ⲥⲟⲗⲟⲙⲱⲛ ⲙⲟⲩϯ ⲉⲣⲟⲥ: ϧⲉⲛ ⲡⲓϫⲱ ⲛ̀ⲧⲉ ⲛⲓϫⲱ: ϫⲉ ⲧⲁⲥⲱⲛⲓ ⲟⲩⲟϩ ⲧⲁϣ̀ⲫⲉⲣⲓ: ⲧⲁⲡⲟⲗⲓⲥ ⲙ̀ⲙⲏⲓ Ⲓⲉⲣⲟⲩⲥⲁⲗⲏⲙ.",
+                    "cop_en": "Solomon motee eros / khen pigo ente nigo / je tasoni owoh ta ehveeri / tapolis emee Yaroosalim."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "For he has given a symbol of her / in many high names, saying / “Come out of your garden, / O choicest aroma.”",
+                    "cop": "Ⲁϥϯⲙⲏⲓⲛⲓ ⲅⲁⲣ ⲉ̀ⲣⲟⲥ: ϧⲉⲛ ϩⲁⲛⲙⲏϣ ⲛ̀ⲣⲁⲛ ⲉⲩϭⲟⲥⲓ: ϫⲉ ⲁ̀ⲙⲏ ⲉ̀ⲃⲟⲗϧⲉⲛ ⲡⲉⲕⲏ̀ⲡⲟⲥ: ⲱ̀ ⲑⲏⲉ̀ⲧⲁⲥⲱⲧⲡ ⲛ̀ⲁ̀ⲣⲱⲙⲁⲧⲁ.",
+                    "cop_en": "Afteemini ghar eros / khen hanmeesh enran ev-echosy / je amee evol khen pek-ee-pos / 0 thee etasotp en aromata"
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Hail to you, O Virgin, / the right and true Queen. / Hail to the pride of our race / who bore to us Immanuel.",
+                    "cop": "Ⲭⲉⲣⲉ ⲛⲉ ⲱ̀ ϯⲠⲁⲣⲑⲉⲛⲟⲥ: ϯⲟⲩⲣⲱ ⲙ̀ⲙⲏⲓ ⲛ̀ⲁ̀ⲗⲏⲑⲓⲛⲏ: ⲭⲉⲣⲉ ⲡ̀ϣⲟⲩϣⲟⲩ ⲛ̀ⲧⲉ ⲡⲉⲛⲅⲉⲛⲟⲥ: ⲁⲣⲉϫ̀ⲫⲟ ⲛⲁⲛ ⲛ̀Ⲉⲙⲙⲁⲛⲟⲩⲏⲗ.",
+                    "cop_en": "Shere ne o teeparthenos / tee-oro emee enaleethini / shere epsho- sho ente pengenos / ariegvo nan en-Emanoeel"
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We ask you to remember us, / O our faithful advocate, / before our Lord Jesus Christ / that He may forgive us our sins.",
+                    "cop": "Ⲧⲉⲛϯϩⲟ ⲁ̀ⲣⲉⲡⲉⲛⲙⲉⲩⲓ̀: ⲱ̀ ϯⲡ̀ⲣⲟⲥⲧⲁⲧⲏⲥ ⲉ̀ⲧⲉⲛϩⲟⲧ: ⲛⲁϩⲣⲉⲛ ⲡⲉⲛⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅: ⲛ̀ⲧⲉϥⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉ̀ⲃⲟⲗ.",
+                    "cop_en": "Tenteeho aripamevi / O tee- eprostasis entenhot / naren Penchois Isos Pekhristos / entef kha nenovi nan evol."
+                  },
+                  "sort": 60,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "doxology-for-st-mina",
@@ -273,7 +724,68 @@
               "sort": 130,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "What will it profit a man, if he gains the whole world and loses his soul? O the futility of this life!",
+                    "cop": "Ⲉϣⲱⲡ ⲟⲩⲛ ⲛ̀ⲧⲉ ⲡⲓⲣⲱⲙⲓ: ϫⲉⲙϩⲏⲟⲩ ⲙ̀ⲡⲓⲕⲟⲥⲙⲟⲥ ⲧⲏⲣϥ: ⲛ̀ⲧⲉϥϯⲟ̀ⲥⲓ ⲛ̀ⲧⲉϥⲯⲩⲭⲏ: ⲟⲩ ⲡⲉ ⲡⲁⲓ ⲱⲛϧ ⲛ̀ⲉ̀ⲫ̀ⲗⲏⲟⲩ.",
+                    "cop_en": "Eshop on ente niromi, jemheeyo empikosmos teerf, entef-tee-osi entef-epsikee, o pe pai onkh enefleyoo."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The saint Abba Mina, heard the divine voice, and forsook the whole world, and its corrupt glory.",
+                    "cop": "Ⲡⲓⲁ̀ⲅⲓⲟⲥ ⲁ̀ⲡⲁ Ⲙⲏⲛⲁ: ⲁϥⲥⲱⲧⲉⲙ ⲛ̀ⲥⲁ ϯⲥⲙⲏ ⲛ̀ⲛⲟⲩϯ: ⲁϥⲭⲱ ⲙ̀ⲡⲓⲕⲟⲥⲙⲟⲥ ⲧⲏⲣϥ ⲛ̀ⲥⲱϥ: ⲛⲉⲙ ⲡⲉϥⲱ̀ⲟⲩ ⲉⲑⲛⲁⲧⲁⲕⲟ.",
+                    "cop_en": "Pi-agios apa Mina, afsotem enca tee-smee en-nootee, afko empikosmos teerf ensof, nem pefoo-o ethnatako."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "He gave his soul up to death, and his flesh to the fire, and accepted great torment, For the Son of the living God.",
+                    "cop": "Ⲁϥϯ ⲛ̀ⲧⲉϥⲯⲩⲭⲏ ⲉ̀ⲫⲙⲟⲩ: ⲛⲉⲙ ⲡⲉϥⲥⲱⲙⲁ ⲉ̀ⲡⲓⲭ̀ⲣⲱⲙ: ⲁϥϣⲉⲡ ϩⲁⲛⲛⲓϣϯ ⲙ̀ⲃⲁⲥⲁⲛⲟⲥ: ⲉⲑⲃⲉ Ⲡ̀ϣⲏⲣⲓ ⲙ̀Ⲫϯ ⲉⲧⲟⲛϧ.",
+                    "cop_en": "Aftee entef-pski e-efmo, nem pefsoma epiekrom, afshep hannishtee emvasanos, ethve epshiri emefnouti etonkh."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Therefore, our Savior / lifted him up to His kingdom, / and granted him the good things / that no eye has seen.",
+                    "cop": "Ⲉⲑⲃⲉ ⲫⲁⲓ ⲁ̀ⲡⲉⲛⲤⲱⲧⲏⲣ: ⲟⲗϥ ⲉ̀ϧⲟⲩⲛ ⲉ̀ⲧⲉϥⲙⲉⲧⲟⲩⲣⲟ: ⲁϥϯⲛⲁϥ ⲛ̀ⲛⲓⲁ̀ⲅⲁⲑⲟⲛ: ⲛ̀ⲏⲉ̀ⲧⲉ ⲙ̀ⲡⲉⲃⲁⲗ ⲛⲁⲩ ⲉ̀ⲣⲱⲟⲩ.",
+                    "cop_en": "Ethve fai a-pensoteer, olf ekhon etefmetoro, aftee-naf en-niaghathon, enee-te empeval nav eroo-o."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Hail to you, O martyr: Hail to the noble hero: Hail to the struggle- mantled: Saint Abba Mina.",
+                    "cop": "Ⲭⲉⲣⲉ ⲛⲁⲕ ⲱ̀ ⲡⲓⲙⲁⲣⲧⲩⲣⲟⲥ: ⲭⲉⲣⲉ ⲡⲓϣⲱⲓϫ ⲛ̀ⲅⲉⲛⲛⲉⲟⲥ: ⲭⲉⲣⲉ ⲡⲓⲁ̀ⲑⲗⲟⲫⲟⲣⲟⲥ: ⲡⲓⲁ̀ⲅⲓⲟⲥ ⲁ̀ⲡⲁ Ⲙⲏⲛⲁ.",
+                    "cop_en": "Shere nak O pi-marteros, shere pi-shoig en-genneos, shere pi-athloforos, avva Mina ente ni-Vaiat."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Pray to the Lord on our behalf: O struggle- mantled martyr: Saint Abba Mina: that He may forgive us our sins.",
+                    "cop": "Ⲧⲱⲃϩ ⲙ̀Ⲡⲟ̅ⲥ̅ ⲉ̀ϩ̀ⲣⲏⲓ ⲉ̀ϫⲱⲛ: ⲱ̀ ⲡⲓⲁ̀ⲑⲗⲟⲫⲟⲣⲟⲥ ⲙ̀ⲙⲁⲣⲧⲩⲣⲟⲥ: ⲡⲓⲁ̀ⲅⲓⲟⲥ ⲁ̀ⲡⲁ Ⲙⲏⲛⲁ: ⲛ̀ⲧⲉϥ ⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉⲃⲟⲗ.",
+                    "cop_en": "Tobh emepchoise e-ehri egon, O piathloforos em-marteros, piagios apa Mina, entef ka nen-novi nan evol."
+                  },
+                  "sort": 60,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "praxis-response",
@@ -282,7 +794,18 @@
               "sort": 140,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Hail to you O martyr, Hail to the courageous hero, Hail to the struggle-mantled, Abba Mina of Bayat.",
+                    "cop": "Ⲭⲉⲣⲉ ⲛⲁⲕ ̀ⲱⲡⲓⲙⲁⲣⲧⲩⲣⲟⲥ: ⲭⲉⲣⲉ ⲡⲓϣⲱⲓϫ ⲛ̀ⲅⲉⲛⲛⲉⲟⲥ: ⲭⲉⲣⲉ ⲡⲓⲁ̀ⲑⲗⲟⲫⲟⲣⲟⲥ: ⲁⲃⲃⲁ Ⲙⲏⲛⲁ ⲛ̀ⲧⲉ Ⲛⲓⲫⲁⲓⲁⲧ.",
+                    "cop_en": "Shere nak O pi-marteros, shere pi-shoig en-genneos, shere pi-athloforos, avva Mina ente ni-Vaiat."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "psalm-150",
@@ -291,7 +814,188 @@
               "sort": 150,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Glory to You O Lord, glory to You.",
+                    "cop": "Ⲇⲟⲝⲁ ⲥⲓ Ⲕⲩⲣⲓⲉ ⲇⲟⲝⲁ ⲥⲓ.",
+                    "cop_en": "Zoxa ci kirie. Zoxa ci."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Alleluia.",
+                    "cop": "Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ.",
+                    "cop_en": "Alleluia"
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise God in all His saints.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀Ⲫϯ ϧⲉⲛ ⲛⲏⲉ̅ⲑ̅ⲩ̅ ⲧⲏⲣⲟⲩ ⲛ̀ⲧⲁϥ.",
+                    "cop_en": "Esmo Efnouti khen ni-ethowab tiro entaf, alleluia."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him in the firmament of His power.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ϧⲉⲛ ⲡⲓⲧⲁϫⲣⲟ ⲛ̀ⲧⲉ ⲧⲉϥϫⲟⲙ.",
+                    "cop_en": "Esmo erof khen pi-tagro ente tef-gom, alleluia."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him for His mighty acts.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ⲉ̀ϩ̀ⲣⲏⲓ ϩⲓϫⲉⲛ ⲧⲉϥⲙⲉⲧϫⲱⲣⲓ.",
+                    "cop_en": "Esmo erof e-ehri hijen tefmet-gowri, alleluia."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him according to the multitudes of His greatness.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ⲕⲁⲧⲁ ⲡ̀ⲁ̀ϣⲁⲓ ⲛ̀ⲧⲉ ⲧⲉϥⲙⲉⲧⲛⲓϣϯ.",
+                    "cop_en": "Esmo erof kata ep-ashai ente tef-met-nishti, alleluia."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him with the sound of the trumpet.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ϧⲉⲛ ⲟⲩⲥ̀ⲙⲏ ⲛ̀ⲥⲁⲗⲡⲓⲅⲅⲟⲥ.",
+                    "cop_en": "Esmo erof khen ou-esmi ensalpen-ghos, alleluia."
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him with psaltery and harp.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ϧⲉⲛ ⲟⲩⲯⲁⲗⲧⲏⲣⲓⲟⲛ ⲛⲉⲙ ⲟⲩⲕⲩⲑⲁⲣⲁ.",
+                    "cop_en": "Esmo erof khen ou-epsal-terion nem ou-kithara, alleluia."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him with timbrel and chorus.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ϧⲉⲛ ϩⲁⲛⲕⲉⲙⲕⲉⲙ ⲛⲉⲙ ϩⲁⲛⲭⲟⲣⲟⲥ.",
+                    "cop_en": "Esmo erof khen han-kem-kem nem han-khoros, alleluia."
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him with strings and organs.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ϧⲉⲛ ϩⲁⲛⲕⲁⲡ ⲛⲉⲙ ⲟⲩⲟⲣⲅⲁⲛⲟⲛ.",
+                    "cop_en": "Esmo erof khen han-kap nem ou-orghanon, alleluia."
+                  },
+                  "sort": 100,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him with pleasant sounding cymbals.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ϧⲉⲛ ϩⲁⲛⲕⲩⲙⲃⲁⲗⲟⲛ ⲉ̀ⲛⲉⲥⲉ ⲧⲟⲩⲥ̀ⲙⲏ.",
+                    "cop_en": "Esmo erof khen han-kim-valon ene-setou-esmi, alleluia."
+                  },
+                  "sort": 110,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Praise Him upon the cymbals of joy.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟϥ ϧⲉⲛ ϩⲁⲛⲕⲩⲙⲃⲁⲗⲟⲛ ⲛ̀ⲧⲉ ⲟⲩⲉ̀ϣ̀ⲗⲏⲗⲟⲩⲓ̀.",
+                    "cop_en": "Esmo erof khen han-valon ente ou-eshlilowi, alleluia."
+                  },
+                  "sort": 120,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Let every thing that has breath praise the name of the Lord our God.",
+                    "cop": "Ⲛⲓϥⲓ ⲛⲓⲃⲉⲛ ⲙⲁⲣⲟⲩⲥ̀ⲙⲟⲩ ⲧⲏⲣⲟⲩ ⲉ̀ⲫ̀ⲣⲁⲛ ⲙ̀Ⲡⲟ̅ⲥ̅ ⲡⲉⲛⲛⲟⲩϯ.",
+                    "cop_en": "Nifi niven maro-esmo tiro Ee-efran Emipshois Pennouti, alleluia."
+                  },
+                  "sort": 130,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Glory to the Father, and to the Son and to the Holy Spirit.",
+                    "cop": "Ⲇⲟⲝⲁ Ⲡⲁⲧⲣⲓ ⲕⲉ Ⲩ̀ⲓⲱ̀ ⲕⲉ ⲁ̀ⲅⲓⲱ̀ Ⲡ̀ⲛⲉⲩⲙⲁⲧⲓ.",
+                    "cop_en": "Zoxa Patree ke Eio ke Agio Epnevmati, alleluia."
+                  },
+                  "sort": 140,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Now and ever and unto the ages of the ages. Amen.",
+                    "cop": "Ⲕⲉ ⲛⲩⲛ ⲕⲉ ⲁ̀ⲓ̀ ⲕⲉ ⲓⲥ ⲧⲟⲩⲥ ⲉ̀ⲱ̀ⲛⲁⲥ ⲧⲱⲛ ⲉ̀ⲱ̀ⲛⲱⲛ ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Ke neen ke a-ee ke estos e-onas ton e-onon amen. Alleluia."
+                  },
+                  "sort": 150,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Alleluia, Alleluia, glory to you our God.",
+                    "cop": "Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ ⲁ̅ⲗ̅: ⲇⲟⲝⲁ ⲥⲓ ⲟ Ⲑⲉⲟⲥ ⲏ̀ⲙⲱⲛ.",
+                    "cop_en": "Alleluia, alleluia, Zoxa si o Theos emon, alleluia."
+                  },
+                  "sort": 160,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Alleluia, Alleluia, glory be to our God.",
+                    "cop": "Ⲁⲗⲗⲏⲗⲟⲩⲓⲁ ⲁ̅ⲗ̅: ⲡⲓⲱ̀ⲟⲩ ⲫⲁ ⲡⲉⲛⲚⲟⲩϯ ⲡⲉ.",
+                    "cop_en": "Alleluia, alleluia, pi-ow-ou fa pennouti pe, alleluia."
+                  },
+                  "sort": 170,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "O Jesus Christ, the Son of God, hear us and have mercy upon us.",
+                    "cop": "Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅ ⲡ̀Ϣⲏⲣⲓ ⲙ̀Ⲫϯ ⲥⲱⲧⲉⲙ ⲉ̀ⲣⲟⲛ ⲟⲩⲟϩ ⲛⲁⲓ ⲛⲁⲛ.",
+                    "cop_en": "Esos Pi-khristos epshiri emefnouti, sotem eron owoh nai nan."
+                  },
+                  "sort": 180,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "in-the-name",
@@ -300,7 +1004,48 @@
               "sort": 160,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "In the name of the Father, and the Son, and the Holy Spirit, the Holy and co-essential Trinity.",
+                    "cop": "Ϧⲉⲛ ⲫ̀ⲣⲁⲛ ⲙ̀Ⲫ̀ⲓⲱⲧ ⲛⲉⲙ Ⲡ̀ϣⲏⲣⲓ ⲛⲉⲙ ⲡⲓⲠⲛ̅ⲁ̅ ⲉ̅ⲑ̅ⲩ̅ Ϯⲧ̀ⲣⲓⲁⲥ ⲉ̅ⲑ̅ⲩ̅ ⲛ̀ⲟ̀ⲙⲟⲟⲩⲥⲓⲟⲥ.",
+                    "cop_en": "Khen efran emif-noti nem ep-she-ree nem pi-epnevma eth-owab tit-reias eth-owab en-omo-seios."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Worthy, worthy, worthy, is St. Mary the Virgin.",
+                    "cop": "Ⲁⲝⲓⲁ ⲁⲝⲓⲁ ⲁⲝⲓⲁ ϯⲁ̀ⲅⲓⲁ̀ Ⲙⲁⲣⲓⲁ̀ ϯⲡⲁⲣⲑⲉⲛⲟⲥ.",
+                    "cop_en": "Axia, axia, axia, ti-ageia Maria ti-pa-arthenos."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Worthy, worthy, worthy (...).",
+                    "cop": "Ⲁⲝⲓⲟⲥ ⲁⲝⲓⲟⲥ ⲁⲝⲓⲟⲥ (...).",
+                    "cop_en": "Axeios, axeios, axeios, (...)."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Worthy, worthy, worthy (...).",
+                    "cop": "Ⲁⲝⲓⲁ ⲁⲝⲓⲁ ⲁⲝⲓⲁ (...).",
+                    "cop_en": "Axia, axia, axia (...)."
+                  },
+                  "sort": 40,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "liturgy-gospel-response-kiahk-week-1-3-coptic",
@@ -309,7 +1054,38 @@
               "sort": 170,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We send you greetings / with Gabriel the angel, / saying, “Hail to you, O full of grace, / the Lord is with you.”",
+                    "cop": "Ⲧⲉⲛϯ ⲛⲉ ⲙ̀ⲡⲓⲭⲉⲣⲉⲧⲓⲥⲙⲟⲥ: ⲛⲉⲙ Ⲅⲁⲃⲣⲓⲏⲗ ⲡⲓⲁⲅⲅⲉⲗⲟⲥ: ϫⲉ ⲭⲉⲣⲉ ⲕⲉⲭⲁⲣⲓⲧⲱⲙⲉⲛⲏ: ⲟ̀ Ⲕⲩⲣⲓⲟⲥ ⲙⲉⲧⲁ ⲥⲟⲩ.",
+                    "cop_en": "Tenti nem-pi-shere tis-mos, nem Ghabriel pi-angelos, je shere ke kharito-mini, o Kerios metaso."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Therefore we glorify you, as the Mother of God at all times. Ask the Lord on our behalf, that He may forgive us our sins!",
+                    "cop": "Ⲉⲑⲃⲉ ⲫⲁⲓ ⲧⲉⲛϯⲱ̀ⲟⲩ ⲛⲉ: ϩⲱⲥ Ⲑⲉⲟ̀ⲧⲟⲕⲟⲥ ⲛ̀ⲥⲏⲟⲩ ⲛⲓⲃⲉⲛ: ⲙⲁϯϩⲟ ⲉ̀Ⲡ̀ϭⲟⲓⲥ ⲉ̀ϩ̀ⲣⲏⲓ ⲉ̀ϫⲱⲛ: ⲛ̀ⲧⲉϥⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉ̀ⲃⲟⲗ.",
+                    "cop_en": "Ethve fai ten-ti o-oo-ne, hos theo-tokos enseio nivin, matiho e-epshois e-ehrey e-gon, entef ka nen-novi nan e-vol."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed be the Father and the Son / and the Holy Spirit / the perfect Trinity / we worship Him and glorify Him.",
+                    "cop": "Ϫⲉ ϥ̀ⲥ̀ⲙⲁⲣⲱⲟ̀ⲩⲧ ⲛ̀ϫⲉ Ⲫ̀ⲓⲱⲧ ⲛⲉⲙ ⲡ̀Ϣⲏⲣⲓ: ⲛⲉⲙ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ϯⲦ̀ⲣⲓⲁⲥ ⲉⲧϫⲏⲕ ⲉ̀ⲃⲟⲗ: ⲧⲉⲛⲟ̀ⲩⲱ̀ϣⲧ ⲙ̀ⲙⲟⲥ ⲧⲉⲛϯⲱ̀ⲟ̀ⲩ ⲛⲁⲥ.",
+                    "cop_en": "Jefes maroout / En jefyot nem Epshiri / Nem pi Epnevma Ethowab / Tietrias etjeek evol / Ten Oosht Emmos Tentiou Nas"
+                  },
+                  "sort": 30,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "liturgy-gospel-response-kiahk-week-2-4-coptic",
@@ -318,7 +1094,38 @@
               "sort": 180,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We exalt you worthily, / with Elizabeth your cousin: / saying, “Blessed are you among women, / blessed is the fruit of your womb.”",
+                    "cop": "Ⲧⲉⲛϭⲓⲥⲓ ⲙ̀ⲙⲟ ϧⲉⲛ ⲟⲩⲉⲙⲡ̀ϣⲁ: ⲛⲉⲙ Ⲉ̀ⲗⲓⲥⲁⲃⲉⲧ ⲧⲉⲥⲩⲅⲅⲉⲛⲏⲥ: ϫⲉ ⲧⲉⲥ̀ⲙⲁⲣⲱⲟⲩⲧ ⲛ̀ⲑⲟ ϧⲉⲛ ⲛⲓϩⲓⲟⲙⲓ: ϥ̀ⲥ̀ⲙⲁⲣⲱⲟⲩⲧ ⲛ̀ϫⲉ ⲡ̀ⲟⲩⲧⲁϩ ⲛ̀ⲧⲉ ⲧⲉⲛⲉϫⲓ.",
+                    "cop_en": "Tenit-shesi emmo khen o-emipsha, nem elee-sabet te-sen-genis, je tis-maroot entho khenni-heyomi, efis-maroot enje ep-otah ente-te-neje."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Therefore we glorify you, as the Mother of God at all times. Ask the Lord on our behalf, that He may forgive us our sins!",
+                    "cop": "Ⲉⲑⲃⲉ ⲫⲁⲓ ⲧⲉⲛϯⲱ̀ⲟⲩ ⲛⲉ: ϩⲱⲥ Ⲑⲉⲟ̀ⲧⲟⲕⲟⲥ ⲛ̀ⲥⲏⲟⲩ ⲛⲓⲃⲉⲛ: ⲙⲁϯϩⲟ ⲉ̀Ⲡ̀ϭⲟⲓⲥ ⲉ̀ϩ̀ⲣⲏⲓ ⲉ̀ϫⲱⲛ: ⲛ̀ⲧⲉϥⲭⲁ ⲛⲉⲛⲛⲟⲃⲓ ⲛⲁⲛ ⲉ̀ⲃⲟⲗ.",
+                    "cop_en": "Ethve fai ten-ti o-oo-ne, hos theo-tokos enseio nivin, matiho e-epshois e-ehrey e-gon, entef ka nen-novi nan e-vol."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed be the Father and the Son / and the Holy Spirit / the perfect Trinity / we worship Him and glorify Him.",
+                    "cop": "Ϫⲉ ϥ̀ⲥ̀ⲙⲁⲣⲱⲟ̀ⲩⲧ ⲛ̀ϫⲉ Ⲫ̀ⲓⲱⲧ ⲛⲉⲙ ⲡ̀Ϣⲏⲣⲓ: ⲛⲉⲙ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ϯⲦ̀ⲣⲓⲁⲥ ⲉⲧϫⲏⲕ ⲉ̀ⲃⲟⲗ: ⲧⲉⲛⲟ̀ⲩⲱ̀ϣⲧ ⲙ̀ⲙⲟⲥ ⲧⲉⲛϯⲱ̀ⲟ̀ⲩ ⲛⲁⲥ.",
+                    "cop_en": "Jefes maroout / En jefyot nem Epshiri / Nem pi Epnevma Ethowab / Tietrias etjeek evol / Ten Oosht Emmos Tentiou Nas"
+                  },
+                  "sort": 30,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "the-virginal-birth",
@@ -327,7 +1134,18 @@
               "sort": 190,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The virginal birth and spiritual pangs - a paradoxical wonder, according to the prophetic voices!",
+                    "cop": "Ⲡⲓϫⲓⲛⲙⲓⲥⲓ ⲙ̀ⲡⲁⲣⲑⲉⲛⲓⲕⲟⲛ ⲟⲩⲟϩ ⲛⲓⲛⲁⲕϩⲓ ⲙ̀ⲡ̀ⲛⲉⲩⲙⲁⲧⲓⲕⲟⲛ ⲟⲩϣ̀ⲫⲏⲣⲓ ⲙ̀ⲡⲁⲣⲁⲇⲟⲝⲟⲛ ⲕⲁⲧⲁ ⲛⲓⲥ̀ⲙⲏⲓ ⲙ̀ⲡ̀ⲣⲟⲫⲏⲧⲓⲕⲟⲛ.",
+                    "cop_en": "Pijen-misi emparse-nikon owoh ni-nak-he, emep-nevma-tikon o eshfe-ree empara-zoxon kata ni esmee emep-rofee-teekon."
+                  },
+                  "sort": 10,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "liturgy-gospel-response",
@@ -336,7 +1154,28 @@
               "sort": 200,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Our Father who art in heaven, hallowed be Thy name, Thy kingdom come, for Thine is the glory forever.",
+                    "cop": "Ϫⲉ ⲡⲉⲛⲓⲱⲧ ⲉⲧϧⲉⲛ ⲛⲓⲫⲏⲟ̀ⲩⲓ̀: ⲙⲁⲣⲉϥⲧⲟⲩⲃⲟ ⲛ̀ϫⲉ ⲡⲉⲕⲣⲁⲛ: ⲙⲁⲣⲉⲥⲓ ⲛ̀ϫⲉ ⲧⲉⲕⲙⲉⲧⲟ̀ⲩⲣⲟ: ϫⲉ ⲫⲱⲕ ⲡⲉ ⲡⲓⲱ̀ⲟ̀ⲩ ϣⲁ ⲛⲓⲉ̀ⲛⲉϩ.",
+                    "cop_en": "Je peniot etkhenne fe-owi, maref tovo enje pekran, mares-e enje tekmetoro, je fok pe pi-o-oo sha-ni eneh."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Blessed be the Father and the Son, and the Holy Spirit, the perfect Trinity, we worship Him and glorify Him.",
+                    "cop": "Ϫⲉ ϥ̀ⲥ̀ⲙⲁⲣⲱⲟ̀ⲩⲧ ⲛ̀ϫⲉ Ⲫ̀ⲓⲱⲧ ⲛⲉⲙ ⲡ̀Ϣⲏⲣⲓ: ⲛⲉⲙ ⲡⲓⲠ̀ⲛⲉⲩⲙⲁ ⲉ̅ⲑ̅ⲩ̅: ϯⲦ̀ⲣⲓⲁⲥ ⲉⲧϫⲏⲕ ⲉ̀ⲃⲟⲗ: ⲧⲉⲛⲟ̀ⲩⲱ̀ϣⲧ ⲙ̀ⲙⲟⲥ ⲧⲉⲛϯⲱ̀ⲟ̀ⲩ ⲛⲁⲥ.",
+                    "cop_en": "Jefes maroout, En jefyot nem Epshiri, Nem pi Epnevma Ethowab, Tietrias etjeek evol, Ten Oosht Emmos Tentiou Nas"
+                  },
+                  "sort": 20,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "thine-is-the-power",
@@ -345,7 +1184,78 @@
               "sort": 210,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Thine is the power, the glory, the blessing, the majesty, forever Amen. Immanuel our God and our King.",
+                    "cop": "Ⲑⲱⲕ ⲧⲉ ϯϫⲟⲙ ⲛⲉⲙ ⲡⲓⲱ̀ⲟⲩ ⲛⲉⲙ ⲡⲓⲥ̀ⲙⲟⲩ ⲛⲉⲙ ⲡⲓⲁ̀ⲙⲁϩⲓ ϣⲁ ⲉ̀ⲛⲉϩ ⲁ̀ⲙⲏⲛ: Ⲉⲙⲙⲁⲛⲟⲩⲏⲗ ⲡⲉⲛⲛⲟⲩϯ ⲡⲉⲛⲟⲩⲣⲟ.",
+                    "cop_en": "Thok te ti-gom, nem pi-o-oo nem pi-esmo, nem pi-amahee sha eneh amen, Emmano-eel pen-nouti pen-oroo."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Thine is the power, the glory, the blessing, the majesty, forever Amen. My Lord Jesus Christ.",
+                    "cop": "Ⲑⲱⲕ ⲧⲉ ϯϫⲟⲙ ⲛⲉⲙ ⲡⲓⲱ̀ⲟⲩ ⲛⲉⲙ ⲡⲓⲥ̀ⲙⲟⲩ ⲛⲉⲙ ⲡⲓⲁ̀ⲙⲁϩⲓ ϣⲁ ⲉ̀ⲛⲉϩ ⲁ̀ⲙⲏⲛ: Ⲡⲁⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅.",
+                    "cop_en": "Thok te ti-gom, nem pi-o-oo nem pi-esmo, nem pi-amahee sha eneh amen, pa-Shois Esos Piekh-restos."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Starting from the 11th hour on Tuesday, this part is added:",
+                    "cop": "Starting from the 11th hour on Tuesday, this part is added:",
+                    "cop_en": "Starting from the 11th hour on Tuesday, this part is added:"
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "My good Savior.",
+                    "cop": "ⲡⲁⲤⲱⲧⲏⲣ ⲛ̀ⲁ̀ⲅⲁⲑⲟⲥ.",
+                    "cop_en": "Pasoteer en-aghathos."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Starting from the Eve of Friday, this part is added:",
+                    "cop": "Starting from the Eve of Friday, this part is added:",
+                    "cop_en": "Starting from the Eve of Friday, this part is added:"
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The Lord is my strength, my praise, He has become to me a sacred salvation.",
+                    "cop": "ⲧⲁϫⲟⲙ ⲛⲉⲙ ⲡⲁⲥ̀ⲙⲟⲩ ⲡⲉ Ⲡⲟ̅ⲥ̅: ⲁϥϣⲱⲡⲓ ⲛⲏⲓ ⲉⲩⲥⲱⲧⲏⲣⲓⲁ̀ ⲉϥⲟⲩⲁⲃ.",
+                    "cop_en": "Ta-gom, nem pa-esmo pi-epshois af-shobi nee, af-sotereia ef-owab."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Thine is the power, the glory, the blessing, the majesty, forever Amen.",
+                    "cop": "Ⲑⲱⲕ ⲧⲉ ϯϫⲟⲙ ⲛⲉⲙ ⲡⲓⲱ̀ⲟⲩ ⲛⲉⲙ ⲡⲓⲥ̀ⲙⲟⲩ ⲛⲉⲙ ⲡⲓⲁ̀ⲙⲁϩⲓ ϣⲁ ⲉ̀ⲛⲉϩ ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Thok te ti-gom, nem pi-o-oo nem pi-esmo, nem pi-amahee sha eneh amen."
+                  },
+                  "sort": 70,
+                  "published": true
+                }
+              ]
             },
             {
               "slug": "hymn-of-intercessions",
@@ -354,7 +1264,188 @@
               "sort": 220,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "After the verse for the Virgin",
+                    "cop": "After the verse for the Virgin",
+                    "cop_en": "After the verse for the Virgin"
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the intercessions, of the trumpeter of the Resurrection, Michael the head of the heavenly, O Lord grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲡ̀ⲣⲉⲥⲃⲓⲁ: ⲛ̀ⲧⲉ ⲡⲓⲯⲁⲗⲡⲓⲥⲧⲏⲥ ⲛ̀Ϯⲁ̀ⲛⲁⲥⲧⲁⲥⲓⲥ: Ⲙⲓⲭⲁⲏⲗ ⲡ̀ⲁⲣⲭⲱⲛ ⲛ̀ⲛⲁ ⲛⲓⲫⲏⲟⲩⲓ̀: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni-epresveia ente pi-psalpistis entee-anastasis, Mikhail ep-arkhon en-na-nifiowi, epchoise ariehmot nan empiko evol ente nen-novi."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "After the verse for Saint Mark",
+                    "cop": "After the verse for Saint Mark",
+                    "cop_en": "After the verse for Saint Mark"
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Through the prayers, of the righteous and perfect men, Joseph and Nicodemus, and Saint Mary Magdalene, O Lord grant us the forgiveness of our sins.",
+                    "cop": "Ϩⲓⲧⲉⲛ ⲛⲓⲉⲩⲭⲏ: ⲛ̀ⲧⲉ ⲛⲓⲑ̀ⲙⲏⲓ ⲛⲓⲣⲱⲙⲓ ⲛ̀ⲧⲉⲗⲓⲟⲥ: Ⲓⲱⲥⲏⲫ ⲛⲉⲙ Ⲛⲓⲕⲟⲇⲏⲙⲟⲥ: ⲛⲉⲙ ϯⲁ̀ⲅⲓⲁ Ⲙⲁⲣⲓⲁ Ϯⲙⲁⲅⲇⲁⲗⲓⲛⲏ: Ⲡⲟ̅ⲥ̅ ⲁⲣⲓϩ̀ⲙⲟⲧ ⲛⲁⲛ ⲙ̀ⲡⲓⲭⲱ ⲉ̀ⲃⲟⲗ ⲛ̀ⲧⲉ ⲛⲉⲛⲛⲟⲃⲓ.",
+                    "cop_en": "Hiten ni-evki, ente ni-ethmi niromi entelios, Yosif nem Nikodeemos, nem ti-agia Maria ti-magdalene, epchoise ariehmot nan empiko evol ente nen-novi."
+                  },
+                  "sort": 40,
+                  "published": true
+                }
+              ]
+            },
+            {
+              "slug": "concluding-hymn-annual-coptic",
+              "title": "Concluding Hymn (Annual - Coptic)",
+              "note": "",
+              "sort": 230,
+              "published": true,
+              "recordings": [],
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Amen. Alleluia: Glory to the Father and to the Son and to the Holy Spirit: now and ever and unto the ages of the ages: Amen.",
+                    "cop": "Ⲁⲙⲏⲛ: ⲁ̅ⲗ̅ ⲇⲟⲝⲁ Ⲡⲁⲧⲣⲓ ⲕⲉ Ⲩⲓⲱ ⲕⲉ ⲁⲅⲓⲱ Ⲡⲛⲉⲩⲙⲁⲧⲓ: ⲕⲉ ⲛⲩⲛ ⲕⲉ ⲁ̀ⲓ̀ ⲕⲉ ⲓⲥ ⲧⲟⲩⲥ ⲉ̀ⲱ̀ⲛⲁⲥ ⲧⲱⲛ ⲉ̀ⲱ̀ⲛⲱⲛ ⲁ̀ⲙⲏⲛ.",
+                    "cop_en": "Amin Alleluia. Doxa patri ke Eio ke Agio Epnevmati, ke nin ke a-ee ke ees toos e onas ton e onon Amin."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We proclaim and say, \"O our Lord Jesus Christ,",
+                    "cop": "Ⲧⲉⲛⲱϣ ⲉ̀ⲃⲟⲗ ⲉⲛϫⲱ ⲙ̀ⲙⲟⲥ: ϫⲉ ⲱ̀ Ⲡⲉⲛⲟ̅ⲥ̅ Ⲓⲏ̅ⲥ̅ Ⲡⲭ̅ⲥ̅:",
+                    "cop_en": "Ten osh evol engo emmos: Je O pen Choic Isos Piekhristos."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "From 12 Paone to 9 Paope:",
+                    "cop": "From 12 Paone to 9 Paope:",
+                    "cop_en": "From 12 Paone to 9 Paope:"
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Bless the waters of the river.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲛⲓⲙⲱⲟⲩ ⲙ̀ⲫ̀ⲓⲁⲣⲟ.",
+                    "cop_en": "Esmo nimoo-o emefiaro."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "From 10 Paope to 10 Tobe:",
+                    "cop": "From 10 Paope to 10 Tobe:",
+                    "cop_en": "From 10 Paope to 10 Tobe:"
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Bless the seeds and the herbs.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲉ̀ⲛⲓⲥⲓϯ ⲛⲉⲙ ⲛⲓⲥⲓⲙ.",
+                    "cop_en": "Esmo en-nisitee nem nicim."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "From 10 Tobe to 11 Paone:",
+                    "cop": "From 10 Tobe to 11 Paone:",
+                    "cop_en": "From 10 Tobe to 11 Paone:"
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Bless the air of heaven.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲛⲓⲁ̀ⲏⲣ ⲛ̀ⲧⲉ ⲧ̀ⲫⲉ.",
+                    "cop_en": "Esmo ni-aeer ente etfe."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "In the diaspora:",
+                    "cop": "In the diaspora:",
+                    "cop_en": "In the diaspora:"
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Bless the air of heaven, Bless the waters of the river, Bless the seeds and the herbs.",
+                    "cop": "Ⲥ̀ⲙⲟⲩ ⲛⲓⲁ̀ⲏⲣ ⲛ̀ⲧⲉ ⲧ̀ⲫⲉ, Ⲥ̀ⲙⲟⲩ ⲛⲓⲙⲱⲟⲩ ⲙ̀ⲫ̀ⲓⲁⲣⲟ, Ⲥ̀ⲙⲟⲩ ⲉ̀ⲛⲓⲥⲓϯ ⲛⲉⲙ ⲛⲓⲥⲓⲙ.",
+                    "cop_en": "Esmo ni-aeer ente etfe, Esmo nimoo-o emefiaro, Esmo en-nisitee nem nicim."
+                  },
+                  "sort": 100,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "May Your mercy and peace be a fortress unto Your people.",
+                    "cop": "Ⲙⲁⲣⲉ ⲡⲉⲕⲛⲁⲓ ⲛⲉⲙ ⲧⲉⲕϩⲓⲣⲏⲛⲏ ⲟⲓ ⲛ̀ⲥⲟⲃⲧ ⲙ̀ⲡⲉⲕⲗⲁⲟⲥ.",
+                    "cop_en": "Mare peknai nem tekhirini oi ensovt empeklaos."
+                  },
+                  "sort": 110,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "save us and have mercy on us.\"",
+                    "cop": "ⲥⲱϯ ⲙ̀ⲙⲟⲛ ⲟⲩⲟϩ ⲛⲁⲓ ⲛⲁⲛ.",
+                    "cop_en": "Soti emmon owoh nai nan:"
+                  },
+                  "sort": 120,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Lord have mercy: Lord have mercy: Lord bless us: Amen: Bless me: Bless me: Lo, the mentania: Forgive me: Say the blessing.",
+                    "cop": "Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ Ⲕⲩⲣⲓⲉ̀ ⲉ̀ⲗⲉⲏ̀ⲥⲟⲛ ⲕⲩⲣⲓⲉ ⲉⲩⲗⲟⲅⲏⲥⲟⲛ ⲁ̀ⲙⲏⲛ: ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟⲓ: ⲥ̀ⲙⲟⲩ ⲉ̀ⲣⲟⲓ: ⲓⲥ ϯⲙⲉⲧⲁⲛⲟⲓⲁ̀: ⲭⲱ ⲛⲏⲓ ⲉ̀ⲃⲟⲗ ϫⲱ ⲙ̀ⲡⲓⲥ̀ⲙⲟⲩ.",
+                    "cop_en": "Kirie eleyson. Kirie eleyson. Kirie evlogison. Amin. Esmoo eroi: Ti metanoia Ko nee evol Go em pi esmoo."
+                  },
+                  "sort": 130,
+                  "published": true
+                }
+              ]
             }
           ]
         },
