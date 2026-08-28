@@ -281,18 +281,12 @@
                 },
                 {
                   "t": "0:00",
-                  "texts": {},
-                  "sort": 20,
-                  "published": true
-                },
-                {
-                  "t": "0:00",
                   "texts": {
                     "en": "Have mercy upon us, O God, the Father, the Pantocrator. (x3)",
                     "cop": "ϫⲉ ⲛⲁⲓ ⲛⲁⲛ ̀ⲫⲛⲟⲩⲧⲓ ̀ⲫⲓⲱⲧ ⲡⲓⲡⲁⲛⲧⲟⲕⲣⲁⲧⲟⲣ. (x3)",
                     "cop_en": "Je nai nan, efnouti efiout pi-pantokrator (x3)"
                   },
-                  "sort": 30,
+                  "sort": 20,
                   "published": true
                 }
               ]
