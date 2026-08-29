@@ -1067,6 +1067,205 @@ audio {
 }
 
 
+
+/* ---------------------------------------------------------
+   SELF-HOSTED WAVEFORM PLAYER
+   SoundCloud-inspired layout, but intentionally unbranded.
+   --------------------------------------------------------- */
+
+.recording-card {
+  overflow: hidden;
+}
+
+.wave-player {
+  --wave-base: #b8b8b8;
+  --wave-played: #ff5500;
+
+  width: 100%;
+  min-height: 132px;
+
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: stretch;
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #e3dadd;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fbf8f9 100%);
+}
+
+.wave-play-button {
+  width: 50px;
+  height: 50px;
+
+  align-self: center;
+  justify-self: center;
+
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 999px;
+
+  background: var(--wave-played);
+  color: #ffffff;
+
+  cursor: pointer;
+
+  box-shadow: 0 3px 10px rgb(53 16 27 / 15%);
+}
+
+.wave-play-button:hover {
+  filter: brightness(0.96);
+}
+
+.wave-play-button:focus-visible,
+.waveform-wrap:focus-visible {
+  outline: 3px solid rgb(255 85 0 / 28%);
+  outline-offset: 2px;
+}
+
+.wave-play-icon {
+  width: 0;
+  height: 0;
+
+  margin-left: 4px;
+
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 13px solid currentColor;
+}
+
+.wave-player.is-playing .wave-play-icon {
+  width: 14px;
+  height: 16px;
+
+  margin-left: 0;
+
+  border: 0;
+
+  background:
+    linear-gradient(
+      90deg,
+      currentColor 0 36%,
+      transparent 36% 64%,
+      currentColor 64% 100%
+    );
+}
+
+.wave-player-body {
+  min-width: 0;
+
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  align-items: center;
+}
+
+.wave-player-topline,
+.wave-player-time {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.wave-player-topline {
+  margin-bottom: 3px;
+}
+
+.wave-player-label {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: var(--burgundy-900);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.wave-player-source {
+  flex: 0 0 auto;
+
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.waveform-wrap {
+  position: relative;
+
+  width: 100%;
+  height: 72px;
+  min-width: 0;
+
+  overflow: hidden;
+
+  cursor: pointer;
+  touch-action: none;
+}
+
+.waveform-canvas {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  display: block;
+}
+
+.waveform-playhead {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+
+  width: 1px;
+
+  background: var(--wave-played);
+
+  pointer-events: none;
+}
+
+.wave-player-time {
+  margin-top: 1px;
+
+  color: #6f6669;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.wave-player.has-error {
+  border-color: #d9a0aa;
+}
+
+.wave-player.has-error::after {
+  content: "Audio could not be loaded";
+
+  grid-column: 1 / -1;
+
+  color: var(--danger, #a12b3c);
+  font-size: 12px;
+}
+
+.wave-audio,
+.waveform-data {
+  display: none;
+}
+
 /* =========================================================
    HYMN CONTROLS
    ========================================================= */
@@ -3072,5 +3271,25 @@ audio {
 
   .font-controls .btn:last-child {
     grid-column: 1 / -1;
+  }
+}
+@media (max-width: 520px) {
+  .wave-player {
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .wave-play-button {
+    width: 44px;
+    height: 44px;
+  }
+
+  .waveform-wrap {
+    height: 68px;
+  }
+
+  .wave-player-source {
+    display: none;
   }
 }

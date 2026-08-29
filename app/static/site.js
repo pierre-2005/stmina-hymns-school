@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSearch();
   initLanguageControls();
   initLyricFontControls();
-  initSoundCloudSync();
+  initRecordingSync();
 });
 
 function initSearch() {
@@ -118,52 +118,268 @@ function initLyricFontControls() {
   });
 }
 
-function initSoundCloudSync() {
-  const frames = Array.from(document.querySelectorAll("iframe.sc-player"));
-  if (!frames.length || !window.SC?.Widget) return;
+function formatAudioTime(seconds) {
+  const safe = Math.max(0, Number(seconds) || 0);
+  const whole = Math.floor(safe);
+  const hours = Math.floor(whole / 3600);
+  const minutes = Math.floor((whole % 3600) / 60);
+  const secs = whole % 60;
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+  return `${minutes}:${String(secs).padStart(2, "0")}`;
+}
 
-  const players = frames.map((frame) => ({
-    frame,
-    widget: window.SC.Widget(frame),
-    startMs: Math.max(0, Number.parseInt(frame.dataset.startMs || "0", 10) || 0),
-  }));
+function initRecordingSync() {
+  const adapters = [];
+  let activePlayer = null;
+  let changingPlayer = false;
 
-  let activePlayer = players[0];
+  function pauseOthers(player) {
+    if (changingPlayer) return;
+    changingPlayer = true;
+    try {
+      adapters.forEach((other) => {
+        if (other !== player) other.pause?.();
+      });
+    } finally {
+      changingPlayer = false;
+    }
+  }
 
-  // A recording may contain material before the hymn itself. The manager stores
-  // a per-recording start offset; seek there as soon as SoundCloud is ready.
-  players.forEach((player) => {
-    const { widget, startMs } = player;
+  // ---------------- Self-hosted waveform players ----------------
+  document.querySelectorAll(".wave-player").forEach((container) => {
+    const audio = container.querySelector("audio.wave-audio");
+    const button = container.querySelector(".wave-play-button");
+    const canvas = container.querySelector(".waveform-canvas");
+    const seekSurface = container.querySelector(".waveform-wrap");
+    const playhead = container.querySelector(".waveform-playhead");
+    const currentText = container.querySelector(".wave-current");
+    const durationText = container.querySelector(".wave-duration");
+    const dataNode = container.querySelector(".waveform-data");
+    if (!audio || !button || !canvas || !seekSurface) return;
 
-    widget.bind(window.SC.Widget.Events.READY, () => {
-      if (startMs > 0) widget.seekTo(startMs);
-    });
+    let peaks = [];
+    try {
+      const parsed = JSON.parse(dataNode?.textContent || "[]");
+      peaks = Array.isArray(parsed) ? parsed.map((value) => Math.max(1, Math.min(100, Number(value) || 1))) : [];
+    } catch {
+      peaks = [];
+    }
+    if (!peaks.length) peaks = Array.from({ length: 180 }, () => 18);
 
-    widget.bind(window.SC.Widget.Events.PLAY, () => {
-      activePlayer = player;
+    const startMs = Math.max(0, Number.parseInt(container.dataset.startMs || "0", 10) || 0);
+    const storedDurationMs = Math.max(0, Number.parseInt(container.dataset.durationMs || "0", 10) || 0);
 
-      if (startMs > 0) {
-        // Some browsers/widgets do not honor an early READY seek until playback
-        // begins. Re-check the position on PLAY and correct it only when the
-        // player is still before the configured hymn start.
-        widget.getPosition((position) => {
-          if ((Number(position) || 0) < startMs - 500) {
-            widget.seekTo(startMs);
-          }
-        });
+    const adapter = {
+      kind: "audio",
+      element: container,
+      startMs,
+      play() {
+        if (audio.currentTime * 1000 < startMs - 250) {
+          audio.currentTime = startMs / 1000;
+        }
+        const promise = audio.play();
+        if (promise?.catch) promise.catch(() => {});
+      },
+      pause() {
+        audio.pause();
+      },
+      seekTo(ms) {
+        const durationMs = getDurationMs();
+        const target = Math.max(startMs, Math.min(durationMs || Number.MAX_SAFE_INTEGER, Number(ms) || 0));
+        audio.currentTime = target / 1000;
+        updatePlayer();
+      },
+    };
+    adapters.push(adapter);
+
+    function getDurationMs() {
+      if (Number.isFinite(audio.duration) && audio.duration > 0) return audio.duration * 1000;
+      return storedDurationMs;
+    }
+
+    function playableDurationMs() {
+      return Math.max(1, getDurationMs() - startMs);
+    }
+
+    function hymnPositionMs() {
+      return Math.max(0, audio.currentTime * 1000 - startMs);
+    }
+
+    function progressRatio() {
+      return Math.max(0, Math.min(1, hymnPositionMs() / playableDurationMs()));
+    }
+
+    function drawWave() {
+      const rect = seekSurface.getBoundingClientRect();
+      const width = Math.max(1, Math.round(rect.width));
+      const height = Math.max(44, Math.round(rect.height));
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+      }
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      const style = getComputedStyle(container);
+      const baseColor = style.getPropertyValue("--wave-base").trim() || "#b8b8b8";
+      const playedColor = style.getPropertyValue("--wave-played").trim() || "#ff5500";
+      const ratio = progressRatio();
+      const center = height / 2;
+      const maxHalf = Math.max(9, height * 0.43);
+      const targetBars = Math.max(70, Math.floor(width / 2.5));
+      const barCount = Math.min(peaks.length, targetBars);
+      const step = width / barCount;
+      const barWidth = Math.max(1, Math.min(2, step * 0.58));
+
+      for (let i = 0; i < barCount; i += 1) {
+        const sourceIndex = Math.min(peaks.length - 1, Math.floor((i / barCount) * peaks.length));
+        const peak = peaks[sourceIndex] / 100;
+        const half = Math.max(2, peak * maxHalf);
+        const x = i * step + (step - barWidth) / 2;
+        ctx.fillStyle = (i + 0.5) / barCount <= ratio ? playedColor : baseColor;
+        ctx.fillRect(x, center - half, barWidth, half * 2);
+      }
+
+      if (playhead) playhead.style.left = `${ratio * 100}%`;
+      seekSurface.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+    }
+
+    function updatePlayer() {
+      const playedSeconds = hymnPositionMs() / 1000;
+      const remainingDuration = playableDurationMs() / 1000;
+      if (currentText) currentText.textContent = formatAudioTime(playedSeconds);
+      if (durationText) durationText.textContent = formatAudioTime(remainingDuration);
+      container.classList.toggle("is-playing", !audio.paused && !audio.ended);
+      button.setAttribute("aria-label", `${audio.paused ? "Play" : "Pause"} ${container.dataset.label || "recording"}`);
+      drawWave();
+    }
+
+    function seekFromRatio(ratio) {
+      const clamped = Math.max(0, Math.min(1, ratio));
+      adapter.seekTo(startMs + clamped * playableDurationMs());
+      activePlayer = adapter;
+    }
+
+    button.addEventListener("click", () => {
+      activePlayer = adapter;
+      if (audio.paused || audio.ended) {
+        pauseOthers(adapter);
+        adapter.play();
+      } else {
+        adapter.pause();
       }
     });
+
+    seekSurface.addEventListener("pointerdown", (event) => {
+      const rect = seekSurface.getBoundingClientRect();
+      if (!rect.width) return;
+      seekFromRatio((event.clientX - rect.left) / rect.width);
+    });
+
+    seekSurface.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End", "Enter", " "].includes(event.key)) return;
+      event.preventDefault();
+      if (event.key === "ArrowLeft") adapter.seekTo(audio.currentTime * 1000 - 5000);
+      else if (event.key === "ArrowRight") adapter.seekTo(audio.currentTime * 1000 + 5000);
+      else if (event.key === "Home") adapter.seekTo(startMs);
+      else if (event.key === "End") adapter.seekTo(getDurationMs());
+      else if (audio.paused) adapter.play();
+      else adapter.pause();
+      activePlayer = adapter;
+    });
+
+    audio.addEventListener("loadedmetadata", () => {
+      if (startMs > 0 && audio.currentTime * 1000 < startMs - 250) {
+        audio.currentTime = Math.min(startMs / 1000, Math.max(0, audio.duration - 0.05));
+      }
+      updatePlayer();
+    });
+    audio.addEventListener("durationchange", updatePlayer);
+    audio.addEventListener("timeupdate", () => {
+      activePlayer = adapter;
+      updatePlayer();
+      adapter.onProgress?.(hymnPositionMs());
+    });
+    audio.addEventListener("play", () => {
+      activePlayer = adapter;
+      pauseOthers(adapter);
+      if (audio.currentTime * 1000 < startMs - 250) audio.currentTime = startMs / 1000;
+      updatePlayer();
+    });
+    audio.addEventListener("pause", updatePlayer);
+    audio.addEventListener("ended", () => {
+      updatePlayer();
+      adapter.onFinish?.();
+    });
+    audio.addEventListener("error", () => container.classList.add("has-error"));
+
+    if (window.ResizeObserver) {
+      const observer = new ResizeObserver(drawWave);
+      observer.observe(seekSurface);
+    } else {
+      window.addEventListener("resize", drawWave, { passive: true });
+    }
+    updatePlayer();
   });
 
+  // ---------------- SoundCloud players ----------------
+  const frames = Array.from(document.querySelectorAll("iframe.sc-player"));
+  if (frames.length && window.SC?.Widget) {
+    frames.forEach((frame) => {
+      const widget = window.SC.Widget(frame);
+      const startMs = Math.max(0, Number.parseInt(frame.dataset.startMs || "0", 10) || 0);
+      const adapter = {
+        kind: "soundcloud",
+        element: frame,
+        startMs,
+        play() { widget.play(); },
+        pause() { widget.pause(); },
+        seekTo(ms) { widget.seekTo(Math.max(0, Number(ms) || 0)); },
+      };
+      adapters.push(adapter);
+
+      widget.bind(window.SC.Widget.Events.READY, () => {
+        if (startMs > 0) widget.seekTo(startMs);
+      });
+      widget.bind(window.SC.Widget.Events.PLAY, () => {
+        activePlayer = adapter;
+        pauseOthers(adapter);
+        if (startMs > 0) {
+          widget.getPosition((position) => {
+            if ((Number(position) || 0) < startMs - 500) widget.seekTo(startMs);
+          });
+        }
+      });
+      widget.bind(window.SC.Widget.Events.PLAY_PROGRESS, (event) => {
+        activePlayer = adapter;
+        adapter.onProgress?.(Math.max(0, (Number(event.currentPosition) || 0) - startMs));
+      });
+      widget.bind(window.SC.Widget.Events.FINISH, () => adapter.onFinish?.());
+    });
+  }
+
+  if (!adapters.length) return;
+
+  // Preserve the same default order the user sees on the page, even when
+  // SoundCloud and self-hosted recordings are mixed together.
+  adapters.sort((a, b) => {
+    if (a.element === b.element) return 0;
+    const relation = a.element.compareDocumentPosition(b.element);
+    return relation & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+  });
+  activePlayer = adapters[0];
+
+  // ---------------- Shared lyric synchronization ----------------
   const table = document.getElementById("lyricsTable");
   if (!table) return;
-
   const rows = Array.from(table.querySelectorAll("tr.lyric-row"));
   if (!rows.length) return;
 
-  // Lyric timestamps remain relative to the beginning of the hymn, not the
-  // beginning of the full SoundCloud track. This means a recording configured
-  // to start at 1:30 can still use lyric timestamps beginning at 0:00.
   const starts = rows.map((row) => Number.parseInt(row.dataset.startMs || "0", 10) || 0);
   let activeRow = -1;
   let lastAutoScroll = 0;
@@ -196,26 +412,25 @@ function initSoundCloudSync() {
     }
   }
 
-  players.forEach((player) => {
-    const { widget, startMs } = player;
+  function finishLyrics() {
+    if (activeRow >= 0) rows[activeRow].classList.remove("active");
+    activeRow = -1;
+  }
 
-    widget.bind(window.SC.Widget.Events.PLAY_PROGRESS, (event) => {
-      activePlayer = player;
-      const hymnPosition = Math.max(0, (Number(event.currentPosition) || 0) - startMs);
-      activate(findRow(hymnPosition), true);
-    });
-
-    widget.bind(window.SC.Widget.Events.FINISH, () => {
-      if (activeRow >= 0) rows[activeRow].classList.remove("active");
-      activeRow = -1;
-    });
+  adapters.forEach((adapter) => {
+    adapter.onProgress = (hymnPositionMs) => activate(findRow(hymnPositionMs), true);
+    adapter.onFinish = finishLyrics;
   });
 
   rows.forEach((row, index) => {
     const seek = () => {
-      const targetMs = activePlayer.startMs + starts[index];
-      activePlayer.widget.seekTo(targetMs);
-      activePlayer.widget.play();
+      const player = activePlayer || adapters[0];
+      if (!player) return;
+      const targetMs = player.startMs + starts[index];
+      player.seekTo(targetMs);
+      pauseOthers(player);
+      player.play();
+      activePlayer = player;
       activate(index, false);
     };
     row.addEventListener("click", seek);
@@ -227,3 +442,4 @@ function initSoundCloudSync() {
     });
   });
 }
+

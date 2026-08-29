@@ -15,6 +15,13 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
 
+from .audio_library import (
+    audio_file_exists,
+    cleanup_orphan_audio,
+    collect_audio_files,
+    delete_audio_files,
+    public_audio_url,
+)
 from .content_loader import ContentError, load_site, soundcloud_embed_url
 
 SLUG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,79}$")
@@ -165,15 +172,42 @@ def canonicalise_site(raw: dict[str, Any]) -> dict[str, Any]:
                         or _clean(recording.get("start"))
                         or "0:00"
                     )
-                    out_hymn["recordings"].append(
-                        {
-                            "label": _clean(recording.get("label")) or "Recording",
-                            "url": _clean(recording.get("url")),
-                            "start_at": start_at,
-                            "sort": _int(recording.get("sort"), recording_index * 10),
-                            "published": _bool(recording.get("published"), True),
-                        }
-                    )
+                    recording_type = _clean(recording.get("type")).lower() or "soundcloud"
+                    common = {
+                        "type": recording_type,
+                        "label": _clean(recording.get("label")) or "Recording",
+                        "start_at": start_at,
+                        "sort": _int(recording.get("sort"), recording_index * 10),
+                        "published": _bool(recording.get("published"), True),
+                    }
+
+                    if recording_type == "audio":
+                        audio_file = _clean(recording.get("audio_file"))
+                        waveform_raw = recording.get("waveform") or []
+                        waveform: list[int] = []
+                        if isinstance(waveform_raw, list):
+                            for value in waveform_raw[:1200]:
+                                try:
+                                    waveform.append(max(1, min(100, int(value))))
+                                except (TypeError, ValueError):
+                                    continue
+                        common.update(
+                            {
+                                "audio_file": audio_file,
+                                "audio_url": public_audio_url(audio_file) if audio_file else "",
+                                "duration_ms": max(0, _int(recording.get("duration_ms"), 0)),
+                                "waveform": waveform,
+                                "source_type": _clean(recording.get("source_type")) or "upload",
+                                "source_url": _clean(recording.get("source_url")),
+                                "youtube_id": _clean(recording.get("youtube_id")),
+                            }
+                        )
+                    else:
+                        # Anything older/unknown remains a SoundCloud recording for backwards compatibility.
+                        common["type"] = "soundcloud"
+                        common["url"] = _clean(recording.get("url"))
+
+                    out_hymn["recordings"].append(common)
 
                 for segment_index, segment in enumerate(hymn.get("segments", []) or []):
                     if not isinstance(segment, dict):
@@ -257,8 +291,26 @@ def validate_site(raw: dict[str, Any]) -> list[str]:
                     # not the recording is currently published, so drafts cannot
                     # carry an invalid value that surprises the user later.
                     _parse_time_to_ms(recording.get("start_at", "0:00"))
-                    if recording["published"]:
-                        _validate_soundcloud_url(recording["url"])
+                    recording_type = _clean(recording.get("type")).lower() or "soundcloud"
+                    if recording_type == "audio":
+                        audio_file = _clean(recording.get("audio_file"))
+                        if not audio_file:
+                            raise ContentError(f"{hymn['title']} has a self-hosted recording with no audio file.")
+                        if not audio_file_exists(audio_file):
+                            raise ContentError(
+                                f"{hymn['title']} references a self-hosted audio file that is missing: {audio_file}"
+                            )
+                        if not recording.get("waveform"):
+                            warnings.append(
+                                f"{hymn['title']} has a self-hosted recording without waveform data."
+                            )
+                        duration_ms = max(0, _int(recording.get("duration_ms"), 0))
+                        if duration_ms and _parse_time_to_ms(recording.get("start_at", "0:00")) >= duration_ms:
+                            raise ContentError(
+                                f"{hymn['title']} has a self-hosted recording whose Start at time is at or beyond the end of the audio."
+                            )
+                    elif recording["published"]:
+                        _validate_soundcloud_url(recording.get("url", ""))
 
                 previous_ms = -1
                 for segment in sorted(hymn["segments"], key=lambda item: (item["sort"], item["t"])):
@@ -366,8 +418,26 @@ def save_editable_site(raw: dict[str, Any]) -> tuple[dict[str, Any], list[str], 
     canonical = canonicalise_site(raw)
     warnings = validate_site(canonical)
     path = ensure_content_json()
+
+    # Compare live references before replacing the JSON. Managed audio that is no
+    # longer referenced anywhere is deleted only after the new content is safely
+    # written. This means deleting a recording/hymn in an unsaved draft cannot
+    # break the currently published website, while publishing the deletion also
+    # removes the physical MP3 from /app/uploads/hymn-audio.
+    previous = load_editable_site()
+    previous_audio = collect_audio_files(previous)
+    next_audio = collect_audio_files(canonical)
+
     backup = _backup_existing(path)
     _atomic_write_json(path, canonical)
+
+    removed = delete_audio_files(previous_audio - next_audio)
+    orphaned = cleanup_orphan_audio(next_audio)
+    if removed:
+        print(f"[stminahs] Deleted {removed} managed hymn audio file(s) removed from published content.")
+    if orphaned:
+        print(f"[stminahs] Cleaned {orphaned} abandoned hymn audio import(s).")
+
     return canonical, warnings, backup
 
 

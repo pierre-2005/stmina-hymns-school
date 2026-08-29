@@ -18,29 +18,73 @@
 
 <section class="surface soundcloud-section" aria-label="Hymn recordings">
   <div class="surface-heading">
-    <div><span class="eyebrow">Listen</span><h2>SoundCloud recording{{ '' if recordings|length == 1 else 's' }}</h2></div>
+    <div><span class="eyebrow">Listen</span><h2>Recording{{ '' if recordings|length == 1 else 's' }}</h2></div>
   </div>
   <div class="soundcloud-stack">
     {% for recording in recordings %}
-      <article class="soundcloud-card">
+      <article class="soundcloud-card recording-card">
         {% if recordings|length > 1 %}<h3>{{ recording.label }}</h3>{% endif %}
-        <iframe
-          id="soundcloudPlayer{{ loop.index }}"
-          class="sc-player"
-          title="{{ recording.label }} — {{ hymn.title }}"
-          scrolling="no"
-          frameborder="0"
-          allow="autoplay"
-          loading="lazy"
-          height="132"
-          data-start-ms="{{ recording.start_ms | default(0) }}"
-          src="{{ recording.embed_url }}">
-        </iframe>
+
+        {% if recording.type == 'audio' %}
+          <div
+            class="wave-player"
+            data-start-ms="{{ recording.start_ms | default(0) }}"
+            data-duration-ms="{{ recording.duration_ms | default(0) }}"
+            data-label="{{ recording.label }}"
+          >
+            <button class="wave-play-button" type="button" aria-label="Play {{ recording.label }}">
+              <span class="wave-play-icon" aria-hidden="true"></span>
+            </button>
+            <div class="wave-player-body">
+              <div class="wave-player-topline">
+                <span class="wave-player-label">{{ recording.label }}</span>
+                <span class="wave-player-source">
+                  {{ 'Imported audio' if recording.source_type == 'youtube' else 'Self-hosted audio' }}
+                </span>
+              </div>
+              <div
+                class="waveform-wrap"
+                role="slider"
+                tabindex="0"
+                aria-label="Seek {{ recording.label }}"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              >
+                <canvas class="waveform-canvas" aria-hidden="true"></canvas>
+                <span class="waveform-playhead" aria-hidden="true"></span>
+              </div>
+              <div class="wave-player-time">
+                <span class="wave-current">0:00</span>
+                <span class="wave-duration">0:00</span>
+              </div>
+            </div>
+            <audio
+              class="wave-audio"
+              preload="metadata"
+              src="{{ recording.audio_url }}"
+            ></audio>
+            <script type="application/json" class="waveform-data">{{ recording.waveform | tojson }}</script>
+          </div>
+        {% else %}
+          <iframe
+            id="soundcloudPlayer{{ loop.index }}"
+            class="sc-player"
+            title="{{ recording.label }} — {{ hymn.title }}"
+            scrolling="no"
+            frameborder="0"
+            allow="autoplay"
+            loading="lazy"
+            height="132"
+            data-start-ms="{{ recording.start_ms | default(0) }}"
+            src="{{ recording.embed_url }}">
+          </iframe>
+        {% endif %}
       </article>
     {% else %}
       <div class="empty-state compact">
-        <h3>No SoundCloud track added</h3>
-        <p>Add a public SoundCloud track in the Content Manager.</p>
+        <h3>No recording added</h3>
+        <p>Add SoundCloud or self-hosted audio in the Content Manager.</p>
       </div>
     {% endfor %}
   </div>
@@ -106,7 +150,7 @@
 
   {% if segments %}
     <p class="helper-text">
-      Tap a lyric row to seek the active SoundCloud player to that timestamp.
+      Tap a lyric row to seek the active recording to that timestamp.
     </p>
   {% endif %}
 </section>

@@ -448,10 +448,6 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                 for recording_index, recording in enumerate(hymn.get("recordings", []) or []):
                     if not isinstance(recording, dict) or not _truthy(recording.get("published"), default=True):
                         continue
-                    raw_url = _clean(recording.get("url"))
-                    embed_url = soundcloud_embed_url(raw_url)
-                    if not raw_url or not embed_url:
-                        continue
                     start_at = (
                         _clean(recording.get("start_at"))
                         or _clean(recording.get("start_time"))
@@ -467,8 +463,43 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                         start_at = "0:00"
                         start_ms = 0
 
+                    recording_type = _clean(recording.get("type")).lower() or "soundcloud"
+                    if recording_type == "audio":
+                        audio_file = _clean(recording.get("audio_file"))
+                        audio_url = _clean(recording.get("audio_url"))
+                        waveform = recording.get("waveform") or []
+                        if not audio_file or not audio_url or not isinstance(waveform, list):
+                            site["content_warnings"].append(
+                                f"{out_hymn['title']} has an incomplete self-hosted recording and it was ignored."
+                            )
+                            continue
+                        out_hymn["recordings"].append(
+                            {
+                                "type": "audio",
+                                "label": _clean(recording.get("label")) or "Recording",
+                                "audio_file": audio_file,
+                                "audio_url": audio_url,
+                                "duration_ms": max(0, _safe_int(recording.get("duration_ms"), 0)),
+                                "waveform": [
+                                    max(1, min(100, _safe_int(value, 1)))
+                                    for value in waveform[:1200]
+                                ],
+                                "source_type": _clean(recording.get("source_type")),
+                                "source_url": _clean(recording.get("source_url")),
+                                "start_at": start_at,
+                                "start_ms": start_ms,
+                                "sort": _safe_int(recording.get("sort"), recording_index * 10),
+                            }
+                        )
+                        continue
+
+                    raw_url = _clean(recording.get("url"))
+                    embed_url = soundcloud_embed_url(raw_url)
+                    if not raw_url or not embed_url:
+                        continue
                     out_hymn["recordings"].append(
                         {
+                            "type": "soundcloud",
                             "label": _clean(recording.get("label")) or "Recording",
                             "url": raw_url,
                             "embed_url": embed_url,

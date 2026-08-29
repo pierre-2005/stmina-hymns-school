@@ -7,6 +7,7 @@ import re
 import socket
 import sys
 import threading
+import time
 import tkinter as tk
 import unicodedata
 import uuid
@@ -19,7 +20,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.8"
+APP_VERSION = "3.9"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -427,12 +428,12 @@ class ContentApiClient:
             raise ApiError(str(detail) or f"HTTP {exc.code}", exc.code) from exc
         except (TimeoutError, socket.timeout) as exc:
             raise ApiError(
-                f"The website took too long to process {source.name}. Try a smaller image."
+                f"The website took too long to process {source.name}."
             ) from exc
         except URLError as exc:
             raise ApiError(f"Could not connect to {self.base_url}: {exc.reason}") from exc
         except json.JSONDecodeError as exc:
-            raise ApiError("The website returned an invalid OCR response.") from exc
+            raise ApiError("The website returned an invalid file-processing response.") from exc
 
     def ocr_english_image(self, file_path: str | Path) -> dict[str, Any]:
         return self._request_file(
@@ -440,6 +441,49 @@ class ContentApiClient:
             "image",
             file_path,
             timeout=60,
+        )
+
+    def import_youtube_audio(self, url: str) -> dict[str, Any]:
+        started = self._request(
+            "POST",
+            "/api/content/audio/import-youtube/start",
+            {"url": url, "confirm_rights": True},
+            timeout=20,
+        )
+        job_id = str(started.get("job_id", "")).strip()
+        if not job_id:
+            raise ApiError("The website did not return a YouTube import job ID.")
+
+        deadline = time.monotonic() + 30 * 60
+        while time.monotonic() < deadline:
+            result = self._request(
+                "GET",
+                f"/api/content/audio/import-youtube/status/{job_id}",
+                timeout=15,
+            )
+            state = str(result.get("state", "")).lower()
+            if state == "done":
+                return result
+            if state == "error":
+                raise ApiError(str(result.get("error") or "YouTube audio import failed."))
+            time.sleep(2.0)
+
+        raise ApiError("YouTube audio import took longer than 30 minutes and was stopped in the manager.")
+
+    def upload_hymn_audio(self, file_path: str | Path) -> dict[str, Any]:
+        return self._request_file(
+            "/api/content/audio/upload",
+            "audio",
+            file_path,
+            timeout=900,
+        )
+
+    def delete_unpublished_audio(self, audio_file: str) -> dict[str, Any]:
+        return self._request(
+            "POST",
+            "/api/content/audio/delete-unpublished",
+            {"audio_file": audio_file},
+            timeout=30,
         )
 
     def health(self) -> dict[str, Any]:
@@ -497,6 +541,20 @@ def next_sort(items: list[dict[str, Any]]) -> int:
 def resequence(items: list[dict[str, Any]]) -> None:
     for index, item in enumerate(items, start=1):
         item["sort"] = index * 10
+
+
+def managed_audio_files(content: dict[str, Any] | None) -> set[str]:
+    files: set[str] = set()
+    for level in (content or {}).get("levels", []) or []:
+        for year in level.get("years", []) or []:
+            for hymn in year.get("hymns", []) or []:
+                for recording in hymn.get("recordings", []) or []:
+                    if str(recording.get("type", "soundcloud") or "soundcloud").lower() != "audio":
+                        continue
+                    name = str(recording.get("audio_file", "")).strip()
+                    if name:
+                        files.add(name)
+    return files
 
 
 def validate_time_text(value: str) -> str:
@@ -2914,15 +2972,32 @@ class ContentManagerApp(tk.Tk):
         label = obj.get("title") if kind == "hymn" else obj.get("name")
         if not messagebox.askyesno("Delete", f"Delete {kind} '{label}'?\n\nEverything inside it will also be removed from the curriculum draft.", parent=self):
             return
+
+        audio_before = managed_audio_files(self.content)
         if kind == "level":
             del self.content["levels"][li]
         elif kind == "year":
             del self.content["levels"][li]["years"][yi]
         else:
             del self.content["levels"][li]["years"][yi]["hymns"][hi]
+        audio_after = managed_audio_files(self.content)
+        draft_only_candidates = sorted(audio_before - audio_after)
+
         self.current_ref = None
         self.mark_dirty()
         self.rebuild_tree()
+
+        if draft_only_candidates and self.client:
+            def work() -> dict[str, Any]:
+                assert self.client is not None
+                deleted = 0
+                for audio_file in draft_only_candidates:
+                    result = self.client.delete_unpublished_audio(audio_file)
+                    if result.get("deleted"):
+                        deleted += 1
+                return {"deleted": deleted}
+
+            self.run_async("Checking managed audio files…", work, lambda _result: None)
 
     def move_selected(self, direction: int) -> None:
         ref = self.selected_ref()
@@ -2956,23 +3031,22 @@ class ContentManagerApp(tk.Tk):
         return self.get_ref_object()
 
     def build_recordings_tab(self) -> None:
-        # Use grid here rather than packing an expanding Treeview before the
-        # controls. This keeps the recording buttons pinned to the bottom even
-        # on smaller screens / higher Windows display scaling.
+        # Keep the table flexible while pinning all recording actions below it.
         self.recordings_tab.columnconfigure(0, weight=1)
         self.recordings_tab.rowconfigure(2, weight=1)
 
         ttk.Label(
             self.recordings_tab,
-            text="SoundCloud recordings",
+            text="Recordings",
             style="Heading.TLabel",
         ).grid(row=0, column=0, sticky="w")
         ttk.Label(
             self.recordings_tab,
             text=(
-                "Select a hymn in the curriculum tree to manage its recordings. "
-                "Start at is the point where playback should begin."
+                "Use SoundCloud, import authorized audio from YouTube, or upload an audio file. "
+                "Imported/uploaded audio is stored on your Raspberry Pi and uses the site's waveform player."
             ),
+            wraplength=760,
         ).grid(row=1, column=0, sticky="w", pady=(3, 8))
 
         table_frame = ttk.Frame(self.recordings_tab)
@@ -2982,19 +3056,20 @@ class ContentManagerApp(tk.Tk):
 
         self.recordings_tree = ttk.Treeview(
             table_frame,
-            columns=("label", "url", "start_at", "published"),
+            columns=("type", "label", "source", "start_at", "published"),
             show="headings",
-            height=10,
+            height=9,
         )
         columns = [
-            ("label", "Label", 150, False),
-            ("url", "SoundCloud URL", 430, True),
-            ("start_at", "Start at", 90, False),
-            ("published", "Published", 90, False),
+            ("type", "Type", 110, False),
+            ("label", "Label", 170, False),
+            ("source", "Source", 390, True),
+            ("start_at", "Start at", 85, False),
+            ("published", "Published", 85, False),
         ]
         for col, title, width, stretch in columns:
             self.recordings_tree.heading(col, text=title)
-            self.recordings_tree.column(col, width=width, minwidth=70, stretch=stretch)
+            self.recordings_tree.column(col, width=width, minwidth=65, stretch=stretch)
 
         scroll_y = ttk.Scrollbar(table_frame, orient="vertical", command=self.recordings_tree.yview)
         scroll_x = ttk.Scrollbar(table_frame, orient="horizontal", command=self.recordings_tree.xview)
@@ -3006,13 +3081,25 @@ class ContentManagerApp(tk.Tk):
         scroll_y.grid(row=0, column=1, sticky="ns")
         scroll_x.grid(row=1, column=0, sticky="ew")
 
-        controls = ttk.Frame(self.recordings_tab)
-        controls.grid(row=3, column=0, sticky="ew", pady=(8, 0))
-        ttk.Button(controls, text="Add", command=self.add_recording).pack(side="left")
-        ttk.Button(controls, text="Edit", command=self.edit_recording).pack(side="left", padx=(5, 0))
-        ttk.Button(controls, text="Delete", command=self.delete_recording).pack(side="left", padx=(5, 0))
-        ttk.Button(controls, text="↑", width=3, command=lambda: self.move_recording(-1)).pack(side="right")
-        ttk.Button(controls, text="↓", width=3, command=lambda: self.move_recording(1)).pack(side="right", padx=(0, 5))
+        # Two compact rows prevent controls from disappearing/overflowing on smaller windows.
+        add_controls = ttk.Frame(self.recordings_tab)
+        add_controls.grid(row=3, column=0, sticky="ew", pady=(8, 0))
+        ttk.Button(add_controls, text="Add SoundCloud", command=self.add_recording).pack(side="left")
+        ttk.Button(add_controls, text="Import YouTube audio", command=self.import_youtube_recording).pack(
+            side="left", padx=(5, 0)
+        )
+        ttk.Button(add_controls, text="Upload audio file", command=self.upload_audio_recording).pack(
+            side="left", padx=(5, 0)
+        )
+
+        edit_controls = ttk.Frame(self.recordings_tab)
+        edit_controls.grid(row=4, column=0, sticky="ew", pady=(5, 0))
+        ttk.Button(edit_controls, text="Edit", command=self.edit_recording).pack(side="left")
+        ttk.Button(edit_controls, text="Delete", command=self.delete_recording).pack(side="left", padx=(5, 0))
+        ttk.Button(edit_controls, text="↑", width=3, command=lambda: self.move_recording(-1)).pack(side="right")
+        ttk.Button(edit_controls, text="↓", width=3, command=lambda: self.move_recording(1)).pack(
+            side="right", padx=(0, 5)
+        )
         self.recordings_tree.bind("<Double-1>", lambda _e: self.edit_recording())
 
     def refresh_recordings(self) -> None:
@@ -3023,13 +3110,22 @@ class ContentManagerApp(tk.Tk):
         if not hymn:
             return
         for index, recording in enumerate(hymn.get("recordings", [])):
+            recording_type = str(recording.get("type", "soundcloud") or "soundcloud").lower()
+            if recording_type == "audio":
+                source_type = str(recording.get("source_type", "upload") or "upload").lower()
+                display_type = "YouTube audio" if source_type == "youtube" else "Audio file"
+                source = recording.get("source_url", "") or recording.get("audio_file", "")
+            else:
+                display_type = "SoundCloud"
+                source = recording.get("url", "")
             self.recordings_tree.insert(
                 "",
                 "end",
                 iid=str(index),
                 values=(
+                    display_type,
                     recording.get("label", "Recording"),
-                    recording.get("url", ""),
+                    source,
                     recording.get("start_at", "0:00") or "0:00",
                     "Yes" if recording.get("published", True) else "No",
                 ),
@@ -3060,11 +3156,130 @@ class ContentManagerApp(tk.Tk):
         ])
         if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
             return
+        dialog.result["type"] = "soundcloud"
         items = hymn.setdefault("recordings", [])
         dialog.result["sort"] = next_sort(items)
         items.append(dialog.result)
         self.mark_dirty()
         self.refresh_recordings()
+
+    def import_youtube_recording(self) -> None:
+        hymn = self.selected_hymn()
+        if not hymn:
+            messagebox.showinfo("Select a hymn", "Select a hymn first.", parent=self)
+            return
+        if not self.client:
+            messagebox.showerror("Not connected", "Sign in to the website first.", parent=self)
+            return
+
+        dialog = RecordDialog(self, "Import YouTube audio", [
+            ("YouTube URL", "url", "text", "https://www.youtube.com/watch?v="),
+            ("Label (blank = YouTube title)", "label", "text", ""),
+            ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+            ("Published", "published", "bool", True),
+            (
+                "I own this recording or have permission to store/use it",
+                "confirm_rights",
+                "bool",
+                False,
+            ),
+        ])
+        if not dialog.result:
+            return
+        if not bool(dialog.result.get("confirm_rights")):
+            messagebox.showerror(
+                "Permission confirmation required",
+                "Confirm that you own the recording or have permission to store and use it.",
+                parent=self,
+            )
+            return
+        if not self._validate_recording_dialog_result(dialog.result):
+            return
+        url = str(dialog.result.get("url", "")).strip()
+        if not url:
+            messagebox.showerror("Missing YouTube URL", "Enter a YouTube URL.", parent=self)
+            return
+
+        wanted_label = str(dialog.result.get("label", "")).strip()
+        start_at = dialog.result["start_at"]
+        published = bool(dialog.result.get("published", True))
+
+        def work() -> dict[str, Any]:
+            assert self.client is not None
+            return self.client.import_youtube_audio(url)
+
+        def done(result: dict[str, Any]) -> None:
+            recording = dict(result.get("recording") or {})
+            if not recording.get("audio_file"):
+                raise RuntimeError("The website did not return the imported audio file.")
+            recording["type"] = "audio"
+            recording["label"] = wanted_label or str(recording.get("label") or "YouTube recording")
+            recording["start_at"] = start_at
+            recording["published"] = published
+            items = hymn.setdefault("recordings", [])
+            recording["sort"] = next_sort(items)
+            items.append(recording)
+            self.mark_dirty()
+            self.refresh_recordings()
+            messagebox.showinfo(
+                "YouTube audio imported",
+                "The audio is now stored on your Raspberry Pi and added to this draft.\n\n"
+                "Publish the content when you are ready to make it live.",
+                parent=self,
+            )
+
+        self.run_async("Importing YouTube audio and building waveform…", work, done)
+
+    def upload_audio_recording(self) -> None:
+        hymn = self.selected_hymn()
+        if not hymn:
+            messagebox.showinfo("Select a hymn", "Select a hymn first.", parent=self)
+            return
+        if not self.client:
+            messagebox.showerror("Not connected", "Sign in to the website first.", parent=self)
+            return
+
+        path = filedialog.askopenfilename(
+            parent=self,
+            title="Choose hymn audio",
+            filetypes=[
+                ("Audio files", "*.mp3 *.m4a *.aac *.wav *.ogg *.opus *.webm *.flac"),
+                ("All files", "*.*"),
+            ],
+        )
+        if not path:
+            return
+
+        dialog = RecordDialog(self, "Upload audio recording", [
+            ("Label", "label", "text", Path(path).stem),
+            ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+            ("Published", "published", "bool", True),
+        ])
+        if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
+            return
+        wanted_label = str(dialog.result.get("label", "")).strip() or Path(path).stem
+        start_at = dialog.result["start_at"]
+        published = bool(dialog.result.get("published", True))
+
+        def work() -> dict[str, Any]:
+            assert self.client is not None
+            return self.client.upload_hymn_audio(path)
+
+        def done(result: dict[str, Any]) -> None:
+            recording = dict(result.get("recording") or {})
+            if not recording.get("audio_file"):
+                raise RuntimeError("The website did not return the uploaded audio file.")
+            recording["type"] = "audio"
+            recording["label"] = wanted_label
+            recording["start_at"] = start_at
+            recording["published"] = published
+            items = hymn.setdefault("recordings", [])
+            recording["sort"] = next_sort(items)
+            items.append(recording)
+            self.mark_dirty()
+            self.refresh_recordings()
+
+        self.run_async("Uploading audio and building waveform…", work, done)
 
     def edit_recording(self) -> None:
         hymn = self.selected_hymn()
@@ -3072,16 +3287,34 @@ class ContentManagerApp(tk.Tk):
         if not hymn or index is None:
             return
         item = hymn["recordings"][index]
-        dialog = RecordDialog(self, "Edit SoundCloud recording", [
-            ("Label", "label", "text", "Recording"),
-            ("Full SoundCloud track URL", "url", "text", ""),
-            ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
-            ("Published", "published", "bool", True),
-        ], item)
-        if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
-            return
-        dialog.result["sort"] = item.get("sort", (index + 1) * 10)
-        hymn["recordings"][index] = dialog.result
+        recording_type = str(item.get("type", "soundcloud") or "soundcloud").lower()
+
+        if recording_type == "audio":
+            dialog = RecordDialog(self, "Edit self-hosted recording", [
+                ("Label", "label", "text", "Recording"),
+                ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+                ("Published", "published", "bool", True),
+            ], item)
+            if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
+                return
+            updated = dict(item)
+            updated.update(dialog.result)
+            updated["type"] = "audio"
+            updated["sort"] = item.get("sort", (index + 1) * 10)
+            hymn["recordings"][index] = updated
+        else:
+            dialog = RecordDialog(self, "Edit SoundCloud recording", [
+                ("Label", "label", "text", "Recording"),
+                ("Full SoundCloud track URL", "url", "text", ""),
+                ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+                ("Published", "published", "bool", True),
+            ], item)
+            if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
+                return
+            dialog.result["type"] = "soundcloud"
+            dialog.result["sort"] = item.get("sort", (index + 1) * 10)
+            hymn["recordings"][index] = dialog.result
+
         self.mark_dirty()
         self.refresh_recordings()
 
@@ -3090,11 +3323,38 @@ class ContentManagerApp(tk.Tk):
         index = self.recording_index()
         if not hymn or index is None:
             return
-        if messagebox.askyesno("Delete recording", "Delete this recording from the hymn?", parent=self):
-            del hymn["recordings"][index]
-            resequence(hymn["recordings"])
-            self.mark_dirty()
-            self.refresh_recordings()
+        item = hymn["recordings"][index]
+        is_managed_audio = str(item.get("type", "soundcloud") or "soundcloud").lower() == "audio"
+        prompt = "Delete this recording from the hymn?"
+        if is_managed_audio:
+            prompt += (
+                "\n\nWhen this deletion is published, the MP3 will also be deleted from your "
+                "Raspberry Pi if no other hymn still uses the same file."
+            )
+        if not messagebox.askyesno("Delete recording", prompt, parent=self):
+            return
+
+        audio_file = str(item.get("audio_file", "")).strip() if is_managed_audio else ""
+        del hymn["recordings"][index]
+        resequence(hymn["recordings"])
+        self.mark_dirty()
+        self.refresh_recordings()
+
+        # A file imported during this draft is safe to delete immediately if the
+        # currently published JSON does not reference it. Published files remain
+        # until the user publishes the deletion, preventing a broken live player.
+        if audio_file and self.client and audio_file not in managed_audio_files(self.content):
+            def work() -> dict[str, Any]:
+                assert self.client is not None
+                return self.client.delete_unpublished_audio(audio_file)
+
+            def done(result: dict[str, Any]) -> None:
+                if result.get("deleted"):
+                    return
+                # It is still referenced by the live site (or another hymn), so
+                # save_editable_site will handle it safely when content is published.
+
+            self.run_async("Checking managed audio file…", work, done)
 
     def move_recording(self, direction: int) -> None:
         hymn = self.selected_hymn()

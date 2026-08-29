@@ -2,12 +2,22 @@ from __future__ import annotations
 
 import asyncio
 import os
+import secrets
+import time
 from typing import Any
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile, status
+from fastapi.responses import FileResponse
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 
 from .auth import verify_password
+from .audio_library import (
+    AudioLibraryError,
+    _safe_audio_path,
+    delete_audio_if_unpublished,
+    import_uploaded_audio,
+    import_youtube_audio,
+)
 from .content_loader import ContentError
 from .content_store import (
     backup_to_github,
@@ -22,6 +32,37 @@ from .db import db_conn
 from .ocr import OcrError, extract_english_hymn_text, ocr_available
 
 router = APIRouter(prefix="/api/content", tags=["content-manager"])
+
+_audio_import_jobs: dict[str, dict[str, Any]] = {}
+
+
+def _prune_audio_jobs() -> None:
+    now = time.monotonic()
+    stale = [
+        job_id
+        for job_id, job in _audio_import_jobs.items()
+        if job.get("state") in {"done", "error"} and now - float(job.get("updated", now)) > 3600
+    ]
+    for job_id in stale:
+        _audio_import_jobs.pop(job_id, None)
+
+
+async def _run_youtube_audio_job(job_id: str, url: str) -> None:
+    job = _audio_import_jobs.get(job_id)
+    if not job:
+        return
+    job["state"] = "working"
+    job["updated"] = time.monotonic()
+    try:
+        result = await asyncio.to_thread(import_youtube_audio, url)
+    except Exception as exc:
+        job["state"] = "error"
+        job["error"] = str(exc)
+    else:
+        job["state"] = "done"
+        job["recording"] = result
+    job["updated"] = time.monotonic()
+
 
 
 def _api_secret() -> str:
@@ -177,6 +218,137 @@ async def content_ocr_english(
         return {"ok": True, **result}
     except OcrError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/audio/upload")
+async def content_audio_upload(
+    request: Request,
+    audio: UploadFile = File(...),
+):
+    """Upload an authorized hymn recording and convert it to a managed MP3."""
+    require_content_admin(request)
+
+    max_mb_text = os.getenv("HYMN_AUDIO_MAX_MB", os.getenv("MAX_UPLOAD_MB", "40"))
+    try:
+        max_mb = max(5, min(500, int(max_mb_text)))
+    except ValueError:
+        max_mb = 40
+    max_bytes = max_mb * 1024 * 1024
+
+    data = await audio.read(max_bytes + 1)
+    filename = str(audio.filename or "recording")
+    await audio.close()
+    if not data:
+        raise HTTPException(status_code=400, detail="The selected audio file was empty.")
+    if len(data) > max_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"Hymn audio files must be {max_mb} MB or smaller.",
+        )
+
+    try:
+        result = await asyncio.to_thread(import_uploaded_audio, data, filename)
+        return {"ok": True, "recording": result}
+    except AudioLibraryError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/audio/import-youtube/start")
+async def content_audio_import_youtube_start(request: Request):
+    """Start a background YouTube audio import and return immediately."""
+    user = require_content_admin(request)
+    try:
+        body = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Expected a JSON request object.") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Expected a JSON request object.")
+    if body.get("confirm_rights") is not True:
+        raise HTTPException(
+            status_code=400,
+            detail="Confirm that you own this recording or have permission to store and use it.",
+        )
+    url = str(body.get("url", "")).strip()
+    if not url:
+        raise HTTPException(status_code=400, detail="Enter a YouTube URL.")
+
+    _prune_audio_jobs()
+    active_for_user = sum(
+        1
+        for job in _audio_import_jobs.values()
+        if job.get("owner") == user["id"] and job.get("state") in {"queued", "working"}
+    )
+    if active_for_user >= 2:
+        raise HTTPException(status_code=429, detail="Wait for your current YouTube audio import to finish.")
+
+    job_id = secrets.token_urlsafe(18)
+    _audio_import_jobs[job_id] = {
+        "owner": user["id"],
+        "state": "queued",
+        "created": time.monotonic(),
+        "updated": time.monotonic(),
+    }
+    asyncio.create_task(_run_youtube_audio_job(job_id, url))
+    return {"ok": True, "job_id": job_id, "state": "queued"}
+
+
+@router.get("/audio/import-youtube/status/{job_id}")
+async def content_audio_import_youtube_status(request: Request, job_id: str):
+    user = require_content_admin(request)
+    _prune_audio_jobs()
+    job = _audio_import_jobs.get(job_id)
+    if not job or job.get("owner") != user["id"]:
+        raise HTTPException(status_code=404, detail="YouTube audio import job not found.")
+
+    state = str(job.get("state", "error"))
+    response: dict[str, Any] = {"ok": True, "job_id": job_id, "state": state}
+    if state == "done":
+        response["recording"] = job.get("recording") or {}
+    elif state == "error":
+        response["error"] = str(job.get("error") or "YouTube audio import failed.")
+    return response
+
+
+@router.post("/audio/delete-unpublished")
+async def content_audio_delete_unpublished(request: Request):
+    """Remove a draft-only imported audio file without breaking live content."""
+    require_content_admin(request)
+    try:
+        body = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Expected a JSON request object.") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Expected a JSON request object.")
+    filename = str(body.get("audio_file", "")).strip()
+    if not filename:
+        raise HTTPException(status_code=400, detail="Missing audio filename.")
+    try:
+        deleted = await asyncio.to_thread(
+            delete_audio_if_unpublished,
+            filename,
+            load_editable_site(),
+        )
+        return {"ok": True, "deleted": deleted}
+    except AudioLibraryError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/audio/file/{filename}")
+async def content_audio_file(filename: str):
+    """Public same-origin stream for audio referenced by the hymn curriculum."""
+    try:
+        path = _safe_audio_path(filename)
+    except AudioLibraryError as exc:
+        raise HTTPException(status_code=404, detail="Audio file not found.") from exc
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Audio file not found.")
+    return FileResponse(
+        path,
+        media_type="audio/mpeg",
+        filename=path.name,
+        content_disposition_type="inline",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
 
 
 @router.post("/publish")
