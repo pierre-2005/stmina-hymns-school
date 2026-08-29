@@ -47,7 +47,15 @@
               "note": "(Ten gosht evol)",
               "sort": 10,
               "published": true,
-              "recordings": [],
+              "recordings": [
+                {
+                  "label": "Recording",
+                  "url": "https://soundcloud.com/ghabrialschool-l2/0mkiicckpldi?in=sameh-cambo/sets/level-1-y-1&si=2e1c6645684a491e9f2325dcf615a260&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+                  "start_at": "0:04",
+                  "sort": 10,
+                  "published": true
+                }
+              ],
               "segments": [
                 {
                   "t": "0:00",
@@ -67,7 +75,15 @@
               "note": "",
               "sort": 20,
               "published": true,
-              "recordings": [],
+              "recordings": [
+                {
+                  "label": "Recording",
+                  "url": "https://soundcloud.com/r-my-w-el/s699r0qov95f?in=sameh-cambo/sets/level-1-y-1&si=861aecc3308b4f0c83969b1d26b33b44&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing",
+                  "start_at": "0:06",
+                  "sort": 10,
+                  "published": true
+                }
+              ],
               "segments": [
                 {
                   "t": "0:00",
