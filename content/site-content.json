@@ -197,7 +197,14 @@
               "note": "",
               "sort": 30,
               "published": true,
-              "recordings": [],
+              "recordings": [
+                {
+                  "label": "Sotees Amen",
+                  "url": "https://soundcloud.com/hoserof/the-hymn-sotees-tees-amen?in=sameh-cambo/sets/level-1-y-1&si=91ab04ea55e84b1fb6818ee751e8fe4e&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing#t=0%3A16",
+                  "sort": 10,
+                  "published": true
+                }
+              ],
               "segments": [
                 {
                   "t": "0:00",
