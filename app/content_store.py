@@ -159,10 +159,17 @@ def canonicalise_site(raw: dict[str, Any]) -> dict[str, Any]:
                 for recording_index, recording in enumerate(hymn.get("recordings", []) or []):
                     if not isinstance(recording, dict):
                         continue
+                    start_at = (
+                        _clean(recording.get("start_at"))
+                        or _clean(recording.get("start_time"))
+                        or _clean(recording.get("start"))
+                        or "0:00"
+                    )
                     out_hymn["recordings"].append(
                         {
                             "label": _clean(recording.get("label")) or "Recording",
                             "url": _clean(recording.get("url")),
+                            "start_at": start_at,
                             "sort": _int(recording.get("sort"), recording_index * 10),
                             "published": _bool(recording.get("published"), True),
                         }
@@ -246,6 +253,10 @@ def validate_site(raw: dict[str, Any]) -> list[str]:
                     raise ContentError(f"Hymn '{hymn['slug']}' needs a title.")
 
                 for recording in hymn["recordings"]:
+                    # Validate the optional per-recording start offset whether or
+                    # not the recording is currently published, so drafts cannot
+                    # carry an invalid value that surprises the user later.
+                    _parse_time_to_ms(recording.get("start_at", "0:00"))
                     if recording["published"]:
                         _validate_soundcloud_url(recording["url"])
 

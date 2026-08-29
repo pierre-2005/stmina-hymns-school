@@ -1057,7 +1057,8 @@ audio {
   width: 100%;
   max-width: 100%;
 
-  height: clamp(120px, 18vw, 166px);
+  height: 81px;
+  min-height: 81px;
 
   border: 0;
   border-radius: 12px;

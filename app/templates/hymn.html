@@ -32,6 +32,8 @@
           frameborder="0"
           allow="autoplay"
           loading="lazy"
+          height="81"
+          data-start-ms="{{ recording.start_ms | default(0) }}"
           src="{{ recording.embed_url }}">
         </iframe>
       </article>

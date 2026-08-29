@@ -499,6 +499,35 @@ def resequence(items: list[dict[str, Any]]) -> None:
         item["sort"] = index * 10
 
 
+def validate_time_text(value: str) -> str:
+    """Validate a hymn/recording timestamp and return the cleaned text."""
+    text = str(value or "").strip() or "0:00"
+    try:
+        parts = text.split(":")
+        if len(parts) == 1:
+            seconds = float(parts[0])
+            if seconds < 0:
+                raise ValueError
+        elif len(parts) == 2:
+            minutes = int(parts[0])
+            seconds = float(parts[1])
+            if minutes < 0 or seconds < 0 or seconds >= 60:
+                raise ValueError
+        elif len(parts) == 3:
+            hours = int(parts[0])
+            minutes = int(parts[1])
+            seconds = float(parts[2])
+            if hours < 0 or minutes < 0 or minutes >= 60 or seconds < 0 or seconds >= 60:
+                raise ValueError
+        else:
+            raise ValueError
+    except (TypeError, ValueError) as exc:
+        raise ValueError(
+            "Enter the start time as 0:00, 1:23, 1:23.5, or 1:02:03."
+        ) from exc
+    return text
+
+
 def split_bulk_lyric_stanzas(text: str) -> list[str]:
     """
     Split pasted hymn text into stanzas.
@@ -2927,15 +2956,58 @@ class ContentManagerApp(tk.Tk):
         return self.get_ref_object()
 
     def build_recordings_tab(self) -> None:
-        ttk.Label(self.recordings_tab, text="SoundCloud recordings", style="Heading.TLabel").pack(anchor="w")
-        ttk.Label(self.recordings_tab, text="Select a hymn in the curriculum tree to manage its recordings.").pack(anchor="w", pady=(3, 8))
-        self.recordings_tree = ttk.Treeview(self.recordings_tab, columns=("label", "url", "published"), show="headings", height=14)
-        for col, title, width in [("label", "Label", 180), ("url", "SoundCloud URL", 480), ("published", "Published", 90)]:
+        # Use grid here rather than packing an expanding Treeview before the
+        # controls. This keeps the recording buttons pinned to the bottom even
+        # on smaller screens / higher Windows display scaling.
+        self.recordings_tab.columnconfigure(0, weight=1)
+        self.recordings_tab.rowconfigure(2, weight=1)
+
+        ttk.Label(
+            self.recordings_tab,
+            text="SoundCloud recordings",
+            style="Heading.TLabel",
+        ).grid(row=0, column=0, sticky="w")
+        ttk.Label(
+            self.recordings_tab,
+            text=(
+                "Select a hymn in the curriculum tree to manage its recordings. "
+                "Start at is the point where playback should begin."
+            ),
+        ).grid(row=1, column=0, sticky="w", pady=(3, 8))
+
+        table_frame = ttk.Frame(self.recordings_tab)
+        table_frame.grid(row=2, column=0, sticky="nsew")
+        table_frame.columnconfigure(0, weight=1)
+        table_frame.rowconfigure(0, weight=1)
+
+        self.recordings_tree = ttk.Treeview(
+            table_frame,
+            columns=("label", "url", "start_at", "published"),
+            show="headings",
+            height=10,
+        )
+        columns = [
+            ("label", "Label", 150, False),
+            ("url", "SoundCloud URL", 430, True),
+            ("start_at", "Start at", 90, False),
+            ("published", "Published", 90, False),
+        ]
+        for col, title, width, stretch in columns:
             self.recordings_tree.heading(col, text=title)
-            self.recordings_tree.column(col, width=width, stretch=True if col == "url" else False)
-        self.recordings_tree.pack(fill="both", expand=True, pady=(0, 8))
+            self.recordings_tree.column(col, width=width, minwidth=70, stretch=stretch)
+
+        scroll_y = ttk.Scrollbar(table_frame, orient="vertical", command=self.recordings_tree.yview)
+        scroll_x = ttk.Scrollbar(table_frame, orient="horizontal", command=self.recordings_tree.xview)
+        self.recordings_tree.configure(
+            yscrollcommand=scroll_y.set,
+            xscrollcommand=scroll_x.set,
+        )
+        self.recordings_tree.grid(row=0, column=0, sticky="nsew")
+        scroll_y.grid(row=0, column=1, sticky="ns")
+        scroll_x.grid(row=1, column=0, sticky="ew")
+
         controls = ttk.Frame(self.recordings_tab)
-        controls.pack(fill="x")
+        controls.grid(row=3, column=0, sticky="ew", pady=(8, 0))
         ttk.Button(controls, text="Add", command=self.add_recording).pack(side="left")
         ttk.Button(controls, text="Edit", command=self.edit_recording).pack(side="left", padx=(5, 0))
         ttk.Button(controls, text="Delete", command=self.delete_recording).pack(side="left", padx=(5, 0))
@@ -2951,11 +3023,29 @@ class ContentManagerApp(tk.Tk):
         if not hymn:
             return
         for index, recording in enumerate(hymn.get("recordings", [])):
-            self.recordings_tree.insert("", "end", iid=str(index), values=(recording.get("label", "Recording"), recording.get("url", ""), "Yes" if recording.get("published", True) else "No"))
+            self.recordings_tree.insert(
+                "",
+                "end",
+                iid=str(index),
+                values=(
+                    recording.get("label", "Recording"),
+                    recording.get("url", ""),
+                    recording.get("start_at", "0:00") or "0:00",
+                    "Yes" if recording.get("published", True) else "No",
+                ),
+            )
 
     def recording_index(self) -> int | None:
         selection = self.recordings_tree.selection()
         return int(selection[0]) if selection else None
+
+    def _validate_recording_dialog_result(self, result: dict[str, Any]) -> bool:
+        try:
+            result["start_at"] = validate_time_text(str(result.get("start_at", "0:00")))
+        except ValueError as exc:
+            messagebox.showerror("Invalid start time", str(exc), parent=self)
+            return False
+        return True
 
     def add_recording(self) -> None:
         hymn = self.selected_hymn()
@@ -2965,9 +3055,10 @@ class ContentManagerApp(tk.Tk):
         dialog = RecordDialog(self, "Add SoundCloud recording", [
             ("Label", "label", "text", "Recording"),
             ("Full SoundCloud track URL", "url", "text", "https://soundcloud.com/"),
+            ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
             ("Published", "published", "bool", True),
         ])
-        if not dialog.result:
+        if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
             return
         items = hymn.setdefault("recordings", [])
         dialog.result["sort"] = next_sort(items)
@@ -2984,9 +3075,10 @@ class ContentManagerApp(tk.Tk):
         dialog = RecordDialog(self, "Edit SoundCloud recording", [
             ("Label", "label", "text", "Recording"),
             ("Full SoundCloud track URL", "url", "text", ""),
+            ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
             ("Published", "published", "bool", True),
         ], item)
-        if not dialog.result:
+        if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
             return
         dialog.result["sort"] = item.get("sort", (index + 1) * 10)
         hymn["recordings"][index] = dialog.result

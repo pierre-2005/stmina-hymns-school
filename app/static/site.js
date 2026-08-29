@@ -119,16 +119,52 @@ function initLyricFontControls() {
 }
 
 function initSoundCloudSync() {
-  const table = document.getElementById("lyricsTable");
   const frames = Array.from(document.querySelectorAll("iframe.sc-player"));
-  if (!table || !frames.length || !window.SC?.Widget) return;
+  if (!frames.length || !window.SC?.Widget) return;
+
+  const players = frames.map((frame) => ({
+    frame,
+    widget: window.SC.Widget(frame),
+    startMs: Math.max(0, Number.parseInt(frame.dataset.startMs || "0", 10) || 0),
+  }));
+
+  let activePlayer = players[0];
+
+  // A recording may contain material before the hymn itself. The manager stores
+  // a per-recording start offset; seek there as soon as SoundCloud is ready.
+  players.forEach((player) => {
+    const { widget, startMs } = player;
+
+    widget.bind(window.SC.Widget.Events.READY, () => {
+      if (startMs > 0) widget.seekTo(startMs);
+    });
+
+    widget.bind(window.SC.Widget.Events.PLAY, () => {
+      activePlayer = player;
+
+      if (startMs > 0) {
+        // Some browsers/widgets do not honor an early READY seek until playback
+        // begins. Re-check the position on PLAY and correct it only when the
+        // player is still before the configured hymn start.
+        widget.getPosition((position) => {
+          if ((Number(position) || 0) < startMs - 500) {
+            widget.seekTo(startMs);
+          }
+        });
+      }
+    });
+  });
+
+  const table = document.getElementById("lyricsTable");
+  if (!table) return;
 
   const rows = Array.from(table.querySelectorAll("tr.lyric-row"));
   if (!rows.length) return;
 
+  // Lyric timestamps remain relative to the beginning of the hymn, not the
+  // beginning of the full SoundCloud track. This means a recording configured
+  // to start at 1:30 can still use lyric timestamps beginning at 0:00.
   const starts = rows.map((row) => Number.parseInt(row.dataset.startMs || "0", 10) || 0);
-  const widgets = frames.map((frame) => window.SC.Widget(frame));
-  let activeWidget = widgets[0];
   let activeRow = -1;
   let lastAutoScroll = 0;
 
@@ -160,12 +196,15 @@ function initSoundCloudSync() {
     }
   }
 
-  widgets.forEach((widget) => {
-    widget.bind(window.SC.Widget.Events.PLAY, () => { activeWidget = widget; });
+  players.forEach((player) => {
+    const { widget, startMs } = player;
+
     widget.bind(window.SC.Widget.Events.PLAY_PROGRESS, (event) => {
-      activeWidget = widget;
-      activate(findRow(event.currentPosition), true);
+      activePlayer = player;
+      const hymnPosition = Math.max(0, (Number(event.currentPosition) || 0) - startMs);
+      activate(findRow(hymnPosition), true);
     });
+
     widget.bind(window.SC.Widget.Events.FINISH, () => {
       if (activeRow >= 0) rows[activeRow].classList.remove("active");
       activeRow = -1;
@@ -174,8 +213,9 @@ function initSoundCloudSync() {
 
   rows.forEach((row, index) => {
     const seek = () => {
-      activeWidget.seekTo(starts[index]);
-      activeWidget.play();
+      const targetMs = activePlayer.startMs + starts[index];
+      activePlayer.widget.seekTo(targetMs);
+      activePlayer.widget.play();
       activate(index, false);
     };
     row.addEventListener("click", seek);

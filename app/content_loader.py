@@ -96,41 +96,43 @@ def _read_table(workbook, sheet_name: str) -> list[dict[str, Any]]:
 def soundcloud_embed_url(raw_url: str, *, colour: str = "7A263A") -> str:
     """
     Accept either a normal public SoundCloud URL or an existing widget URL.
-    The returned URL is ready for a responsive iframe.
+
+    The public hymn page intentionally uses SoundCloud's compact, non-visual
+    waveform player. Artwork and secondary actions are hidden so the waveform
+    gets as much horizontal space as possible.
     """
     url = _clean(raw_url)
     if not url:
         return ""
 
+    compact_params = {
+        "color": colour,
+        "auto_play": "false",
+        "hide_related": "true",
+        "show_comments": "false",
+        "show_user": "true",
+        "show_reposts": "false",
+        "show_teaser": "false",
+        "show_artwork": "false",
+        "show_playcount": "false",
+        "sharing": "false",
+        "download": "false",
+        "buying": "false",
+        "visual": "false",
+    }
+
     parsed = urlparse(url)
     if parsed.netloc.lower() == "w.soundcloud.com" and parsed.path.startswith("/player"):
         params = dict(parse_qsl(parsed.query, keep_blank_values=True))
-        params.setdefault("color", colour)
-        params.setdefault("auto_play", "false")
-        params.setdefault("hide_related", "true")
-        params.setdefault("show_comments", "false")
-        params.setdefault("show_user", "true")
-        params.setdefault("show_reposts", "false")
-        params.setdefault("show_teaser", "false")
-        params.setdefault("visual", "false")
+        # Force the site's compact player style even if an old widget URL
+        # contained visual=true or show_artwork=true.
+        params.update(compact_params)
         return urlunparse(parsed._replace(query=urlencode(params)))
 
     if parsed.scheme not in {"http", "https"} or not parsed.netloc:
         return ""
 
-    query = urlencode(
-        {
-            "url": url,
-            "color": colour,
-            "auto_play": "false",
-            "hide_related": "true",
-            "show_comments": "false",
-            "show_user": "true",
-            "show_reposts": "false",
-            "show_teaser": "false",
-            "visual": "false",
-        }
-    )
+    query = urlencode({"url": url, **compact_params})
     return f"https://w.soundcloud.com/player/?{query}"
 
 
@@ -308,11 +310,28 @@ def _load_xlsx(content_path: str) -> Dict[str, Any]:
         if not embed_url:
             warnings.append(f"recordings row {row['__row__']} contains an invalid URL and was ignored.")
             continue
+        start_at = (
+            _clean(row.get("start_at"))
+            or _clean(row.get("start_time"))
+            or _clean(row.get("start"))
+            or "0:00"
+        )
+        try:
+            start_ms = _parse_time_to_ms(start_at)
+        except ContentError as exc:
+            warnings.append(
+                f"recordings row {row['__row__']} has an invalid start time ({exc}); using 0:00."
+            )
+            start_at = "0:00"
+            start_ms = 0
+
         hymns_by_key[hymn_key]["recordings"].append(
             {
                 "label": _clean(row.get("label")) or "Recording",
                 "url": raw_url,
                 "embed_url": embed_url,
+                "start_at": start_at,
+                "start_ms": start_ms,
                 "sort": _safe_int(row.get("sort"), 0),
             }
         )
@@ -433,11 +452,28 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                     embed_url = soundcloud_embed_url(raw_url)
                     if not raw_url or not embed_url:
                         continue
+                    start_at = (
+                        _clean(recording.get("start_at"))
+                        or _clean(recording.get("start_time"))
+                        or _clean(recording.get("start"))
+                        or "0:00"
+                    )
+                    try:
+                        start_ms = _parse_time_to_ms(start_at)
+                    except ContentError:
+                        site["content_warnings"].append(
+                            f"{out_hymn['title']} has a recording with invalid start time '{start_at}'; using 0:00."
+                        )
+                        start_at = "0:00"
+                        start_ms = 0
+
                     out_hymn["recordings"].append(
                         {
                             "label": _clean(recording.get("label")) or "Recording",
                             "url": raw_url,
                             "embed_url": embed_url,
+                            "start_at": start_at,
+                            "start_ms": start_ms,
                             "sort": _safe_int(recording.get("sort"), recording_index * 10),
                         }
                     )
