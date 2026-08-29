@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "3.9"
+APP_VERSION = "4.0"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -86,8 +86,16 @@ UNICODE_TO_AVVA = {
 }
 
 SPECIAL_SEQUENCES = {
+    # Avva Shenouda has dedicated legacy glyph slots for overlined delta and
+    # upsilon. Coptic sources use several canonically different overline marks,
+    # so accept all three variants instead of only U+0305. This keeps the web
+    # renderer consistent with the Content Manager preview for abbreviations.
+    "ⲇ\u0304": "ä",
     "ⲇ\u0305": "ä",
+    "ⲇ\u033f": "ä",
+    "ⲩ\u0304": "ö",
     "ⲩ\u0305": "ö",
+    "ⲩ\u033f": "ö",
 }
 
 AVVA_TO_UNICODE = {value: key for key, value in UNICODE_TO_AVVA.items()}
@@ -557,7 +565,7 @@ def managed_audio_files(content: dict[str, Any] | None) -> set[str]:
     return files
 
 
-def validate_time_text(value: str) -> str:
+def validate_time_text(value: str, *, field_name: str = "time") -> str:
     """Validate a hymn/recording timestamp and return the cleaned text."""
     text = str(value or "").strip() or "0:00"
     try:
@@ -581,9 +589,31 @@ def validate_time_text(value: str) -> str:
             raise ValueError
     except (TypeError, ValueError) as exc:
         raise ValueError(
-            "Enter the start time as 0:00, 1:23, 1:23.5, or 1:02:03."
+            f"Enter the {field_name} as 0:00, 1:23, 1:23.5, or 1:02:03."
         ) from exc
     return text
+
+
+def validate_optional_time_text(value: str, *, field_name: str = "time") -> str:
+    """Validate an optional timestamp. Blank means no limit."""
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    return validate_time_text(text, field_name=field_name)
+
+
+def time_text_to_ms(value: str) -> int:
+    """Convert an already validated timestamp to milliseconds."""
+    text = str(value or "").strip() or "0:00"
+    parts = text.split(":")
+    seconds = float(parts[-1])
+    if len(parts) == 1:
+        total = seconds
+    elif len(parts) == 2:
+        total = int(parts[0]) * 60 + seconds
+    else:
+        total = int(parts[0]) * 3600 + int(parts[1]) * 60 + seconds
+    return max(0, int(round(total * 1000)))
 
 
 def split_bulk_lyric_stanzas(text: str) -> list[str]:
@@ -3056,7 +3086,7 @@ class ContentManagerApp(tk.Tk):
 
         self.recordings_tree = ttk.Treeview(
             table_frame,
-            columns=("type", "label", "source", "start_at", "published"),
+            columns=("type", "label", "source", "start_at", "end_at", "published"),
             show="headings",
             height=9,
         )
@@ -3065,6 +3095,7 @@ class ContentManagerApp(tk.Tk):
             ("label", "Label", 170, False),
             ("source", "Source", 390, True),
             ("start_at", "Start at", 85, False),
+            ("end_at", "End at", 85, False),
             ("published", "Published", 85, False),
         ]
         for col, title, width, stretch in columns:
@@ -3127,6 +3158,7 @@ class ContentManagerApp(tk.Tk):
                     recording.get("label", "Recording"),
                     source,
                     recording.get("start_at", "0:00") or "0:00",
+                    recording.get("end_at", "") or "—",
                     "Yes" if recording.get("published", True) else "No",
                 ),
             )
@@ -3137,9 +3169,20 @@ class ContentManagerApp(tk.Tk):
 
     def _validate_recording_dialog_result(self, result: dict[str, Any]) -> bool:
         try:
-            result["start_at"] = validate_time_text(str(result.get("start_at", "0:00")))
+            result["start_at"] = validate_time_text(
+                str(result.get("start_at", "0:00")),
+                field_name="start time",
+            )
+            result["end_at"] = validate_optional_time_text(
+                str(result.get("end_at", "")),
+                field_name="end time",
+            )
+            start_ms = time_text_to_ms(result["start_at"])
+            end_ms = time_text_to_ms(result["end_at"]) if result["end_at"] else 0
+            if end_ms and end_ms <= start_ms:
+                raise ValueError("End at must be later than Start at.")
         except ValueError as exc:
-            messagebox.showerror("Invalid start time", str(exc), parent=self)
+            messagebox.showerror("Invalid recording range", str(exc), parent=self)
             return False
         return True
 
@@ -3152,6 +3195,7 @@ class ContentManagerApp(tk.Tk):
             ("Label", "label", "text", "Recording"),
             ("Full SoundCloud track URL", "url", "text", "https://soundcloud.com/"),
             ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+            ("End at (blank = end of track)", "end_at", "text", ""),
             ("Published", "published", "bool", True),
         ])
         if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
@@ -3176,6 +3220,7 @@ class ContentManagerApp(tk.Tk):
             ("YouTube URL", "url", "text", "https://www.youtube.com/watch?v="),
             ("Label (blank = YouTube title)", "label", "text", ""),
             ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+            ("End at (blank = end of track)", "end_at", "text", ""),
             ("Published", "published", "bool", True),
             (
                 "I own this recording or have permission to store/use it",
@@ -3202,6 +3247,7 @@ class ContentManagerApp(tk.Tk):
 
         wanted_label = str(dialog.result.get("label", "")).strip()
         start_at = dialog.result["start_at"]
+        end_at = dialog.result.get("end_at", "")
         published = bool(dialog.result.get("published", True))
 
         def work() -> dict[str, Any]:
@@ -3215,6 +3261,7 @@ class ContentManagerApp(tk.Tk):
             recording["type"] = "audio"
             recording["label"] = wanted_label or str(recording.get("label") or "YouTube recording")
             recording["start_at"] = start_at
+            recording["end_at"] = end_at
             recording["published"] = published
             items = hymn.setdefault("recordings", [])
             recording["sort"] = next_sort(items)
@@ -3253,12 +3300,14 @@ class ContentManagerApp(tk.Tk):
         dialog = RecordDialog(self, "Upload audio recording", [
             ("Label", "label", "text", Path(path).stem),
             ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+            ("End at (blank = end of track)", "end_at", "text", ""),
             ("Published", "published", "bool", True),
         ])
         if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
             return
         wanted_label = str(dialog.result.get("label", "")).strip() or Path(path).stem
         start_at = dialog.result["start_at"]
+        end_at = dialog.result.get("end_at", "")
         published = bool(dialog.result.get("published", True))
 
         def work() -> dict[str, Any]:
@@ -3272,6 +3321,7 @@ class ContentManagerApp(tk.Tk):
             recording["type"] = "audio"
             recording["label"] = wanted_label
             recording["start_at"] = start_at
+            recording["end_at"] = end_at
             recording["published"] = published
             items = hymn.setdefault("recordings", [])
             recording["sort"] = next_sort(items)
@@ -3293,6 +3343,7 @@ class ContentManagerApp(tk.Tk):
             dialog = RecordDialog(self, "Edit self-hosted recording", [
                 ("Label", "label", "text", "Recording"),
                 ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+                ("End at (blank = end of track)", "end_at", "text", ""),
                 ("Published", "published", "bool", True),
             ], item)
             if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
@@ -3307,6 +3358,7 @@ class ContentManagerApp(tk.Tk):
                 ("Label", "label", "text", "Recording"),
                 ("Full SoundCloud track URL", "url", "text", ""),
                 ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
+                ("End at (blank = end of track)", "end_at", "text", ""),
                 ("Published", "published", "bool", True),
             ], item)
             if not dialog.result or not self._validate_recording_dialog_result(dialog.result):

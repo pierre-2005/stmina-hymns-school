@@ -172,11 +172,17 @@ def canonicalise_site(raw: dict[str, Any]) -> dict[str, Any]:
                         or _clean(recording.get("start"))
                         or "0:00"
                     )
+                    end_at = (
+                        _clean(recording.get("end_at"))
+                        or _clean(recording.get("end_time"))
+                        or _clean(recording.get("end"))
+                    )
                     recording_type = _clean(recording.get("type")).lower() or "soundcloud"
                     common = {
                         "type": recording_type,
                         "label": _clean(recording.get("label")) or "Recording",
                         "start_at": start_at,
+                        "end_at": end_at,
                         "sort": _int(recording.get("sort"), recording_index * 10),
                         "published": _bool(recording.get("published"), True),
                     }
@@ -290,7 +296,13 @@ def validate_site(raw: dict[str, Any]) -> list[str]:
                     # Validate the optional per-recording start offset whether or
                     # not the recording is currently published, so drafts cannot
                     # carry an invalid value that surprises the user later.
-                    _parse_time_to_ms(recording.get("start_at", "0:00"))
+                    start_ms = _parse_time_to_ms(recording.get("start_at", "0:00"))
+                    end_at = _clean(recording.get("end_at"))
+                    end_ms = _parse_time_to_ms(end_at) if end_at else 0
+                    if end_ms and end_ms <= start_ms:
+                        raise ContentError(
+                            f"{hymn['title']} has a recording whose End at time must be after Start at."
+                        )
                     recording_type = _clean(recording.get("type")).lower() or "soundcloud"
                     if recording_type == "audio":
                         audio_file = _clean(recording.get("audio_file"))
@@ -305,9 +317,13 @@ def validate_site(raw: dict[str, Any]) -> list[str]:
                                 f"{hymn['title']} has a self-hosted recording without waveform data."
                             )
                         duration_ms = max(0, _int(recording.get("duration_ms"), 0))
-                        if duration_ms and _parse_time_to_ms(recording.get("start_at", "0:00")) >= duration_ms:
+                        if duration_ms and start_ms >= duration_ms:
                             raise ContentError(
                                 f"{hymn['title']} has a self-hosted recording whose Start at time is at or beyond the end of the audio."
+                            )
+                        if duration_ms and end_ms and end_ms > duration_ms:
+                            raise ContentError(
+                                f"{hymn['title']} has a self-hosted recording whose End at time is past the end of the audio."
                             )
                     elif recording["published"]:
                         _validate_soundcloud_url(recording.get("url", ""))

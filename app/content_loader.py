@@ -325,6 +325,24 @@ def _load_xlsx(content_path: str) -> Dict[str, Any]:
             start_at = "0:00"
             start_ms = 0
 
+        end_at = (
+            _clean(row.get("end_at"))
+            or _clean(row.get("end_time"))
+            or _clean(row.get("end"))
+        )
+        end_ms = 0
+        if end_at:
+            try:
+                end_ms = _parse_time_to_ms(end_at)
+                if end_ms <= start_ms:
+                    raise ContentError("End at must be after Start at")
+            except ContentError as exc:
+                warnings.append(
+                    f"recordings row {row['__row__']} has an invalid end time ({exc}); no end limit will be used."
+                )
+                end_at = ""
+                end_ms = 0
+
         hymns_by_key[hymn_key]["recordings"].append(
             {
                 "label": _clean(row.get("label")) or "Recording",
@@ -332,6 +350,8 @@ def _load_xlsx(content_path: str) -> Dict[str, Any]:
                 "embed_url": embed_url,
                 "start_at": start_at,
                 "start_ms": start_ms,
+                "end_at": end_at,
+                "end_ms": end_ms,
                 "sort": _safe_int(row.get("sort"), 0),
             }
         )
@@ -463,6 +483,24 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                         start_at = "0:00"
                         start_ms = 0
 
+                    end_at = (
+                        _clean(recording.get("end_at"))
+                        or _clean(recording.get("end_time"))
+                        or _clean(recording.get("end"))
+                    )
+                    end_ms = 0
+                    if end_at:
+                        try:
+                            end_ms = _parse_time_to_ms(end_at)
+                            if end_ms <= start_ms:
+                                raise ContentError("End at must be after Start at")
+                        except ContentError:
+                            site["content_warnings"].append(
+                                f"{out_hymn['title']} has a recording with invalid end time '{end_at}'; no end limit will be used."
+                            )
+                            end_at = ""
+                            end_ms = 0
+
                     recording_type = _clean(recording.get("type")).lower() or "soundcloud"
                     if recording_type == "audio":
                         audio_file = _clean(recording.get("audio_file"))
@@ -488,6 +526,8 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                                 "source_url": _clean(recording.get("source_url")),
                                 "start_at": start_at,
                                 "start_ms": start_ms,
+                                "end_at": end_at,
+                                "end_ms": end_ms,
                                 "sort": _safe_int(recording.get("sort"), recording_index * 10),
                             }
                         )
@@ -505,6 +545,8 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                             "embed_url": embed_url,
                             "start_at": start_at,
                             "start_ms": start_ms,
+                            "end_at": end_at,
+                            "end_ms": end_ms,
                             "sort": _safe_int(recording.get("sort"), recording_index * 10),
                         }
                     )

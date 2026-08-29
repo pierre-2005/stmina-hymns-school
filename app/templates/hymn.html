@@ -29,6 +29,7 @@
           <div
             class="wave-player"
             data-start-ms="{{ recording.start_ms | default(0) }}"
+            data-end-ms="{{ recording.end_ms | default(0) }}"
             data-duration-ms="{{ recording.duration_ms | default(0) }}"
             data-label="{{ recording.label }}"
           >
@@ -77,6 +78,7 @@
             loading="lazy"
             height="132"
             data-start-ms="{{ recording.start_ms | default(0) }}"
+            data-end-ms="{{ recording.end_ms | default(0) }}"
             src="{{ recording.embed_url }}">
           </iframe>
         {% endif %}
@@ -96,6 +98,7 @@
     <div class="font-controls" aria-label="Text size">
       <button class="icon-btn" type="button" id="fontMinus" aria-label="Decrease lyric font size">A−</button>
       <button class="icon-btn" type="button" id="fontPlus" aria-label="Increase lyric font size">A+</button>
+      <button class="btn btn-quiet btn-small" type="button" id="lyricSeekToggle" aria-pressed="true">Lyric seek: ON</button>
       <button class="btn btn-quiet btn-small" type="button" id="resetLanguagePrefs">Reset languages</button>
     </div>
   </div>
@@ -149,8 +152,8 @@
   </div>
 
   {% if segments %}
-    <p class="helper-text">
-      Tap a lyric row to seek the active recording to that timestamp.
+    <p class="helper-text" id="lyricSeekHelp">
+      Lyric seeking is ON. Tap a lyric row to seek the active recording to that timestamp.
     </p>
   {% endif %}
 </section>

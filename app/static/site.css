@@ -1080,6 +1080,7 @@ audio {
 .wave-player {
   --wave-base: #b8b8b8;
   --wave-played: #ff5500;
+  --wave-outside: #e2dfe0;
 
   width: 100%;
   min-height: 132px;
@@ -1436,6 +1437,27 @@ audio {
   box-shadow:
     inset 0 2px 0 rgba(122, 38, 63, 0.12),
     inset 0 -2px 0 rgba(122, 38, 63, 0.12);
+}
+
+/* Site-wide lyric-row seeking can be disabled from any hymn page. */
+#lyricSeekToggle.is-off {
+  color: #756b6e;
+  background: #f2eef0;
+  border-color: #ddd4d7;
+}
+
+.lyrics-table.lyric-seek-disabled .lyric-row {
+  cursor: default;
+}
+
+.lyrics-table.lyric-seek-disabled .lyric-row:hover .lyric-cell,
+.lyrics-table.lyric-seek-disabled .lyric-row:hover .cell {
+  background: #fff;
+}
+
+.lyrics-table.lyric-seek-disabled .lyric-row.active:hover .lyric-cell,
+.lyrics-table.lyric-seek-disabled .lyric-row.active:hover .cell {
+  background: #fff4f6;
 }
 
 .lang-cop {

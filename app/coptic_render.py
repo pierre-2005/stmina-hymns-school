@@ -46,8 +46,16 @@ UNICODE_TO_AVVA = {
 }
 
 SPECIAL_SEQUENCES = {
+    # Avva Shenouda has dedicated legacy glyph slots for overlined delta and
+    # upsilon. Coptic sources use several canonically different overline marks,
+    # so accept all three variants instead of only U+0305. This keeps the web
+    # renderer consistent with the Content Manager preview for abbreviations.
+    "ⲇ\u0304": "ä",
     "ⲇ\u0305": "ä",
+    "ⲇ\u033f": "ä",
+    "ⲩ\u0304": "ö",
     "ⲩ\u0305": "ö",
+    "ⲩ\u033f": "ö",
 }
 
 OVERLINE_MARKS = {
