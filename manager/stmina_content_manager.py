@@ -16,11 +16,11 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, simpledialog, ttk, font as tkfont
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "4.1"
+APP_VERSION = "4.2"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -590,6 +590,67 @@ def managed_audio_files(content: dict[str, Any] | None) -> set[str]:
                     if name:
                         files.add(name)
     return files
+
+
+def _canonical_soundcloud_track_url(value: str) -> str:
+    """Return a stable SoundCloud track URL suitable for migration/deduping.
+
+    Normal soundcloud.com share URLs often carry playlist/tracking parameters.
+    Keep only secret_token because it can be required for authorized secret tracks.
+    on.soundcloud.com links are left intact so SoundCloud can resolve them.
+    """
+    text = str(value or "").strip()
+    if not text:
+        raise ValueError("The recording does not contain a SoundCloud URL.")
+    try:
+        parsed = urlparse(text)
+    except ValueError as exc:
+        raise ValueError("The recording contains an invalid SoundCloud URL.") from exc
+
+    host = parsed.netloc.lower().split(":", 1)[0]
+    if parsed.scheme not in {"http", "https"}:
+        raise ValueError("The SoundCloud URL must start with http:// or https://.")
+    if host != "soundcloud.com" and not host.endswith(".soundcloud.com"):
+        raise ValueError("The recording is not a SoundCloud URL.")
+
+    parts = [part for part in parsed.path.split("/") if part]
+    if host == "on.soundcloud.com":
+        if not parts:
+            raise ValueError("The SoundCloud share URL is incomplete.")
+        return text
+
+    if len(parts) < 2:
+        raise ValueError("The saved SoundCloud URL is not a full track URL.")
+
+    kept_query = [
+        (key, value)
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+        if key == "secret_token"
+    ]
+    return urlunparse((
+        "https",
+        "soundcloud.com",
+        "/" + "/".join(parts),
+        "",
+        urlencode(kept_query),
+        "",
+    ))
+
+
+def legacy_soundcloud_recording_count(content: dict[str, Any] | None) -> int:
+    """Count old external SoundCloud recordings that still need preservation."""
+    count = 0
+    for level in (content or {}).get("levels", []) or []:
+        for year in level.get("years", []) or []:
+            for hymn in year.get("hymns", []) or []:
+                for recording in hymn.get("recordings", []) or []:
+                    if not isinstance(recording, dict):
+                        continue
+                    if str(recording.get("type", "soundcloud") or "soundcloud").strip().lower() == "audio":
+                        continue
+                    if str(recording.get("url", "")).strip():
+                        count += 1
+    return count
 
 
 def validate_time_text(value: str, *, field_name: str = "time") -> str:
@@ -3229,7 +3290,7 @@ class ContentManagerApp(tk.Tk):
             return
 
         dialog = RecordDialog(self, "Import SoundCloud audio", [
-            ("SoundCloud track URL", "url", "text", "https://soundcloud.com/"),
+            ("SoundCloud track URL (paste the full track/share link)", "url", "text", ""),
             ("Label (blank = SoundCloud title)", "label", "text", ""),
             ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
             ("End at (blank = end of track)", "end_at", "text", ""),
@@ -3254,7 +3315,43 @@ class ContentManagerApp(tk.Tk):
             return
         url = str(dialog.result.get("url", "")).strip()
         if not url:
-            messagebox.showerror("Missing SoundCloud URL", "Enter a SoundCloud track URL.", parent=self)
+            messagebox.showerror("Missing SoundCloud URL", "Paste the full SoundCloud track URL.", parent=self)
+            return
+        try:
+            parsed = urlparse(url)
+            host = parsed.netloc.lower().split(":", 1)[0]
+            if parsed.scheme not in {"http", "https"}:
+                raise ValueError("The SoundCloud link must start with http:// or https://.")
+            if host != "soundcloud.com" and not host.endswith(".soundcloud.com"):
+                raise ValueError("Enter a SoundCloud link from soundcloud.com.")
+            parts = [part for part in parsed.path.split("/") if part]
+            if host == "on.soundcloud.com":
+                if not parts:
+                    raise ValueError("Paste the complete SoundCloud share link, not only https://on.soundcloud.com/.")
+            elif len(parts) < 2:
+                raise ValueError(
+                    "Paste the full SoundCloud TRACK URL, for example:\n"
+                    "https://soundcloud.com/artist/track-name\n\n"
+                    "The SoundCloud homepage or an artist profile cannot be imported as a recording."
+                )
+            else:
+                # Strip playlist/share context and analytics parameters before
+                # sending a normal soundcloud.com track permalink to the server.
+                kept_query = [
+                    (key, value)
+                    for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+                    if key == "secret_token"
+                ]
+                url = urlunparse((
+                    "https",
+                    "soundcloud.com",
+                    "/" + "/".join(parts),
+                    "",
+                    urlencode(kept_query),
+                    "",
+                ))
+        except ValueError as exc:
+            messagebox.showerror("Invalid SoundCloud URL", str(exc), parent=self)
             return
 
         wanted_label = str(dialog.result.get("label", "")).strip()
@@ -3902,31 +3999,187 @@ class ContentManagerApp(tk.Tk):
     def publish_content(self) -> None:
         if not self.client:
             return
+
+        legacy_count = legacy_soundcloud_recording_count(self.content)
+        confirmation = (
+            "Publish this curriculum to the live Hymns School website now?\n\n"
+            "Changes will become visible without a Portainer redeploy."
+        )
+        if legacy_count:
+            confirmation += (
+                f"\n\nThis publish will also preserve {legacy_count} existing external "
+                f"SoundCloud recording{'s' if legacy_count != 1 else ''} on your Raspberry Pi before publishing. "
+                "Each unique track will be downloaded once, converted to managed audio, and the curriculum "
+                "will be updated to use the local copy. This can take several minutes.\n\n"
+                "Continue only for recordings you own or are authorized to store and use. "
+                "If any track cannot be preserved, the live curriculum will NOT be changed."
+            )
+
         if not messagebox.askyesno(
             "Publish content",
-            "Publish this curriculum to the live Hymns School website now?\n\nChanges will become visible without a Portainer redeploy.",
+            confirmation,
             parent=self,
         ):
             return
+
+        selected_ref = self.selected_ref()
         draft = deepcopy(self.content)
         github_backup = bool(self.github_backup_var.get())
         redeploy_after_publish = bool(self.redeploy_after_publish_var.get())
 
         def work() -> dict[str, Any]:
-            result = self.client.publish(draft, github_backup, self.remote_revision)
-            if redeploy_after_publish:
-                try:
-                    result["redeploy"] = self.client.redeploy()
-                except ApiError as exc:
-                    result["redeploy_error"] = str(exc)
-            return result
+            assert self.client is not None
+            imported_by_url: dict[str, dict[str, Any]] = {}
+            newly_created_files: set[str] = set()
+            migrated_recordings = 0
+            downloaded_unique_tracks = 0
+
+            # Reuse a managed SoundCloud copy that may already exist elsewhere
+            # in the draft instead of downloading the same source twice.
+            for existing_level in draft.get("levels", []) or []:
+                for existing_year in existing_level.get("years", []) or []:
+                    for existing_hymn in existing_year.get("hymns", []) or []:
+                        for existing_recording in existing_hymn.get("recordings", []) or []:
+                            if not isinstance(existing_recording, dict):
+                                continue
+                            if str(existing_recording.get("type", "") or "").strip().lower() != "audio":
+                                continue
+                            if str(existing_recording.get("source_type", "") or "").strip().lower() != "soundcloud":
+                                continue
+                            source_url = str(existing_recording.get("source_url", "")).strip()
+                            audio_file = str(existing_recording.get("audio_file", "")).strip()
+                            if not source_url or not audio_file:
+                                continue
+                            try:
+                                key = _canonical_soundcloud_track_url(source_url)
+                            except ValueError:
+                                continue
+                            imported_by_url.setdefault(key, deepcopy(existing_recording))
+
+            try:
+                # One-time migration of every old external SoundCloud recording.
+                # The draft is changed first; the live JSON is not touched until
+                # all required downloads have completed successfully.
+                for level in draft.get("levels", []) or []:
+                    level_name = str(level.get("name") or level.get("slug") or "Level")
+                    for year in level.get("years", []) or []:
+                        year_name = str(year.get("name") or year.get("slug") or "Year")
+                        for hymn in year.get("hymns", []) or []:
+                            hymn_title = str(hymn.get("title") or hymn.get("slug") or "Untitled hymn")
+                            recordings = hymn.get("recordings", []) or []
+                            for index, old_recording in enumerate(list(recordings)):
+                                if not isinstance(old_recording, dict):
+                                    continue
+                                if str(old_recording.get("type", "soundcloud") or "soundcloud").strip().lower() == "audio":
+                                    continue
+
+                                raw_url = str(old_recording.get("url", "")).strip()
+                                if not raw_url:
+                                    continue
+                                try:
+                                    canonical_url = _canonical_soundcloud_track_url(raw_url)
+                                except ValueError as exc:
+                                    raise RuntimeError(
+                                        f"Could not preserve the existing SoundCloud recording in "
+                                        f"{level_name} → {year_name} → {hymn_title}: {exc}"
+                                    ) from exc
+
+                                if canonical_url not in imported_by_url:
+                                    try:
+                                        imported_result = self.client.import_soundcloud_audio(canonical_url)
+                                    except Exception as exc:
+                                        raise RuntimeError(
+                                            f"Could not preserve SoundCloud recording for "
+                                            f"{level_name} → {year_name} → {hymn_title}.\n\n"
+                                            f"Track: {canonical_url}\n\n{exc}\n\n"
+                                            "Nothing has been published. Fix/remove this recording and try again."
+                                        ) from exc
+
+                                    managed = dict(imported_result.get("recording") or {})
+                                    audio_file = str(managed.get("audio_file", "")).strip()
+                                    if not audio_file:
+                                        raise RuntimeError(
+                                            f"The server did not return an audio file while preserving {canonical_url}. "
+                                            "Nothing has been published."
+                                        )
+                                    managed["type"] = "audio"
+                                    managed["source_type"] = "soundcloud"
+                                    managed["source_url"] = canonical_url
+                                    imported_by_url[canonical_url] = managed
+                                    newly_created_files.add(audio_file)
+                                    downloaded_unique_tracks += 1
+
+                                managed = deepcopy(imported_by_url[canonical_url])
+                                managed["type"] = "audio"
+                                managed["source_type"] = "soundcloud"
+                                managed["source_url"] = canonical_url
+                                managed["label"] = (
+                                    str(old_recording.get("label", "")).strip()
+                                    or str(managed.get("label", "")).strip()
+                                    or "SoundCloud recording"
+                                )
+                                managed["start_at"] = str(old_recording.get("start_at", "0:00") or "0:00").strip() or "0:00"
+                                managed["end_at"] = str(old_recording.get("end_at", "") or "").strip()
+                                managed["sort"] = int(old_recording.get("sort", (index + 1) * 10) or (index + 1) * 10)
+                                managed["published"] = bool(old_recording.get("published", True))
+                                recordings[index] = managed
+                                migrated_recordings += 1
+
+                result = self.client.publish(draft, github_backup, self.remote_revision)
+
+                # Reload the exact normalized content that the server saved.
+                current = self.client.current()
+                result["_manager_content"] = current.get("content") or draft
+                result["status"] = current.get("status") or result.get("status")
+                result["soundcloud_migrated"] = migrated_recordings
+                result["soundcloud_unique_downloads"] = downloaded_unique_tracks
+
+                if redeploy_after_publish:
+                    try:
+                        result["redeploy"] = self.client.redeploy()
+                    except ApiError as exc:
+                        result["redeploy_error"] = str(exc)
+                return result
+
+            except Exception:
+                # These files were created only for this unpublished migration.
+                # If migration/publish fails, remove them so a failed publish does
+                # not leave unnecessary audio files on the persistent volume.
+                for audio_file in newly_created_files:
+                    try:
+                        self.client.delete_unpublished_audio(audio_file)
+                    except Exception:
+                        pass
+                raise
 
         def done(result: dict[str, Any]) -> None:
+            migrated_content = result.pop("_manager_content", None)
+            if isinstance(migrated_content, dict):
+                self.content = migrated_content
+                self.populate_site_settings()
+                self.refresh_languages()
+                self.rebuild_tree(selected_ref)
+                if selected_ref:
+                    self.current_ref = selected_ref
+                    self.populate_details()
+                    self.refresh_recordings()
+                    self.refresh_lyrics()
+
             self.dirty = False
             self.update_dirty_label()
             self.remote_status = result.get("status") or self.remote_status
             self.remote_revision = str(self.remote_status.get("revision", self.remote_revision))
             lines = [result.get("message", "Published.")]
+
+            migrated = int(result.get("soundcloud_migrated", 0) or 0)
+            unique_downloads = int(result.get("soundcloud_unique_downloads", 0) or 0)
+            if migrated:
+                lines.append(
+                    f"\nPreserved {migrated} existing SoundCloud recording"
+                    f"{'s' if migrated != 1 else ''} as self-hosted audio "
+                    f"({unique_downloads} unique track{'s' if unique_downloads != 1 else ''} downloaded)."
+                )
+
             warnings = result.get("warnings") or []
             if warnings:
                 lines.append("\nWarnings:")
@@ -3944,9 +4197,24 @@ class ContentManagerApp(tk.Tk):
                 lines.append(f"Portainer redeploy warning: {result['redeploy_error']}")
             self.set_publish_text("\n".join(lines))
             self.status_label.configure(text="Published successfully.")
-            messagebox.showinfo("Published", "The live website content was updated successfully.", parent=self)
 
-        self.run_async("Publishing website content…", work, done)
+            if migrated:
+                message = (
+                    "The live website content was updated successfully.\n\n"
+                    f"{migrated} existing SoundCloud recording"
+                    f"{'s were' if migrated != 1 else ' was'} downloaded and preserved on your Raspberry Pi. "
+                    "They now use the self-hosted waveform player and will not be downloaded again on future publishes."
+                )
+            else:
+                message = "The live website content was updated successfully."
+            messagebox.showinfo("Published", message, parent=self)
+
+        busy_message = (
+            "Preserving existing SoundCloud recordings, then publishing…"
+            if legacy_count
+            else "Publishing website content…"
+        )
+        self.run_async(busy_message, work, done)
 
     def redeploy(self) -> None:
         if not self.client:

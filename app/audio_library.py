@@ -11,7 +11,7 @@ import uuid
 from array import array
 from pathlib import Path
 from typing import Any, Iterable
-from urllib.parse import quote, urlparse
+from urllib.parse import parse_qsl, quote, urlencode, urlparse, urlunparse
 
 
 class AudioLibraryError(RuntimeError):
@@ -261,8 +261,36 @@ def _validate_remote_url(url: str, *, source_type: str) -> str:
 
     if source_type == "soundcloud":
         if host != "soundcloud.com" and not host.endswith(".soundcloud.com"):
-            raise AudioLibraryError("Enter a normal soundcloud.com track URL.")
-        return text
+            raise AudioLibraryError("Enter a normal SoundCloud track URL.")
+
+        # Short share links need their token/query intact so SoundCloud can
+        # redirect them to the real track permalink.
+        parts = [part for part in parsed.path.split("/") if part]
+        if host == "on.soundcloud.com":
+            if not parts:
+                raise AudioLibraryError(
+                    "Paste the full SoundCloud share link, not just https://on.soundcloud.com/."
+                )
+            return text
+
+        if len(parts) < 2:
+            raise AudioLibraryError(
+                "Paste the full SoundCloud TRACK URL (for example "
+                "https://soundcloud.com/artist/track-name), not the SoundCloud homepage or profile."
+            )
+
+        # SoundCloud's Copy Link action often appends playlist context and
+        # analytics parameters such as ?in=...&utm_source=.... They are not
+        # part of the track identity and have caused extractor/redirect
+        # inconsistencies. Feed yt-dlp the canonical track permalink instead.
+        # Keep only an actual secret_token query if SoundCloud supplied one.
+        kept_query = []
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True):
+            if key == "secret_token":
+                kept_query.append((key, value))
+        canonical_query = urlencode(kept_query)
+        canonical_path = "/" + "/".join(parts)
+        return urlunparse(("https", "soundcloud.com", canonical_path, "", canonical_query, ""))
 
     raise AudioLibraryError("Unsupported remote recording source.")
 
@@ -316,6 +344,7 @@ def _import_remote_audio(url: str, *, source_type: str) -> dict[str, Any]:
                 )
             raise AudioLibraryError(
                 f"{label} audio import failed. {hint}\n\n"
+                f"URL sent to yt-dlp: {text}\n\n"
                 + (detail or "Unknown yt-dlp error.")
             ) from exc
 
