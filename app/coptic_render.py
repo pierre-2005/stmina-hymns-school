@@ -46,16 +46,24 @@ UNICODE_TO_AVVA = {
 }
 
 SPECIAL_SEQUENCES = {
-    # Avva Shenouda has dedicated legacy glyph slots for overlined delta and
-    # upsilon. Coptic sources use several canonically different overline marks,
-    # so accept all three variants instead of only U+0305. This keeps the web
-    # renderer consistent with the Content Manager preview for abbreviations.
-    "ⲇ\u0304": "ä",
-    "ⲇ\u0305": "ä",
-    "ⲇ\u033f": "ä",
-    "ⲩ\u0304": "ö",
-    "ⲩ\u0305": "ö",
-    "ⲩ\u033f": "ö",
+    # Browser-safe code points for Avva Shenouda's two legacy abbreviation
+    # glyphs. The original desktop converter uses ä/ö, but this font's Unicode
+    # cmap maps those legacy bytes differently (or not at all) in browsers.
+    # U+2030 and U+02C6 map to the SAME Avva glyph outlines through the font's
+    # Windows/Unicode cmap, so the public website now matches the manager.
+    "ⲇ\u0304": "‰",
+    "ⲇ\u0305": "‰",
+    "ⲇ\u033f": "‰",
+    "ⲩ\u0304": "ˆ",
+    "ⲩ\u0305": "ˆ",
+    "ⲩ\u033f": "ˆ",
+}
+
+# Older live content may already contain the desktop converter's legacy
+# ä/ö characters. Translate those to browser-safe aliases at render time.
+LEGACY_SPECIAL_ALIASES = {
+    "ä": "‰",
+    "ö": "ˆ",
 }
 
 OVERLINE_MARKS = {
@@ -64,7 +72,11 @@ OVERLINE_MARKS = {
     "\u033F",  # COMBINING DOUBLE OVERLINE
 }
 
-AVVA_GLYPHS = set(UNICODE_TO_AVVA.values()) | set(SPECIAL_SEQUENCES.values())
+AVVA_GLYPHS = (
+    set(UNICODE_TO_AVVA.values())
+    | set(SPECIAL_SEQUENCES.values())
+    | set(LEGACY_SPECIAL_ALIASES.keys())
+)
 
 
 def contains_unicode_coptic(text: str) -> bool:
@@ -108,8 +120,18 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
     Removing the combining overline before browser rendering avoids the
     fallback-font problem that exposed Avva's legacy "3" as a literal digit.
     """
-    text = unicodedata.normalize("NFD", str(text or ""))
+    # A line can occasionally contain mostly Unicode Coptic but also one of
+    # the Content Manager's legacy Avva special characters (ä / ö).  If we
+    # normalize first, Unicode NFD decomposes those into ordinary Latin
+    # letters + diaeresis, and the browser later renders them as plain text.
+    # Translate them to the browser-safe code points BEFORE normalization.
+    raw_text = str(text or "")
+    for legacy_char, browser_char in LEGACY_SPECIAL_ALIASES.items():
+        raw_text = raw_text.replace(legacy_char, browser_char)
+
+    text = unicodedata.normalize("NFD", raw_text)
     runs: list[tuple[str, str]] = []
+    browser_special_glyphs = set(LEGACY_SPECIAL_ALIASES.values())
     i = 0
 
     while i < len(text):
@@ -122,6 +144,20 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
                 continue
 
         ch = text[i]
+
+        # Browser-safe aliases for Avva Shenouda's dedicated abbreviation
+        # glyphs.  These may arrive here after translating a literal ä / ö
+        # from mixed Unicode/legacy content.
+        if ch in browser_special_glyphs:
+            _append_run(runs, "avva", ch)
+            i += 1
+
+            # The special glyph already contains its abbreviation bar.
+            # Ignore any accidental trailing overline marks to avoid drawing
+            # a second bar over it.
+            while i < len(text) and text[i] in OVERLINE_MARKS:
+                i += 1
+            continue
 
         if ch in UNICODE_TO_AVVA:
             mapped = UNICODE_TO_AVVA[ch]
@@ -171,7 +207,13 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
     Matched (), [], and {} remain literal normal text.
     Legacy Avva glyph + overline mark becomes one CSS-overlined run.
     """
-    text = unicodedata.normalize("NFD", str(text or ""))
+    # Replace the desktop converter's extended-Latin legacy bytes BEFORE NFD
+    # normalization; otherwise ä/ö decompose into a/o + diaeresis and can no
+    # longer be recognized as Avva's dedicated abbreviation glyphs.
+    text = str(text or "")
+    for legacy_char, browser_char in LEGACY_SPECIAL_ALIASES.items():
+        text = text.replace(legacy_char, browser_char)
+    text = unicodedata.normalize("NFD", text)
     runs: list[tuple[str, str]] = []
 
     opening_to_closing = {
@@ -218,7 +260,8 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
             and i + 1 < len(text)
             and text[i + 1] in AVVA_GLYPHS
         ):
-            value = ch + text[i + 1]
+            next_glyph = LEGACY_SPECIAL_ALIASES.get(text[i + 1], text[i + 1])
+            value = ch + next_glyph
 
             if (
                 i + 2 < len(text)
@@ -237,10 +280,18 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
                 i + 1 < len(text)
                 and text[i + 1] in OVERLINE_MARKS
             ):
-                _append_run(runs, "avva-overline", ch)
+                _append_run(
+                    runs,
+                    "avva-overline",
+                    LEGACY_SPECIAL_ALIASES.get(ch, ch),
+                )
                 i += 2
             else:
-                _append_run(runs, "avva", ch)
+                _append_run(
+                    runs,
+                    "avva",
+                    LEGACY_SPECIAL_ALIASES.get(ch, ch),
+                )
                 i += 1
 
             continue
