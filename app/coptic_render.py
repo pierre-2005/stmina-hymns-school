@@ -54,17 +54,20 @@ SPECIAL_SEQUENCES = {
     "ⲇ\u0304": "‰",
     "ⲇ\u0305": "‰",
     "ⲇ\u033f": "‰",
-    "ⲩ\u0304": "ˆ",
-    "ⲩ\u0305": "ˆ",
-    "ⲩ\u033f": "ˆ",
 }
 
 # Older live content may already contain the desktop converter's legacy
 # ä/ö characters. Translate those to browser-safe aliases at render time.
 LEGACY_SPECIAL_ALIASES = {
     "ä": "‰",
-    "ö": "ˆ",
 }
+
+# Preserve the Content Manager legacy byte for overlined lowercase upsilon
+# through Unicode normalization. On the website we intentionally render it
+# as the NORMAL Avva lowercase upsilon glyph (legacy "v") plus our CSS
+# overline, rather than Avva's problematic precomposed special glyph.
+LEGACY_UPSILON_OVERLINE = "ö"
+LEGACY_UPSILON_SENTINEL = "\ue000"
 
 OVERLINE_MARKS = {
     "\u0304",  # COMBINING MACRON
@@ -126,6 +129,10 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
     # letters + diaeresis, and the browser later renders them as plain text.
     # Translate them to the browser-safe code points BEFORE normalization.
     raw_text = str(text or "")
+    raw_text = raw_text.replace(
+        LEGACY_UPSILON_OVERLINE,
+        LEGACY_UPSILON_SENTINEL,
+    )
     for legacy_char, browser_char in LEGACY_SPECIAL_ALIASES.items():
         raw_text = raw_text.replace(legacy_char, browser_char)
 
@@ -144,6 +151,16 @@ def unicode_coptic_to_runs(text: str) -> list[tuple[str, str]]:
                 continue
 
         ch = text[i]
+
+        # Legacy Content Manager "ö" means lowercase Coptic upsilon with an
+        # abbreviation bar. Render the actual normal upsilon glyph and draw
+        # the bar with CSS so the website cannot land on the wrong Avva glyph.
+        if ch == LEGACY_UPSILON_SENTINEL:
+            _append_run(runs, "avva-overline", UNICODE_TO_AVVA["ⲩ"])
+            i += 1
+            while i < len(text) and text[i] in OVERLINE_MARKS:
+                i += 1
+            continue
 
         # Browser-safe aliases for Avva Shenouda's dedicated abbreviation
         # glyphs.  These may arrive here after translating a literal ä / ö
@@ -211,6 +228,10 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
     # normalization; otherwise ä/ö decompose into a/o + diaeresis and can no
     # longer be recognized as Avva's dedicated abbreviation glyphs.
     text = str(text or "")
+    text = text.replace(
+        LEGACY_UPSILON_OVERLINE,
+        LEGACY_UPSILON_SENTINEL,
+    )
     for legacy_char, browser_char in LEGACY_SPECIAL_ALIASES.items():
         text = text.replace(legacy_char, browser_char)
     text = unicodedata.normalize("NFD", text)
@@ -227,6 +248,13 @@ def legacy_avva_to_runs(text: str) -> list[tuple[str, str]]:
 
     while i < len(text):
         ch = text[i]
+
+        if ch == LEGACY_UPSILON_SENTINEL and not expected_closers:
+            _append_run(runs, "avva-overline", UNICODE_TO_AVVA["ⲩ"])
+            i += 1
+            while i < len(text) and text[i] in OVERLINE_MARKS:
+                i += 1
+            continue
 
         if expected_closers:
             if ch in opening_to_closing:
