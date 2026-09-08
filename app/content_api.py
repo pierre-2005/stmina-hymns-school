@@ -16,6 +16,7 @@ from .audio_library import (
     _safe_audio_path,
     delete_audio_if_unpublished,
     import_uploaded_audio,
+    import_soundcloud_audio,
     import_youtube_audio,
 )
 from .content_loader import ContentError
@@ -55,6 +56,23 @@ async def _run_youtube_audio_job(job_id: str, url: str) -> None:
     job["updated"] = time.monotonic()
     try:
         result = await asyncio.to_thread(import_youtube_audio, url)
+    except Exception as exc:
+        job["state"] = "error"
+        job["error"] = str(exc)
+    else:
+        job["state"] = "done"
+        job["recording"] = result
+    job["updated"] = time.monotonic()
+
+
+async def _run_soundcloud_audio_job(job_id: str, url: str) -> None:
+    job = _audio_import_jobs.get(job_id)
+    if not job:
+        return
+    job["state"] = "working"
+    job["updated"] = time.monotonic()
+    try:
+        result = await asyncio.to_thread(import_soundcloud_audio, url)
     except Exception as exc:
         job["state"] = "error"
         job["error"] = str(exc)
@@ -306,6 +324,63 @@ async def content_audio_import_youtube_status(request: Request, job_id: str):
         response["recording"] = job.get("recording") or {}
     elif state == "error":
         response["error"] = str(job.get("error") or "YouTube audio import failed.")
+    return response
+
+
+@router.post("/audio/import-soundcloud/start")
+async def content_audio_import_soundcloud_start(request: Request):
+    """Start a background SoundCloud audio import and return immediately."""
+    user = require_content_admin(request)
+    try:
+        body = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Expected a JSON request object.") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Expected a JSON request object.")
+    if body.get("confirm_rights") is not True:
+        raise HTTPException(
+            status_code=400,
+            detail="Confirm that you own this recording or have permission to store and use it.",
+        )
+    url = str(body.get("url", "")).strip()
+    if not url:
+        raise HTTPException(status_code=400, detail="Enter a SoundCloud URL.")
+
+    _prune_audio_jobs()
+    active_for_user = sum(
+        1
+        for job in _audio_import_jobs.values()
+        if job.get("owner") == user["id"] and job.get("state") in {"queued", "working"}
+    )
+    if active_for_user >= 2:
+        raise HTTPException(status_code=429, detail="Wait for your current audio import to finish.")
+
+    job_id = secrets.token_urlsafe(18)
+    _audio_import_jobs[job_id] = {
+        "owner": user["id"],
+        "state": "queued",
+        "source": "soundcloud",
+        "created": time.monotonic(),
+        "updated": time.monotonic(),
+    }
+    asyncio.create_task(_run_soundcloud_audio_job(job_id, url))
+    return {"ok": True, "job_id": job_id, "state": "queued"}
+
+
+@router.get("/audio/import-soundcloud/status/{job_id}")
+async def content_audio_import_soundcloud_status(request: Request, job_id: str):
+    user = require_content_admin(request)
+    _prune_audio_jobs()
+    job = _audio_import_jobs.get(job_id)
+    if not job or job.get("owner") != user["id"]:
+        raise HTTPException(status_code=404, detail="SoundCloud audio import job not found.")
+
+    state = str(job.get("state", "error"))
+    response: dict[str, Any] = {"ok": True, "job_id": job_id, "state": state}
+    if state == "done":
+        response["recording"] = job.get("recording") or {}
+    elif state == "error":
+        response["error"] = str(job.get("error") or "SoundCloud audio import failed.")
     return response
 
 

@@ -234,35 +234,51 @@ def import_uploaded_audio(data: bytes, filename: str) -> dict[str, Any]:
     return result
 
 
-def _validate_youtube_url(url: str) -> str:
+def _validate_remote_url(url: str, *, source_type: str) -> str:
     text = str(url or "").strip()
     try:
         parsed = urlparse(text)
     except ValueError as exc:
-        raise AudioLibraryError("Enter a valid YouTube URL.") from exc
+        label = "YouTube" if source_type == "youtube" else "SoundCloud"
+        raise AudioLibraryError(f"Enter a valid {label} URL.") from exc
+
     host = parsed.netloc.lower().split(":", 1)[0]
-    allowed = {
-        "youtube.com",
-        "www.youtube.com",
-        "m.youtube.com",
-        "music.youtube.com",
-        "youtu.be",
-        "www.youtu.be",
-    }
-    if parsed.scheme not in {"http", "https"} or host not in allowed:
-        raise AudioLibraryError("Enter a normal youtube.com or youtu.be video URL.")
-    return text
+    if parsed.scheme not in {"http", "https"}:
+        raise AudioLibraryError("Recording links must start with http:// or https://.")
+
+    if source_type == "youtube":
+        allowed = {
+            "youtube.com",
+            "www.youtube.com",
+            "m.youtube.com",
+            "music.youtube.com",
+            "youtu.be",
+            "www.youtu.be",
+        }
+        if host not in allowed:
+            raise AudioLibraryError("Enter a normal youtube.com or youtu.be video URL.")
+        return text
+
+    if source_type == "soundcloud":
+        if host != "soundcloud.com" and not host.endswith(".soundcloud.com"):
+            raise AudioLibraryError("Enter a normal soundcloud.com track URL.")
+        return text
+
+    raise AudioLibraryError("Unsupported remote recording source.")
 
 
-def import_youtube_audio(url: str) -> dict[str, Any]:
-    """Import audio from a YouTube URL for content the administrator is authorized to use."""
-    text = _validate_youtube_url(url)
+def _import_remote_audio(url: str, *, source_type: str) -> dict[str, Any]:
+    """Download an authorized remote recording and convert it to managed MP3 audio."""
+    text = _validate_remote_url(url, source_type=source_type)
     try:
         import yt_dlp  # type: ignore
     except ImportError as exc:
         raise AudioLibraryError("yt-dlp is not installed in the website container.") from exc
 
-    with tempfile.TemporaryDirectory(prefix="stmina-youtube-") as tmp:
+    label = "YouTube" if source_type == "youtube" else "SoundCloud"
+    prefix = "stmina-youtube-" if source_type == "youtube" else "stmina-soundcloud-"
+
+    with tempfile.TemporaryDirectory(prefix=prefix) as tmp:
         temp_root = Path(tmp)
         output_template = str(temp_root / "source.%(ext)s")
         options = {
@@ -288,9 +304,18 @@ def import_youtube_audio(url: str) -> dict[str, Any]:
             detail = str(exc).strip()
             if len(detail) > 1400:
                 detail = detail[-1400:]
+            if source_type == "youtube":
+                hint = (
+                    "YouTube changes its playback rules often, so updating yt-dlp may "
+                    "occasionally be required."
+                )
+            else:
+                hint = (
+                    "The SoundCloud track must be publicly accessible to the server. "
+                    "Private, login-only, or removed tracks cannot be imported."
+                )
             raise AudioLibraryError(
-                "YouTube audio import failed. YouTube changes its playback rules often, so "
-                "updating yt-dlp may occasionally be required.\n\n"
+                f"{label} audio import failed. {hint}\n\n"
                 + (detail or "Unknown yt-dlp error.")
             ) from exc
 
@@ -298,17 +323,27 @@ def import_youtube_audio(url: str) -> dict[str, Any]:
             candidates = sorted(temp_root.glob("source.*"))
             if not candidates:
                 raise AudioLibraryError(
-                    "YouTube returned metadata but no downloadable audio file was produced."
+                    f"{label} returned metadata but no downloadable audio file was produced."
                 )
             prepared = candidates[0]
 
-        title = str((info or {}).get("title") or "YouTube recording").strip()
+        title = str((info or {}).get("title") or f"{label} recording").strip()
         result = _process_source_to_mp3(prepared, title=title)
-        result["source_type"] = "youtube"
+        result["source_type"] = source_type
         result["source_url"] = text
-        result["youtube_id"] = str((info or {}).get("id") or "").strip()
+        if source_type == "youtube":
+            result["youtube_id"] = str((info or {}).get("id") or "").strip()
         return result
 
+
+def import_youtube_audio(url: str) -> dict[str, Any]:
+    """Import audio from a YouTube URL for content the administrator is authorized to use."""
+    return _import_remote_audio(url, source_type="youtube")
+
+
+def import_soundcloud_audio(url: str) -> dict[str, Any]:
+    """Import audio from a SoundCloud URL for content the administrator is authorized to use."""
+    return _import_remote_audio(url, source_type="soundcloud")
 
 def collect_audio_files(content: dict[str, Any] | None) -> set[str]:
     found: set[str] = set()

@@ -20,7 +20,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "4.0"
+APP_VERSION = "4.1"
 DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
@@ -478,6 +478,33 @@ class ContentApiClient:
 
         raise ApiError("YouTube audio import took longer than 30 minutes and was stopped in the manager.")
 
+    def import_soundcloud_audio(self, url: str) -> dict[str, Any]:
+        started = self._request(
+            "POST",
+            "/api/content/audio/import-soundcloud/start",
+            {"url": url, "confirm_rights": True},
+            timeout=20,
+        )
+        job_id = str(started.get("job_id", "")).strip()
+        if not job_id:
+            raise ApiError("The website did not return a SoundCloud import job ID.")
+
+        deadline = time.monotonic() + 30 * 60
+        while time.monotonic() < deadline:
+            result = self._request(
+                "GET",
+                f"/api/content/audio/import-soundcloud/status/{job_id}",
+                timeout=15,
+            )
+            state = str(result.get("state", "")).lower()
+            if state == "done":
+                return result
+            if state == "error":
+                raise ApiError(str(result.get("error") or "SoundCloud audio import failed."))
+            time.sleep(2.0)
+
+        raise ApiError("SoundCloud audio import took longer than 30 minutes and was stopped in the manager.")
+
     def upload_hymn_audio(self, file_path: str | Path) -> dict[str, Any]:
         return self._request_file(
             "/api/content/audio/upload",
@@ -647,6 +674,7 @@ def default_content() -> dict[str, Any]:
         "site_title": "St. Mina Hymns School",
         "site_subtitle": "St. Mina Coptic Orthodox Church • Calgary, AB",
         "footer_text": "St. Mina Coptic Orthodox Church (Calgary)",
+        "lyric_seek_enabled": True,
         "languages": [
             {"code": "en", "name": "English", "is_rtl": False, "default_on": True, "sort": 10},
             {"code": "cop", "name": "Coptic", "is_rtl": False, "default_on": True, "sort": 20},
@@ -3073,8 +3101,8 @@ class ContentManagerApp(tk.Tk):
         ttk.Label(
             self.recordings_tab,
             text=(
-                "Use SoundCloud, import authorized audio from YouTube, or upload an audio file. "
-                "Imported/uploaded audio is stored on your Raspberry Pi and uses the site's waveform player."
+                "Import authorized audio from SoundCloud or YouTube, or upload an audio file. "
+                "Imported/uploaded audio is preserved on your Raspberry Pi and uses the site's waveform player."
             ),
             wraplength=760,
         ).grid(row=1, column=0, sticky="w", pady=(3, 8))
@@ -3115,7 +3143,7 @@ class ContentManagerApp(tk.Tk):
         # Two compact rows prevent controls from disappearing/overflowing on smaller windows.
         add_controls = ttk.Frame(self.recordings_tab)
         add_controls.grid(row=3, column=0, sticky="ew", pady=(8, 0))
-        ttk.Button(add_controls, text="Add SoundCloud", command=self.add_recording).pack(side="left")
+        ttk.Button(add_controls, text="Import SoundCloud audio", command=self.import_soundcloud_recording).pack(side="left")
         ttk.Button(add_controls, text="Import YouTube audio", command=self.import_youtube_recording).pack(
             side="left", padx=(5, 0)
         )
@@ -3144,7 +3172,12 @@ class ContentManagerApp(tk.Tk):
             recording_type = str(recording.get("type", "soundcloud") or "soundcloud").lower()
             if recording_type == "audio":
                 source_type = str(recording.get("source_type", "upload") or "upload").lower()
-                display_type = "YouTube audio" if source_type == "youtube" else "Audio file"
+                if source_type == "youtube":
+                    display_type = "YouTube audio"
+                elif source_type == "soundcloud":
+                    display_type = "SoundCloud audio"
+                else:
+                    display_type = "Audio file"
                 source = recording.get("source_url", "") or recording.get("audio_file", "")
             else:
                 display_type = "SoundCloud"
@@ -3186,26 +3219,78 @@ class ContentManagerApp(tk.Tk):
             return False
         return True
 
-    def add_recording(self) -> None:
+    def import_soundcloud_recording(self) -> None:
         hymn = self.selected_hymn()
         if not hymn:
             messagebox.showinfo("Select a hymn", "Select a hymn first.", parent=self)
             return
-        dialog = RecordDialog(self, "Add SoundCloud recording", [
-            ("Label", "label", "text", "Recording"),
-            ("Full SoundCloud track URL", "url", "text", "https://soundcloud.com/"),
+        if not self.client:
+            messagebox.showerror("Not connected", "Sign in to the website first.", parent=self)
+            return
+
+        dialog = RecordDialog(self, "Import SoundCloud audio", [
+            ("SoundCloud track URL", "url", "text", "https://soundcloud.com/"),
+            ("Label (blank = SoundCloud title)", "label", "text", ""),
             ("Start at (e.g. 0:00 or 1:23)", "start_at", "text", "0:00"),
             ("End at (blank = end of track)", "end_at", "text", ""),
             ("Published", "published", "bool", True),
+            (
+                "I own this recording or have permission to store/use it",
+                "confirm_rights",
+                "bool",
+                False,
+            ),
         ])
-        if not dialog.result or not self._validate_recording_dialog_result(dialog.result):
+        if not dialog.result:
             return
-        dialog.result["type"] = "soundcloud"
-        items = hymn.setdefault("recordings", [])
-        dialog.result["sort"] = next_sort(items)
-        items.append(dialog.result)
-        self.mark_dirty()
-        self.refresh_recordings()
+        if not bool(dialog.result.get("confirm_rights")):
+            messagebox.showerror(
+                "Permission confirmation required",
+                "Confirm that you own the recording or have permission to store and use it.",
+                parent=self,
+            )
+            return
+        if not self._validate_recording_dialog_result(dialog.result):
+            return
+        url = str(dialog.result.get("url", "")).strip()
+        if not url:
+            messagebox.showerror("Missing SoundCloud URL", "Enter a SoundCloud track URL.", parent=self)
+            return
+
+        wanted_label = str(dialog.result.get("label", "")).strip()
+        start_at = dialog.result["start_at"]
+        end_at = dialog.result.get("end_at", "")
+        published = bool(dialog.result.get("published", True))
+
+        def work() -> dict[str, Any]:
+            assert self.client is not None
+            return self.client.import_soundcloud_audio(url)
+
+        def done(result: dict[str, Any]) -> None:
+            recording = dict(result.get("recording") or {})
+            if not recording.get("audio_file"):
+                raise RuntimeError("The website did not return the imported audio file.")
+            recording["type"] = "audio"
+            recording["source_type"] = "soundcloud"
+            recording["source_url"] = url
+            recording["label"] = wanted_label or str(recording.get("label") or "SoundCloud recording")
+            recording["start_at"] = start_at
+            recording["end_at"] = end_at
+            recording["published"] = published
+            items = hymn.setdefault("recordings", [])
+            recording["sort"] = next_sort(items)
+            items.append(recording)
+            self.mark_dirty()
+            self.refresh_recordings()
+            messagebox.showinfo(
+                "SoundCloud audio imported",
+                "The SoundCloud audio is now stored on your Raspberry Pi and added to this draft.\n\n"
+                "The public site will use the preserved local copy instead of depending on the original SoundCloud link.\n\n"
+                "Publish the content when you are ready to make it live.",
+                parent=self,
+            )
+
+        self.run_async("Importing SoundCloud audio and building waveform…", work, done)
 
     def import_youtube_recording(self) -> None:
         hymn = self.selected_hymn()
@@ -3704,10 +3789,11 @@ class ContentManagerApp(tk.Tk):
         self.languages_tree.selection_set(str(new))
 
     def build_site_tab(self) -> None:
-        ttk.Label(self.site_tab, text="Public site text", style="Heading.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
+        ttk.Label(self.site_tab, text="Public site settings", style="Heading.TLabel").grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
         self.site_title_var = tk.StringVar()
         self.site_subtitle_var = tk.StringVar()
         self.footer_var = tk.StringVar()
+        self.lyric_seek_enabled_var = tk.BooleanVar(value=True)
         for row, (label, var) in enumerate([
             ("Site title", self.site_title_var),
             ("Site subtitle", self.site_subtitle_var),
@@ -3715,18 +3801,43 @@ class ContentManagerApp(tk.Tk):
         ], start=1):
             ttk.Label(self.site_tab, text=label).grid(row=row, column=0, sticky="w", pady=7)
             ttk.Entry(self.site_tab, textvariable=var).grid(row=row, column=1, sticky="ew", padx=(12, 0), pady=7)
-        ttk.Button(self.site_tab, text="Save site settings", command=self.save_site_settings).grid(row=5, column=0, columnspan=2, sticky="e", pady=(12, 0))
+
+        ttk.Separator(self.site_tab).grid(row=4, column=0, columnspan=2, sticky="ew", pady=(14, 12))
+        ttk.Label(self.site_tab, text="Hymn behaviour", style="Heading.TLabel").grid(row=5, column=0, columnspan=2, sticky="w", pady=(0, 6))
+        ttk.Checkbutton(
+            self.site_tab,
+            text="Allow visitors to click lyric rows to seek the active recording",
+            variable=self.lyric_seek_enabled_var,
+        ).grid(row=6, column=0, columnspan=2, sticky="w", pady=(0, 4))
+        ttk.Label(
+            self.site_tab,
+            text=(
+                "This is an administrator-controlled site-wide setting. When off, "
+                "lyrics still highlight during playback, but public users cannot click "
+                "a lyric row to move the track."
+            ),
+            wraplength=760,
+            style="Muted.TLabel",
+        ).grid(row=7, column=0, columnspan=2, sticky="w", pady=(0, 10))
+
+        ttk.Button(
+            self.site_tab,
+            text="Save site settings",
+            command=self.save_site_settings,
+        ).grid(row=8, column=0, columnspan=2, sticky="e", pady=(12, 0))
         self.site_tab.columnconfigure(1, weight=1)
 
     def populate_site_settings(self) -> None:
         self.site_title_var.set(str(self.content.get("site_title", "")))
         self.site_subtitle_var.set(str(self.content.get("site_subtitle", "")))
         self.footer_var.set(str(self.content.get("footer_text", "")))
+        self.lyric_seek_enabled_var.set(bool(self.content.get("lyric_seek_enabled", True)))
 
     def save_site_settings(self) -> None:
         self.content["site_title"] = self.site_title_var.get().strip()
         self.content["site_subtitle"] = self.site_subtitle_var.get().strip()
         self.content["footer_text"] = self.footer_var.get().strip()
+        self.content["lyric_seek_enabled"] = bool(self.lyric_seek_enabled_var.get())
         self.mark_dirty()
         self.status_label.configure(text="Site settings saved to the local draft.")
 

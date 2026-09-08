@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSearch();
   initLanguageControls();
   initLyricFontControls();
-  initLyricSeekToggle();
+  initHymnPagePosition();
   initRecordingSync();
 });
 
@@ -92,6 +92,19 @@ function initLanguageControls() {
   applyDefaults(false);
 }
 
+function initHymnPagePosition() {
+  const table = document.getElementById("lyricsTable");
+  if (!table || window.location.hash) return;
+
+  // Some embedded players restore their previous position very early, and older
+  // lyric-sync code could scroll the active row into view during page startup.
+  // A hymn should always open at its top unless the URL explicitly contains an
+  // anchor. Do this twice to win against late iframe/layout restoration.
+  const goTop = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  requestAnimationFrame(goTop);
+  window.setTimeout(goTop, 120);
+}
+
 function initLyricFontControls() {
   const table = document.getElementById("lyricsTable");
   if (!table) return;
@@ -131,46 +144,9 @@ function formatAudioTime(seconds) {
   return `${minutes}:${String(secs).padStart(2, "0")}`;
 }
 
-const LYRIC_SEEK_STORAGE_KEY = "stminahs:lyric-seek-enabled";
-
 function isLyricSeekEnabled() {
-  return localStorage.getItem(LYRIC_SEEK_STORAGE_KEY) !== "0";
-}
-
-function initLyricSeekToggle() {
-  const button = document.getElementById("lyricSeekToggle");
   const table = document.getElementById("lyricsTable");
-  const help = document.getElementById("lyricSeekHelp");
-  if (!button && !table) return;
-
-  function apply(enabled) {
-    if (button) {
-      button.textContent = `Lyric seek: ${enabled ? "ON" : "OFF"}`;
-      button.setAttribute("aria-pressed", enabled ? "true" : "false");
-      button.classList.toggle("is-off", !enabled);
-    }
-    if (table) {
-      table.classList.toggle("lyric-seek-disabled", !enabled);
-      table.querySelectorAll("tr.lyric-row").forEach((row) => {
-        row.tabIndex = enabled ? 0 : -1;
-        row.setAttribute("aria-disabled", enabled ? "false" : "true");
-      });
-    }
-    if (help) {
-      help.textContent = enabled
-        ? "Lyric seeking is ON. Tap a lyric row to seek the active recording to that timestamp."
-        : "Lyric seeking is OFF. Lyric rows will still highlight during playback, but clicking them will not move the recording.";
-    }
-  }
-
-  apply(isLyricSeekEnabled());
-
-  button?.addEventListener("click", () => {
-    const enabled = !isLyricSeekEnabled();
-    localStorage.setItem(LYRIC_SEEK_STORAGE_KEY, enabled ? "1" : "0");
-    apply(enabled);
-    window.dispatchEvent(new CustomEvent("stmina:lyric-seek-change", { detail: { enabled } }));
-  });
+  return Boolean(table) && table.dataset.lyricSeekEnabled !== "0";
 }
 
 function initRecordingSync() {
@@ -585,7 +561,6 @@ function initRecordingSync() {
 
   const starts = rows.map((row) => Number.parseInt(row.dataset.startMs || "0", 10) || 0);
   let activeRow = -1;
-  let lastAutoScroll = 0;
 
   function findRow(positionMs) {
     let low = 0;
@@ -600,19 +575,25 @@ function initRecordingSync() {
         high = middle - 1;
       }
     }
+
+    // Many hymns are entered before their real timestamps are known, so several
+    // rows can legitimately all be 0:00. Choosing the last equal timestamp made
+    // playback highlight the final stanza immediately. Prefer the first row in
+    // an equal-time group until distinct timestamps are supplied.
+    while (answer > 0 && starts[answer - 1] === starts[answer]) {
+      answer -= 1;
+    }
     return answer;
   }
 
-  function activate(index, shouldScroll = true) {
+  function activate(index) {
     if (!rows[index] || index === activeRow) return;
     if (activeRow >= 0) rows[activeRow].classList.remove("active");
     rows[index].classList.add("active");
     activeRow = index;
-    const now = Date.now();
-    if (shouldScroll && now - lastAutoScroll > 1400) {
-      rows[index].scrollIntoView({ behavior: "smooth", block: "center" });
-      lastAutoScroll = now;
-    }
+
+    // Deliberately do not scroll the page here. Playback should highlight lyrics
+    // without stealing the visitor's page position or jumping to the bottom.
   }
 
   function finishLyrics() {
@@ -621,7 +602,7 @@ function initRecordingSync() {
   }
 
   adapters.forEach((adapter) => {
-    adapter.onProgress = (hymnPositionMs) => activate(findRow(hymnPositionMs), true);
+    adapter.onProgress = (hymnPositionMs) => activate(findRow(hymnPositionMs));
     adapter.onFinish = finishLyrics;
   });
 
@@ -635,7 +616,7 @@ function initRecordingSync() {
       pauseOthers(player);
       player.play();
       activePlayer = player;
-      activate(findRow(Math.max(0, actualMs - player.startMs)), false);
+      activate(findRow(Math.max(0, actualMs - player.startMs)));
     };
     row.addEventListener("click", seek);
     row.addEventListener("keydown", (event) => {
