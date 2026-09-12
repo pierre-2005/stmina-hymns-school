@@ -3,6 +3,7 @@
   "site_title": "St. Mina Hymns School",
   "site_subtitle": "St. Mina Coptic Orthodox Church • Calgary, AB",
   "footer_text": "St. Mina Coptic Orthodox Church (Calgary)",
+  "lyric_seek_enabled": true,
   "languages": [
     {
       "code": "en",
@@ -18988,7 +18989,103 @@
               "sort": 110,
               "published": true,
               "recordings": [],
-              "segments": []
+              "segments": [
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "All you heavenly orders, sing to our God with the melody of praise. Rejoice with us today with gladness, in the Resurrection of the Lord Christ.",
+                    "cop_en": "Ya kol al sofoof al sama-eyeen, ratelo le-eelahena be naghamat el-tasbeeh, wabe-tahegoo ma'na al-yowma fareheen, be-keyamat El-Sayed El-Maseeh."
+                  },
+                  "sort": 10,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Today the prophecies are fulfilled and the sayings of the forefathers are realized by the Resurrection of the Lord from among the dead; He is the firstfruit of those who have fallen asleep.",
+                    "cop_en": "Al-yowma qud kamalat el-nobowat, wa qud tamat akwalol-aba'a el-awaleen, be qeyamat El-Rabe men baynel-amwat, wa howa badol mod-tuge'een."
+                  },
+                  "sort": 20,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "The Lord arose as one who sleeps, and as one who is sated with wine, He has granted us the everlasting joy, and freed us from bitter bondage.",
+                    "cop_en": "Qud kamal-Rabo methlol-na-em, wa kal sa-mely men al-khamra, wa wahabana al-na-'eem el-da-em, wa 'atukna men al-‘obodeyatel-mora."
+                  },
+                  "sort": 30,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "He led Hades captive and crushed the brass doors. He utterly broke the bars of iron and, for us, exchanged punishment for salvation.",
+                    "cop_en": "Wa sabal-gahima sabian, wa hatama abwa-bahol-nohas, wa qassar mataresahol-hadida kasran, wa abdala lanal-'oqobata bel-khalas."
+                  },
+                  "sort": 40,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "And brought back Adam to Paradise, with joy, gladness, and happiness; he and his sons who were in captivity, to the joy once more.",
+                    "cop_en": "Wa a'ada Adam elal-ferdos, be-farahen wa bahga wa mascara, howa wa banehe alzeena kano fel-hobos, mahalel na'em dof'a okhra."
+                  },
+                  "sort": 50,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Today the flags of salvation spread, the bodies and the spirits were renewed, and the believers won the clemency for retribution, and glorified God with praises and joy.",
+                    "cop_en": "Alyawman-tasharat a'lamol khalas, wa tagadadat al-ag-sam wal-arwah, wafazal-moo-menona bel-safhee 'an el-qasas, wa magdo Allahe be-tasabehe wal-afrah."
+                  },
+                  "sort": 60,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "Today the daughter of David rejoiced, and the hearts of the righteous apostles became glad, when they announced to them the news, and what they heard from the pure angels.",
+                    "cop_en": "Alyawmab-tahagat ebnat Dawood, wa tahal-lalat qolobol-rosolel-ubrar, henama basharata-hom el-neswa be-tamam el-maw'ood, wa ma same'oho minal-mala-e-katel-ut-haar."
+                  },
+                  "sort": 70,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "That Jesus Christ is risen, “But He is not here as you see.” So the women went to His honored disciples and announced to them, the Resurrection of the Creator of all things.",
+                    "cop_en": "Enna Yaso'al Masseha qud qam, laysa howa ha-hona kama taran, faza-habat el-neswa wa basharat-talamezahol-keram, be-qeiamat khaleq el-baraiah ag-ma'en."
+                  },
+                  "sort": 80,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "And He appeared to His disciples and gave them joy, with delight they saw Him, in the glory of His divinity and they became happy, when they saw Him alive.",
+                    "cop_en": "Wa zahar le-talamezaho wa-ab-hagahom, be-bahaa nazaroho motagal-leian, be-magde laho-taho wa af-rahom, lamma shaha-doho hayyan."
+                  },
+                  "sort": 90,
+                  "published": true
+                },
+                {
+                  "t": "0:00",
+                  "texts": {
+                    "en": "We praise and increase His exaltation, and confess the glory of His Resurrection, we thank Him for His great grace, for His mercy endures forever.",
+                    "cop_en": "Nosabeha-ho wa nozed ref-'ataho, wa na'-taref be-magde qeya-matehe, wa nash-koroho 'ala 'azeme ne'-matehe, le-an elal-abadee rah-matehe."
+                  },
+                  "sort": 100,
+                  "published": true
+                }
+              ],
+              "language_defaults": {
+                "en": true,
+                "cop": false,
+                "cop_en": true
+              }
             },
             {
               "slug": "blessed-is-he-hosanna-sunday-coptic",
