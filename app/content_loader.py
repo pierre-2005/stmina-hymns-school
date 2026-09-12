@@ -142,6 +142,7 @@ def _normalise_site(site: Dict[str, Any]) -> Dict[str, Any]:
         f"{language.get('code', '')}:{1 if language.get('default_on') else 0}" for language in languages
     )
     site["language_preferences_version"] = hashlib.sha1(default_fingerprint.encode("utf-8")).hexdigest()[:12]
+    site["lyric_seek_enabled"] = _truthy(site.get("lyric_seek_enabled"), default=True)
     site.setdefault("content_warnings", [])
     return site
 
@@ -154,6 +155,7 @@ def _load_xlsx(content_path: str) -> Dict[str, Any]:
         "site_title": "St. Mina Hymns School",
         "site_subtitle": "St. Mina Coptic Orthodox Church • Calgary, AB",
         "footer_text": "St. Mina Coptic Orthodox Church (Calgary)",
+        "lyric_seek_enabled": True,
         "languages": [],
         "levels": [],
         "content_warnings": warnings,
@@ -404,6 +406,7 @@ def _load_json(content_path: str) -> Dict[str, Any]:
         "site_title": _clean(raw.get("site_title")) or "St. Mina Hymns School",
         "site_subtitle": _clean(raw.get("site_subtitle")) or "St. Mina Coptic Orthodox Church • Calgary, AB",
         "footer_text": _clean(raw.get("footer_text")) or "St. Mina Coptic Orthodox Church (Calgary)",
+        "lyric_seek_enabled": _truthy(raw.get("lyric_seek_enabled"), default=True),
         "languages": [],
         "levels": [],
         "content_warnings": [],
@@ -464,6 +467,20 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                     "recordings": [],
                     "segments": [],
                 }
+
+                # Per-hymn language visibility defaults are optional. Keep only
+                # overrides for languages that still exist site-wide; everything
+                # else inherits the site's default_on value.
+                raw_language_defaults = hymn.get("language_defaults")
+                if isinstance(raw_language_defaults, dict):
+                    known_language_codes = {item["code"] for item in site["languages"]}
+                    language_defaults = {
+                        _clean(code).lower(): _truthy(value, default=True)
+                        for code, value in raw_language_defaults.items()
+                        if _clean(code).lower() in known_language_codes
+                    }
+                    if language_defaults:
+                        out_hymn["language_defaults"] = language_defaults
 
                 for recording_index, recording in enumerate(hymn.get("recordings", []) or []):
                     if not isinstance(recording, dict) or not _truthy(recording.get("published"), default=True):

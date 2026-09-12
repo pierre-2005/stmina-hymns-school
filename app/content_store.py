@@ -111,6 +111,7 @@ def canonicalise_site(raw: dict[str, Any]) -> dict[str, Any]:
         "site_title": _clean(source.get("site_title")) or "St. Mina Hymns School",
         "site_subtitle": _clean(source.get("site_subtitle")) or "St. Mina Coptic Orthodox Church • Calgary, AB",
         "footer_text": _clean(source.get("footer_text")) or "St. Mina Coptic Orthodox Church (Calgary)",
+        "lyric_seek_enabled": _bool(source.get("lyric_seek_enabled"), True),
         "languages": [],
         "levels": [],
     }
@@ -162,6 +163,18 @@ def canonicalise_site(raw: dict[str, Any]) -> dict[str, Any]:
                     "recordings": [],
                     "segments": [],
                 }
+
+                # Optional per-hymn overrides for the site's language visibility
+                # defaults. Missing codes continue to inherit the site-wide default.
+                raw_language_defaults = hymn.get("language_defaults")
+                if isinstance(raw_language_defaults, dict):
+                    language_defaults = {
+                        _clean(code).lower(): _bool(value, True)
+                        for code, value in raw_language_defaults.items()
+                        if _clean(code)
+                    }
+                    if language_defaults:
+                        out_hymn["language_defaults"] = language_defaults
 
                 for recording_index, recording in enumerate(hymn.get("recordings", []) or []):
                     if not isinstance(recording, dict):
@@ -291,6 +304,17 @@ def validate_site(raw: dict[str, Any]) -> list[str]:
                 hymn_slugs.add(hymn["slug"])
                 if not hymn["title"]:
                     raise ContentError(f"Hymn '{hymn['slug']}' needs a title.")
+
+                hymn_language_defaults = hymn.get("language_defaults") or {}
+                if hymn_language_defaults:
+                    unknown_language_defaults = sorted(
+                        set(hymn_language_defaults) - language_codes
+                    )
+                    if unknown_language_defaults:
+                        raise ContentError(
+                            f"{hymn['title']} has language default overrides for unknown language(s): "
+                            + ", ".join(unknown_language_defaults)
+                        )
 
                 for recording in hymn["recordings"]:
                     # Validate the optional per-recording start offset whether or

@@ -92,20 +92,20 @@
   </div>
 </section>
 
+{% set hymn_language_defaults = hymn.get('language_defaults', {}) %}
 <section class="surface lyrics-section">
   <div class="surface-heading lyrics-heading">
     <div><span class="eyebrow">Follow along</span><h2>Hymn text</h2></div>
     <div class="font-controls" aria-label="Text size">
       <button class="icon-btn" type="button" id="fontMinus" aria-label="Decrease lyric font size">A−</button>
       <button class="icon-btn" type="button" id="fontPlus" aria-label="Increase lyric font size">A+</button>
-      <button class="btn btn-quiet btn-small" type="button" id="lyricSeekToggle" aria-pressed="true">Lyric seek: ON</button>
       <button class="btn btn-quiet btn-small" type="button" id="resetLanguagePrefs">Reset languages</button>
     </div>
   </div>
 
   <div class="language-controls" aria-label="Language visibility">
     {% for lang in languages %}
-      {% set enabled = lang.default_on %}
+      {% set enabled = hymn_language_defaults.get(lang.code, lang.default_on) %}
       <label
         class="language-toggle {{ '' if enabled else 'off' }}"
         data-lang-code="{{ lang.code }}"
@@ -121,15 +121,24 @@
   <div
     class="lyrics-wrap"
     id="lyricsWrap"
-    data-language-version="{{ site.language_preferences_version }}"
+    data-language-version="{{ site.language_preferences_version }}{% for lang in languages %}-{{ lang.code }}{{ '1' if hymn_language_defaults.get(lang.code, lang.default_on) else '0' }}{% endfor %}"
   >
-    <table class="lyrics-table" id="lyricsTable">
+    <table
+      class="lyrics-table{{ '' if site.lyric_seek_enabled else ' lyric-seek-disabled' }}"
+      id="lyricsTable"
+      data-lyric-seek-enabled="{{ '1' if site.lyric_seek_enabled else '0' }}"
+    >
       <tbody>
         {% for seg in segments %}
-          <tr class="lyric-row" data-start-ms="{{ seg.start_ms }}" tabindex="0">
+          <tr
+            class="lyric-row"
+            data-start-ms="{{ seg.start_ms }}"
+            tabindex="{{ 0 if site.lyric_seek_enabled else -1 }}"
+            aria-disabled="{{ 'false' if site.lyric_seek_enabled else 'true' }}"
+          >
             {% for lang in languages %}
               <td
-                class="lyric-cell cell lang-{{ lang.code }} {{ '' if lang.default_on else 'is-hidden' }}"
+                class="lyric-cell cell lang-{{ lang.code }} {{ '' if hymn_language_defaults.get(lang.code, lang.default_on) else 'is-hidden' }}"
                 data-lang="{{ lang.code }}"
                 data-lang-name="{{ lang.name }}"
                 dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}"
@@ -151,9 +160,9 @@
     </table>
   </div>
 
-  {% if segments %}
-    <p class="helper-text" id="lyricSeekHelp">
-      Lyric seeking is ON. Tap a lyric row to seek the active recording to that timestamp.
+  {% if segments and site.lyric_seek_enabled %}
+    <p class="helper-text">
+      Tap a lyric row to seek the active recording to that timestamp.
     </p>
   {% endif %}
 </section>
