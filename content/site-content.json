@@ -19085,6 +19085,10 @@
                 "en": true,
                 "cop": false,
                 "cop_en": true
+              },
+              "language_titles": {
+                "cop": "N/A",
+                "cop_en": "Arabic-English"
               }
             },
             {
