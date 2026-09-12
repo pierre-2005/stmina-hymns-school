@@ -93,6 +93,7 @@
 </section>
 
 {% set hymn_language_defaults = hymn.get('language_defaults', {}) %}
+{% set hymn_language_titles = hymn.get('language_titles', {}) %}
 <section class="surface lyrics-section">
   <div class="surface-heading lyrics-heading">
     <div><span class="eyebrow">Follow along</span><h2>Hymn text</h2></div>
@@ -106,13 +107,14 @@
   <div class="language-controls" aria-label="Language visibility">
     {% for lang in languages %}
       {% set enabled = hymn_language_defaults.get(lang.code, lang.default_on) %}
+      {% set display_name = hymn_language_titles.get(lang.code, lang.name) %}
       <label
         class="language-toggle {{ '' if enabled else 'off' }}"
         data-lang-code="{{ lang.code }}"
         data-default="{{ '1' if enabled else '0' }}"
       >
         <input type="checkbox" class="lang-check" {% if enabled %}checked{% endif %}>
-        <span class="toggle-name">{{ lang.name }}</span>
+        <span class="toggle-name">{{ display_name }}</span>
         <span class="toggle-state">{{ 'ON' if enabled else 'OFF' }}</span>
       </label>
     {% endfor %}
@@ -137,10 +139,11 @@
             aria-disabled="{{ 'false' if site.lyric_seek_enabled else 'true' }}"
           >
             {% for lang in languages %}
+              {% set display_name = hymn_language_titles.get(lang.code, lang.name) %}
               <td
                 class="lyric-cell cell lang-{{ lang.code }} {{ '' if hymn_language_defaults.get(lang.code, lang.default_on) else 'is-hidden' }}"
                 data-lang="{{ lang.code }}"
-                data-lang-name="{{ lang.name }}"
+                data-lang-name="{{ display_name }}"
                 dir="{{ 'rtl' if lang.is_rtl else 'ltr' }}"
               >
                 {% set lyric_text = seg.texts.get(lang.code, '') %}

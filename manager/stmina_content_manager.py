@@ -846,25 +846,34 @@ class RecordDialog(tk.Toplevel):
 
 
 class HymnLanguageSettingsDialog(tk.Toplevel):
-    """Edit per-hymn language visibility defaults without changing site languages."""
+    """Edit per-hymn language visibility and display-title overrides."""
 
     def __init__(
         self,
         parent: tk.Misc,
         languages: list[dict[str, Any]],
-        overrides: dict[str, Any] | None,
+        visibility_overrides: dict[str, Any] | None,
+        title_overrides: dict[str, Any] | None,
     ):
         super().__init__(parent)
-        self.title("Hymn language defaults")
+        self.title("Hymn language settings")
         self.transient(parent)
         self.grab_set()
         self.resizable(True, False)
         self.result: dict[str, Any] | None = None
         self.languages = list(languages or [])
-        current = overrides if isinstance(overrides, dict) else {}
-        self.use_site_defaults_var = tk.BooleanVar(value=not bool(current))
+
+        current_visibility = (
+            visibility_overrides if isinstance(visibility_overrides, dict) else {}
+        )
+        current_titles = title_overrides if isinstance(title_overrides, dict) else {}
+
+        self.use_site_defaults_var = tk.BooleanVar(
+            value=not bool(current_visibility) and not bool(current_titles)
+        )
         self.language_vars: dict[str, tk.BooleanVar] = {}
-        self.language_checks: list[ttk.Checkbutton] = []
+        self.language_title_vars: dict[str, tk.StringVar] = {}
+        self.override_widgets: list[tk.Widget] = []
 
         frame = ttk.Frame(self, padding=18)
         frame.pack(fill="both", expand=True)
@@ -872,48 +881,80 @@ class HymnLanguageSettingsDialog(tk.Toplevel):
 
         ttk.Label(
             frame,
-            text="Language visibility for this hymn",
+            text="Language settings for this hymn",
             style="Heading.TLabel",
         ).grid(row=0, column=0, sticky="w", pady=(0, 6))
         ttk.Label(
             frame,
             text=(
-                "Normally this hymn inherits the site-wide defaults from the Languages tab. "
-                "Turn inheritance off to choose which languages start visible for this hymn."
+                "By default, this hymn uses the site-wide language names and visibility "
+                "from the Languages tab. Turn inheritance off to customize either the "
+                "display title or whether each language starts visible."
             ),
-            wraplength=620,
+            wraplength=760,
             style="Muted.TLabel",
         ).grid(row=1, column=0, sticky="ew", pady=(0, 12))
 
         ttk.Checkbutton(
             frame,
-            text="Use site-wide language defaults",
+            text="Use site-wide language settings",
             variable=self.use_site_defaults_var,
             command=self._update_enabled_state,
         ).grid(row=2, column=0, sticky="w", pady=(0, 12))
 
-        languages_frame = ttk.LabelFrame(frame, text="Default visibility", padding=12)
+        languages_frame = ttk.LabelFrame(frame, text="Per-hymn overrides", padding=12)
         languages_frame.grid(row=3, column=0, sticky="ew")
-        languages_frame.columnconfigure(0, weight=1)
+        languages_frame.columnconfigure(2, weight=1)
 
-        for row, language in enumerate(self.languages):
+        ttk.Label(languages_frame, text="Site language").grid(
+            row=0, column=0, sticky="w", padx=(0, 16), pady=(0, 6)
+        )
+        ttk.Label(languages_frame, text="Visible").grid(
+            row=0, column=1, sticky="w", padx=(0, 16), pady=(0, 6)
+        )
+        ttk.Label(languages_frame, text="Display title on this hymn").grid(
+            row=0, column=2, sticky="w", pady=(0, 6)
+        )
+
+        for row, language in enumerate(self.languages, start=1):
             code = str(language.get("code", "")).strip()
-            name = str(language.get("name") or code)
+            site_name = str(language.get("name") or code)
             site_default = bool(language.get("default_on", True))
-            var = tk.BooleanVar(value=bool(current.get(code, site_default)))
-            self.language_vars[code] = var
+
+            ttk.Label(
+                languages_frame,
+                text=f"{site_name}  ({code})",
+            ).grid(row=row, column=0, sticky="w", padx=(0, 16), pady=4)
+
+            visible_var = tk.BooleanVar(
+                value=bool(current_visibility.get(code, site_default))
+            )
+            self.language_vars[code] = visible_var
             check = ttk.Checkbutton(
                 languages_frame,
-                text=f"{name}  (site default: {'ON' if site_default else 'OFF'})",
-                variable=var,
+                variable=visible_var,
             )
-            check.grid(row=row, column=0, sticky="w", pady=4)
-            self.language_checks.append(check)
+            check.grid(row=row, column=1, sticky="w", padx=(0, 16), pady=4)
+            self.override_widgets.append(check)
+
+            title_var = tk.StringVar(
+                value=str(current_titles.get(code) or site_name)
+            )
+            self.language_title_vars[code] = title_var
+            entry = ttk.Entry(
+                languages_frame,
+                textvariable=title_var,
+                width=34,
+            )
+            entry.grid(row=row, column=2, sticky="ew", pady=4)
+            self.override_widgets.append(entry)
 
         actions = ttk.Frame(frame)
         actions.grid(row=4, column=0, sticky="e", pady=(16, 0))
         ttk.Button(actions, text="Cancel", command=self.destroy).pack(side="right")
-        ttk.Button(actions, text="Save", command=self._save).pack(side="right", padx=(0, 8))
+        ttk.Button(actions, text="Save", command=self._save).pack(
+            side="right", padx=(0, 8)
+        )
 
         self._update_enabled_state()
         self.bind("<Escape>", lambda _e: self.destroy())
@@ -923,22 +964,50 @@ class HymnLanguageSettingsDialog(tk.Toplevel):
 
     def _update_enabled_state(self) -> None:
         state = "disabled" if self.use_site_defaults_var.get() else "normal"
-        for check in self.language_checks:
-            check.configure(state=state)
+        for widget in self.override_widgets:
+            widget.configure(state=state)
 
     def _save(self) -> None:
         if self.use_site_defaults_var.get():
-            self.result = {"inherit": True, "defaults": {}}
-        else:
             self.result = {
-                "inherit": False,
-                "defaults": {
-                    code: bool(var.get())
-                    for code, var in self.language_vars.items()
-                },
+                "inherit": True,
+                "defaults": {},
+                "titles": {},
             }
-        self.destroy()
+            self.destroy()
+            return
 
+        titles: dict[str, str] = {}
+        site_names = {
+            str(language.get("code", "")).strip(): str(
+                language.get("name") or language.get("code", "")
+            )
+            for language in self.languages
+        }
+
+        for code, var in self.language_title_vars.items():
+            value = var.get().strip()
+            if not value:
+                messagebox.showerror(
+                    "Missing language title",
+                    f"Enter a display title for '{site_names.get(code, code)}'.",
+                    parent=self,
+                )
+                return
+            # Store only actual title overrides. Matching the site title keeps
+            # the JSON smaller and allows later site-wide renames to flow through.
+            if value != site_names.get(code, code):
+                titles[code] = value
+
+        self.result = {
+            "inherit": False,
+            "defaults": {
+                code: bool(var.get())
+                for code, var in self.language_vars.items()
+            },
+            "titles": titles,
+        }
+        self.destroy()
 
 
 class CopticConverterDialog(tk.Toplevel):
@@ -3031,18 +3100,35 @@ class ContentManagerApp(tk.Tk):
             return
 
         self.hymn_language_button.configure(state="normal")
-        overrides = obj.get("language_defaults")
-        if not isinstance(overrides, dict) or not overrides:
-            self.hymn_language_summary.set("Using site-wide language defaults.")
+        visibility_overrides = obj.get("language_defaults")
+        title_overrides = obj.get("language_titles")
+        has_visibility = isinstance(visibility_overrides, dict) and bool(visibility_overrides)
+        has_titles = isinstance(title_overrides, dict) and bool(title_overrides)
+
+        if not has_visibility and not has_titles:
+            self.hymn_language_summary.set("Using site-wide language settings.")
             return
+
+        visibility_overrides = visibility_overrides if has_visibility else {}
+        title_overrides = title_overrides if has_titles else {}
 
         parts = []
         for language in self.content.get("languages", []):
             code = str(language.get("code", "")).strip()
-            name = str(language.get("name") or code)
-            enabled = bool(overrides.get(code, language.get("default_on", True)))
-            parts.append(f"{name}: {'ON' if enabled else 'OFF'}")
-        self.hymn_language_summary.set("Custom for this hymn — " + ", ".join(parts))
+            site_name = str(language.get("name") or code)
+            display_name = str(title_overrides.get(code) or site_name)
+            enabled = bool(
+                visibility_overrides.get(code, language.get("default_on", True))
+            )
+            if display_name != site_name:
+                parts.append(
+                    f"{display_name} [{site_name}]: {'ON' if enabled else 'OFF'}"
+                )
+            else:
+                parts.append(f"{display_name}: {'ON' if enabled else 'OFF'}")
+        self.hymn_language_summary.set(
+            "Custom for this hymn — " + ", ".join(parts)
+        )
 
     def edit_hymn_language_settings(self) -> None:
         hymn = self.get_ref_object()
@@ -3052,13 +3138,20 @@ class ContentManagerApp(tk.Tk):
             self,
             self.content.get("languages", []),
             hymn.get("language_defaults"),
+            hymn.get("language_titles"),
         )
         if dialog.result is None:
             return
         if dialog.result.get("inherit", True):
             hymn.pop("language_defaults", None)
+            hymn.pop("language_titles", None)
         else:
             hymn["language_defaults"] = dict(dialog.result.get("defaults") or {})
+            language_titles = dict(dialog.result.get("titles") or {})
+            if language_titles:
+                hymn["language_titles"] = language_titles
+            else:
+                hymn.pop("language_titles", None)
         self.mark_dirty()
         self.refresh_hymn_language_summary()
 
@@ -4006,6 +4099,12 @@ class ContentManagerApp(tk.Tk):
                                 if new_code not in language_defaults:
                                     language_defaults[new_code] = language_defaults[old_code]
                                 language_defaults.pop(old_code, None)
+
+                            language_titles = hymn.get("language_titles")
+                            if isinstance(language_titles, dict) and old_code in language_titles:
+                                if new_code not in language_titles:
+                                    language_titles[new_code] = language_titles[old_code]
+                                language_titles.pop(old_code, None)
             else:
                 return
         dialog.result["code"] = new_code
@@ -4037,6 +4136,12 @@ class ContentManagerApp(tk.Tk):
                         language_defaults.pop(code, None)
                         if not language_defaults:
                             hymn.pop("language_defaults", None)
+
+                    language_titles = hymn.get("language_titles")
+                    if isinstance(language_titles, dict):
+                        language_titles.pop(code, None)
+                        if not language_titles:
+                            hymn.pop("language_titles", None)
         self.mark_dirty()
         self.refresh_languages()
 

@@ -482,6 +482,20 @@ def _load_json(content_path: str) -> Dict[str, Any]:
                     if language_defaults:
                         out_hymn["language_defaults"] = language_defaults
 
+                raw_language_titles = hymn.get("language_titles")
+                if isinstance(raw_language_titles, dict):
+                    known_language_codes = {item["code"] for item in site["languages"]}
+                    language_titles = {
+                        _clean(code).lower(): _clean(value)
+                        for code, value in raw_language_titles.items()
+                        if (
+                            _clean(code).lower() in known_language_codes
+                            and _clean(value)
+                        )
+                    }
+                    if language_titles:
+                        out_hymn["language_titles"] = language_titles
+
                 for recording_index, recording in enumerate(hymn.get("recordings", []) or []):
                     if not isinstance(recording, dict) or not _truthy(recording.get("published"), default=True):
                         continue

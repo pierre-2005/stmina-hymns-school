@@ -176,6 +176,18 @@ def canonicalise_site(raw: dict[str, Any]) -> dict[str, Any]:
                     if language_defaults:
                         out_hymn["language_defaults"] = language_defaults
 
+                # Optional per-hymn display-title overrides. The language code
+                # remains the stable lyric-data key; only the public label changes.
+                raw_language_titles = hymn.get("language_titles")
+                if isinstance(raw_language_titles, dict):
+                    language_titles = {
+                        _clean(code).lower(): _clean(value)
+                        for code, value in raw_language_titles.items()
+                        if _clean(code) and _clean(value)
+                    }
+                    if language_titles:
+                        out_hymn["language_titles"] = language_titles
+
                 for recording_index, recording in enumerate(hymn.get("recordings", []) or []):
                     if not isinstance(recording, dict):
                         continue
@@ -314,6 +326,17 @@ def validate_site(raw: dict[str, Any]) -> list[str]:
                         raise ContentError(
                             f"{hymn['title']} has language default overrides for unknown language(s): "
                             + ", ".join(unknown_language_defaults)
+                        )
+
+                hymn_language_titles = hymn.get("language_titles") or {}
+                if hymn_language_titles:
+                    unknown_language_titles = sorted(
+                        set(hymn_language_titles) - language_codes
+                    )
+                    if unknown_language_titles:
+                        raise ContentError(
+                            f"{hymn['title']} has language title overrides for unknown language(s): "
+                            + ", ".join(unknown_language_titles)
                         )
 
                 for recording in hymn["recordings"]:
