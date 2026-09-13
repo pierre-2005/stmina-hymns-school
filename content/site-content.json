@@ -19560,7 +19560,7 @@
       "name": "Level 3",
       "description": "",
       "sort": 30,
-      "published": false,
+      "published": true,
       "years": [
         {
           "slug": "year-1",
@@ -20912,7 +20912,7 @@
           "name": "Year 2",
           "description": "",
           "sort": 20,
-          "published": true,
+          "published": false,
           "hymns": []
         }
       ]
