@@ -11,6 +11,7 @@ import time
 import tkinter as tk
 import unicodedata
 import uuid
+import webbrowser
 from copy import deepcopy
 from pathlib import Path
 from tkinter import filedialog, messagebox, simpledialog, ttk, font as tkfont
@@ -20,8 +21,9 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from urllib.request import Request, urlopen
 
 APP_NAME = "St. Mina Hymns School Content Manager"
-APP_VERSION = "4.3"
-DEFAULT_SITE_URL = "https://stminahs.overvault.ca"
+APP_VERSION = "4.4"
+DEFAULT_API_URL = "https://stminahs.overvault.ca"
+DEFAULT_PUBLIC_SITE_URL = "https://maryswebdesign.com/hymns/"
 SETTINGS_DIR = Path.home() / ".stmina-hymns-manager"
 SETTINGS_FILE = SETTINGS_DIR / "settings.json"
 
@@ -2473,17 +2475,37 @@ class ContentManagerApp(tk.Tk):
         )
 
     def _load_settings(self) -> None:
-        self.saved_url = DEFAULT_SITE_URL
+        self.saved_api_url = DEFAULT_API_URL
+        self.saved_public_url = DEFAULT_PUBLIC_SITE_URL
         try:
             data = json.loads(SETTINGS_FILE.read_text(encoding="utf-8"))
-            self.saved_url = str(data.get("site_url") or DEFAULT_SITE_URL)
+            # site_url was used by versions <= 4.3. Treat it as the API URL so
+            # existing manager installations upgrade without losing settings.
+            self.saved_api_url = str(
+                data.get("api_url")
+                or data.get("site_url")
+                or DEFAULT_API_URL
+            )
+            self.saved_public_url = str(
+                data.get("public_site_url")
+                or DEFAULT_PUBLIC_SITE_URL
+            )
         except Exception:
             pass
 
     def _save_settings(self) -> None:
         try:
             SETTINGS_DIR.mkdir(parents=True, exist_ok=True)
-            SETTINGS_FILE.write_text(json.dumps({"site_url": self.saved_url}, indent=2), encoding="utf-8")
+            SETTINGS_FILE.write_text(
+                json.dumps(
+                    {
+                        "api_url": self.saved_api_url,
+                        "public_site_url": self.saved_public_url,
+                    },
+                    indent=2,
+                ),
+                encoding="utf-8",
+            )
         except OSError:
             pass
 
@@ -2558,12 +2580,14 @@ class ContentManagerApp(tk.Tk):
             justify="left",
         ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(4, 18))
 
-        self.login_url = tk.StringVar(value=self.saved_url)
+        self.login_api_url = tk.StringVar(value=self.saved_api_url)
+        self.login_public_url = tk.StringVar(value=self.saved_public_url)
         self.login_username = tk.StringVar()
         self.login_password = tk.StringVar()
 
         labels = [
-            ("Website", self.login_url, False),
+            ("Content/API server", self.login_api_url, False),
+            ("Public website", self.login_public_url, False),
             ("Administrator username", self.login_username, False),
             ("Password", self.login_password, True),
         ]
@@ -2600,7 +2624,7 @@ class ContentManagerApp(tk.Tk):
             justify="left",
         )
         self.login_error.grid(
-            row=5,
+            row=6,
             column=0,
             columnspan=2,
             sticky="w",
@@ -2613,7 +2637,7 @@ class ContentManagerApp(tk.Tk):
             style="Primary.TButton",
             command=self.login,
         ).grid(
-            row=6,
+            row=7,
             column=0,
             columnspan=2,
             sticky="ew",
@@ -2623,8 +2647,8 @@ class ContentManagerApp(tk.Tk):
         tk.Label(
             card,
             text=(
-                "Your password is sent only to your Hymns School website over HTTPS. "
-                "The manager does not save it."
+                "Your password is sent only to the Content/API server over HTTPS. "
+                "The manager does not save it. The public website URL is used only for opening the live hymn library."
             ),
             bg=PAPER,
             fg=MUTED,
@@ -2632,7 +2656,7 @@ class ContentManagerApp(tk.Tk):
             wraplength=540,
             justify="left",
         ).grid(
-            row=7,
+            row=8,
             column=0,
             columnspan=2,
             sticky="w",
@@ -2701,14 +2725,16 @@ class ContentManagerApp(tk.Tk):
         ).start()
 
     def login(self) -> None:
-        url = self.login_url.get().strip()
+        api_url = self.login_api_url.get().strip()
+        public_url = self.login_public_url.get().strip()
         username = self.login_username.get().strip()
         password = self.login_password.get()
         if not username or not password:
             self.login_error.configure(text="Enter your administrator username and password.")
             return
         try:
-            client = ContentApiClient(url)
+            client = ContentApiClient(api_url)
+            public_url = ContentApiClient._normalise_base_url(public_url)
         except ValueError as exc:
             self.login_error.configure(text=str(exc))
             return
@@ -2724,7 +2750,9 @@ class ContentManagerApp(tk.Tk):
             self.content = current.get("content") or default_content()
             self.remote_status = current.get("status") or {}
             self.remote_revision = str(self.remote_status.get("revision", ""))
-            self.saved_url = client_obj.base_url
+            self.saved_api_url = client_obj.base_url
+            self.saved_public_url = public_url
+            self.public_site_url = public_url
             self._save_settings()
             self.login_password.set("")
             self.dirty = False
@@ -2762,7 +2790,7 @@ class ContentManagerApp(tk.Tk):
 
         tk.Label(
             brand_text,
-            text=f"Content Manager  ·  {self.client.base_url if self.client else ''}",
+            text=f"Content Manager  ·  API: {self.client.base_url if self.client else ''}",
             bg=BURGUNDY_900,
             fg="#f3cfd7",
             font=("Segoe UI", 8),
@@ -2801,6 +2829,13 @@ class ContentManagerApp(tk.Tk):
             style="Quiet.TButton",
             command=self.refresh_remote,
         ).pack(side="left")
+
+        ttk.Button(
+            toolbar,
+            text="Open public website",
+            style="Quiet.TButton",
+            command=self.open_public_website,
+        ).pack(side="left", padx=(6, 0))
 
         ttk.Button(
             toolbar,
@@ -2948,6 +2983,28 @@ class ContentManagerApp(tk.Tk):
         self.status_label.pack(side="left")
         self.summary_label = ttk.Label(status, text=self.content_summary())
         self.summary_label.pack(side="right")
+
+    def open_public_website(self) -> None:
+        url = str(
+            getattr(self, "public_site_url", "")
+            or getattr(self, "saved_public_url", "")
+            or DEFAULT_PUBLIC_SITE_URL
+        ).strip()
+        if not url:
+            messagebox.showerror(
+                "Public website",
+                "No public website URL is configured.",
+                parent=self,
+            )
+            return
+        try:
+            webbrowser.open(url)
+        except Exception as exc:
+            messagebox.showerror(
+                "Public website",
+                f"Could not open the public website:\n\n{exc}",
+                parent=self,
+            )
 
     def sign_out(self) -> None:
         if self.dirty and not messagebox.askyesno("Unsaved changes", "Discard local changes and sign out?", parent=self):

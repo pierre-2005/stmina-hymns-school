@@ -18,6 +18,9 @@ services:
       MAX_UPLOAD_MB: "40"
       COOKIE_SECURE: "true"
 
+      # Browser-facing static frontend hosted in cPanel. The API remains on the Pi.
+      PUBLIC_FRONTEND_ORIGINS: ${PUBLIC_FRONTEND_ORIGINS:-https://maryswebdesign.com,https://www.maryswebdesign.com}
+
       SESSION_SECRET: ${SESSION_SECRET}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_DISPLAY_NAME: ${ADMIN_DISPLAY_NAME:-Site Administrator}

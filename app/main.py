@@ -18,6 +18,7 @@ from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.cors import CORSMiddleware
 
 from .auth import (
     csrf_token,
@@ -30,6 +31,7 @@ from .auth import (
     verify_password,
 )
 from .content_api import router as content_api_router
+from .public_api import router as public_api_router
 from .content_loader import ContentError, find_hymn, find_level, find_year, flatten_hymns, load_site
 from .content_store import ensure_content_json
 from .db import db_conn, init_db, utc_now_iso
@@ -60,6 +62,26 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="St. Mina Hymns School", lifespan=lifespan)
+
+_public_frontend_origins = [
+    origin.strip().rstrip("/")
+    for origin in os.getenv(
+        "PUBLIC_FRONTEND_ORIGINS",
+        "https://maryswebdesign.com,https://www.maryswebdesign.com",
+    ).split(",")
+    if origin.strip()
+]
+if _public_frontend_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_public_frontend_origins,
+        allow_credentials=False,
+        allow_methods=["GET", "HEAD", "OPTIONS"],
+        allow_headers=["Accept", "Content-Type", "Range"],
+        expose_headers=["Accept-Ranges", "Content-Length", "Content-Range"],
+        max_age=86400,
+    )
+
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.getenv("SESSION_SECRET", secrets.token_urlsafe(48)),
@@ -70,6 +92,7 @@ app.add_middleware(
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 app.include_router(content_api_router)
+app.include_router(public_api_router)
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 templates.env.filters["render_coptic"] = render_coptic
 
