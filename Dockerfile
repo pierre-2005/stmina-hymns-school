@@ -1,3 +1,8 @@
+# Pull prebuilt static FFmpeg/FFprobe binaries instead of installing Debian's
+# full ffmpeg dependency tree. This keeps Raspberry Pi / Portainer builds well
+# below the deployment timeout that the previous apt-based build was hitting.
+FROM mwader/static-ffmpeg:9.0.1 AS ffmpeg
+
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -6,9 +11,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-# Tesseract powers the free English OCR. FFmpeg/ffprobe process self-hosted
-# hymn audio. Deno is the supported JavaScript runtime yt-dlp uses for current
-# YouTube challenge handling.
+# Static, self-contained ffmpeg binaries (multi-arch, including linux/arm64).
+COPY --from=ffmpeg /ffmpeg /usr/local/bin/ffmpeg
+COPY --from=ffmpeg /ffprobe /usr/local/bin/ffprobe
+
+# Tesseract powers the free English OCR. curl/unzip are only needed to install
+# Deno, which yt-dlp uses for current YouTube JavaScript challenge handling.
+# FFmpeg is deliberately NOT installed with apt here; doing so pulled in 100+
+# multimedia/X11 packages and caused Portainer's deployment request to hit its
+# ~15 minute timeout on the Raspberry Pi.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
@@ -16,9 +27,10 @@ RUN apt-get update \
         unzip \
         tesseract-ocr \
         tesseract-ocr-eng \
-        ffmpeg \
     && curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh \
-    && apt-get purge -y --auto-remove curl unzip \
+    && ffmpeg -version >/dev/null \
+    && ffprobe -version >/dev/null \
+    && deno --version >/dev/null \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
